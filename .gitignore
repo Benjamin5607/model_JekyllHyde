@@ -24,6 +24,15 @@ models/merged/jekyll-hyde/model.safetensors
 models/adapters/**/checkpoint-*/
 models/adapters/**/*.safetensors
 
+# Release artifacts (local build)
+dist/*.zip
+dist/*.part*
+dist/build.log
+dist/release.log
+!dist/.gitkeep
+!dist/RELEASES.md
+!dist/*.manifest.json
+
 # IDE
 .cursor/
 .vscode/
