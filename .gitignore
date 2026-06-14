@@ -27,6 +27,7 @@ models/adapters/**/*.safetensors
 # Release artifacts (local build)
 dist/*.zip
 dist/*.part*
+dist/*.part*.gz
 dist/build.log
 dist/release.log
 !dist/.gitkeep

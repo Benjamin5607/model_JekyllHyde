@@ -13,7 +13,8 @@ if (-not (Test-Path $Py)) { $Py = "python" }
 Write-Host "Optimizing storage..."
 & $Py -m safety_eval.storage.optimizer | Out-Null
 
-Write-Host "Building install ZIP (5GB+ model — please wait)..."
+Write-Host "Building install packages (compresslevel=9, live progress every 3s)..."
+Write-Host "Model compression may take 30-90 minutes — progress lines will print continuously."
 & $Py -m safety_eval.storage.packager
 
 $Zip = Join-Path $Root "dist\JekyllHyde-1.0.0-win64.zip"

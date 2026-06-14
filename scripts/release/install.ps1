@@ -8,37 +8,55 @@ $ErrorActionPreference = "Stop"
 $InstallRoot = $PSScriptRoot
 Set-Location $InstallRoot
 
-Write-Host "Jekyll & Hyde installer v1.0.0"
+Write-Host "Jekyll & Hyde installer v1.0.0 (gzip level-9 model parts)"
 Write-Host "Install path: $InstallRoot"
 
 $ModelDir = Join-Path $InstallRoot "models\merged\jekyll-hyde"
 $ModelFile = Join-Path $ModelDir "model.safetensors"
 New-Item -ItemType Directory -Force -Path $ModelDir | Out-Null
 
-if (-not (Test-Path $ModelFile)) {
-    $parts = Get-ChildItem -Path $InstallRoot -Filter "JekyllHyde-*-model.part*" -ErrorAction SilentlyContinue |
-        Sort-Object Name
-    if ($parts.Count -gt 0) {
-        Write-Host "Merging model parts ($($parts.Count) files)..."
-        $fs = [System.IO.File]::Create($ModelFile)
-        try {
-            foreach ($p in $parts) {
-                Write-Host "  + $($p.Name)"
-                $bytes = [System.IO.File]::ReadAllBytes($p.FullName)
-                $fs.Write($bytes, 0, $bytes.Length)
-            }
-        } finally {
-            $fs.Close()
+function Merge-GzipParts {
+    param([System.IO.FileInfo[]]$Parts, [string]$OutFile)
+    Write-Host "Decompressing and merging $($Parts.Count) gzip parts..."
+    $out = [System.IO.File]::Create($OutFile)
+    try {
+        foreach ($p in $Parts) {
+            Write-Host "  + $($p.Name)"
+            $raw = [System.IO.File]::OpenRead($p.FullName)
+            try {
+                $gzip = New-Object System.IO.Compression.GzipStream($raw, [System.IO.Compression.CompressionMode]::Decompress)
+                try { $gzip.CopyTo($out) } finally { $gzip.Dispose() }
+            } finally { $raw.Dispose() }
         }
-        Write-Host "Model merged: $ModelFile"
-    } elseif ($ModelPartsDir -and (Test-Path $ModelPartsDir)) {
-        $parts = Get-ChildItem -Path $ModelPartsDir -Filter "JekyllHyde-*-model.part*" | Sort-Object Name
-        foreach ($p in $parts) { Copy-Item $p.FullName $InstallRoot }
-        & $PSCommandPath -SkipVenv:$SkipVenv
-        exit $LASTEXITCODE
+    } finally { $out.Dispose() }
+    Write-Host "Model ready: $OutFile ($([math]::Round((Get-Item $OutFile).Length/1GB, 2)) GB)"
+}
+
+if (-not (Test-Path $ModelFile)) {
+    $gzParts = Get-ChildItem -Path $InstallRoot -Filter "JekyllHyde-*-model.part*.gz" -ErrorAction SilentlyContinue |
+        Sort-Object Name
+    if ($gzParts.Count -gt 0) {
+        Merge-GzipParts -Parts $gzParts -OutFile $ModelFile
     } else {
-        Write-Host "WARN: model.safetensors not found."
-        Write-Host "Download model parts from GitHub Releases and place in this folder, then re-run install.ps1"
+        $rawParts = Get-ChildItem -Path $InstallRoot -Filter "JekyllHyde-*-model.part*" -ErrorAction SilentlyContinue |
+            Where-Object { $_.Extension -ne ".gz" } | Sort-Object Name
+        if ($rawParts.Count -gt 0) {
+            Write-Host "Merging raw model parts ($($rawParts.Count))..."
+            $fs = [System.IO.File]::Create($ModelFile)
+            try {
+                foreach ($p in $rawParts) {
+                    Write-Host "  + $($p.Name)"
+                    $bytes = [System.IO.File]::ReadAllBytes($p.FullName)
+                    $fs.Write($bytes, 0, $bytes.Length)
+                }
+            } finally { $fs.Close() }
+        } elseif ($ModelPartsDir -and (Test-Path $ModelPartsDir)) {
+            Get-ChildItem $ModelPartsDir -Filter "JekyllHyde-*-model.part*.gz" | Copy-Item -Destination $InstallRoot
+            & $PSCommandPath -SkipVenv:$SkipVenv
+            exit $LASTEXITCODE
+        } else {
+            Write-Host "WARN: Download model.part00.gz – part02.gz from GitHub Releases."
+        }
     }
 }
 
@@ -51,8 +69,6 @@ if (-not $SkipVenv) {
     $Py = Join-Path $Venv "Scripts\python.exe"
     & $Py -m pip install --upgrade pip
     & $Py -m pip install -e ".[train,quant,mcp]"
-} else {
-    $Py = "python"
 }
 
 $Vbs = Join-Path $InstallRoot "scripts\JekyllHyde.vbs"
@@ -65,8 +81,7 @@ if (Test-Path $Vbs) {
     $Lnk.WorkingDirectory = $InstallRoot
     $Lnk.Description = "Jekyll & Hyde Platform"
     $Lnk.Save()
-    Write-Host "Desktop shortcut created."
 }
 
 Write-Host ""
-Write-Host "Done. Run scripts\start.bat or open http://127.0.0.1:8080"
+Write-Host "Done. Open http://127.0.0.1:8080"

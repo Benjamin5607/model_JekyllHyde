@@ -6,23 +6,25 @@
 
 ## Download install package (recommended)
 
-GitHub limits single files to **2 GB**. Download **all files** from [Release v1.0.0](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.0.0):
+All release assets use **maximum compression (level 9)**. Model parts are **gzip-compressed** for smaller downloads.
 
-| File | Size | Purpose |
-|------|------|---------|
-| [JekyllHyde-1.0.0-app.zip](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.0.0/JekyllHyde-1.0.0-app.zip) | ~35 MB | Platform, scripts, configs |
-| [JekyllHyde-1.0.0-model.part00](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.0.0/JekyllHyde-1.0.0-model.part00) | ~1.8 GB | Model weights (part 1/3) |
-| [JekyllHyde-1.0.0-model.part01](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.0.0/JekyllHyde-1.0.0-model.part01) | ~1.8 GB | Model weights (part 2/3) |
-| [JekyllHyde-1.0.0-model.part02](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.0.0/JekyllHyde-1.0.0-model.part02) | ~1.4 GB | Model weights (part 3/3) |
+Download **all files** from [Release v1.0.0](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.0.0):
 
-**Optional (local build only):** single `JekyllHyde-1.0.0-win64.zip` (~5 GB) via `scripts\build_release.ps1`
+| File | Purpose |
+|------|---------|
+| [JekyllHyde-1.0.0-app.zip](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.0.0/JekyllHyde-1.0.0-app.zip) | Platform, scripts, configs (ZIP deflate L9) |
+| [model.part00.gz](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.0.0/JekyllHyde-1.0.0-model.part00.gz) | Model weights part 1/3 (gzip L9) |
+| [model.part01.gz](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.0.0/JekyllHyde-1.0.0-model.part01.gz) | Model weights part 2/3 (gzip L9) |
+| [model.part02.gz](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.0.0/JekyllHyde-1.0.0-model.part02.gz) | Model weights part 3/3 (gzip L9) |
+
+**Local build:** `scripts\build_release.ps1` builds `JekyllHyde-1.0.0-win64.zip` with **live progress** during level-9 compression (~30–90 min for the 5 GB model).
 
 ### Quick install (Windows)
 
-1. Download **app.zip + all 3 model parts** into the same folder (e.g. `C:\JekyllHyde`).
-2. Extract **app.zip**.
-3. Copy **model.part00/01/02** into the extracted folder.
-4. Run **`install.bat`** → merges model, creates venv, desktop shortcut.
+1. Download **app.zip + 3× model.partXX.gz** from Releases.
+2. Extract **app.zip** (e.g. `C:\JekyllHyde`).
+3. Copy **`.gz` model parts** into the same folder.
+4. Run **`install.bat`** → decompresses & merges model, creates venv, desktop shortcut.
 5. Open **http://127.0.0.1:8080**
 
 **Requirements:** Windows 10/11 · Python 3.10+ · NVIDIA GPU 8 GB+ VRAM recommended
@@ -112,13 +114,19 @@ python training/continuous.py --train
 
 ```powershell
 scripts\build_release.ps1
-# Output: dist/JekyllHyde-1.0.0-win64.zip + manifest JSON
 ```
 
-Upload to GitHub Releases:
+Shows **live progress** every 3 seconds while compressing at **level 9**:
+- `dist/JekyllHyde-1.0.0-app.zip`
+- `dist/JekyllHyde-1.0.0-win64.zip` (full single-file install)
+- `dist/JekyllHyde-1.0.0-model.partXX.gz` (GitHub upload parts)
+
+Replace GitHub release assets:
 
 ```powershell
-gh release create v1.0.0 dist/JekyllHyde-1.0.0-win64.zip --title "JekyllHyde 1.0.0"
+gh release delete-asset v1.0.0 JekyllHyde-1.0.0-model.part00 -R Benjamin5607/model_JekyllHyde -y
+# ... then upload:
+gh release upload v1.0.0 dist/JekyllHyde-1.0.0-app.zip dist/*.gz dist/*.manifest.json -R Benjamin5607/model_JekyllHyde --clobber
 ```
 
 ---
@@ -127,7 +135,7 @@ gh release create v1.0.0 dist/JekyllHyde-1.0.0-win64.zip --title "JekyllHyde 1.0
 
 | Tag | Files | Notes |
 |-----|-------|-------|
-| [v1.0.0](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.0.0) | `app.zip` + `model.part00–02` | Platform + Gemma2-2B merged weights (split for GitHub 2GB limit) |
+| [v1.0.0](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.0.0) | `app.zip` + `model.part00–02.gz` | Level-9 compression; gzip model parts for GitHub |
 
 ---
 

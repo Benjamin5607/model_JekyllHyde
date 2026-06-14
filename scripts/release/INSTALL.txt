@@ -1,17 +1,21 @@
 Jekyll & Hyde — Install Package v1.0.0
 ======================================
 
-1. Extract this ZIP to a folder (e.g. C:\JekyllHyde)
-2. Run install.bat (or install.ps1)
-3. Double-click "Jekyll & Hyde" on Desktop
-4. Open http://127.0.0.1:8080
+All release files use maximum compression (gzip / ZIP deflate level 9).
 
-Requirements:
-- Windows 10/11
-- Python 3.10+ on PATH
-- NVIDIA GPU 8GB+ VRAM recommended (Gemma 2 2B merged model included)
+1. Download from GitHub Releases (v1.0.0):
+   - JekyllHyde-1.0.0-app.zip
+   - JekyllHyde-1.0.0-model.part00.gz
+   - JekyllHyde-1.0.0-model.part01.gz
+   - JekyllHyde-1.0.0-model.part02.gz
 
-Model weights: models/merged/jekyll-hyde/ (~5 GB)
-License: see LICENSE and Gemma license at huggingface.co/google/gemma-2-2b-it
+2. Extract app.zip to e.g. C:\JekyllHyde
+3. Copy the three .gz model parts into the same folder
+4. Run install.bat (decompresses + merges model, sets up venv)
+5. Open http://127.0.0.1:8080
+
+Optional local build (single compressed archive):
+  scripts\build_release.ps1
+  -> dist\JekyllHyde-1.0.0-win64.zip (shows live progress during compression)
 
 Support: https://github.com/Benjamin5607/model_JekyllHyde

@@ -1,29 +1,31 @@
 {
   "version": "1.0.0",
   "name": "JekyllHyde-1.0.0-win64",
+  "compresslevel": 9,
   "filename_full": "JekyllHyde-1.0.0-win64.zip",
   "filename_app": "JekyllHyde-1.0.0-app.zip",
   "model_parts_prefix": "JekyllHyde-1.0.0-model.part",
-  "published": "2026-06-14T10:53:25.997980+00:00",
-  "app_zip_bytes": 182764,
-  "full_zip_bytes": 5263266107,
-  "model_parts": [
-    "JekyllHyde-1.0.0-model.part00",
-    "JekyllHyde-1.0.0-model.part01",
-    "JekyllHyde-1.0.0-model.part02"
+  "published": "2026-06-14T12:52:55.304937+00:00",
+  "app_zip_bytes": 186228,
+  "full_zip_bytes": 4657608475,
+  "model_parts_gz": [
+    "JekyllHyde-1.0.0-model.part00.gz",
+    "JekyllHyde-1.0.0-model.part01.gz",
+    "JekyllHyde-1.0.0-model.part02.gz"
   ],
   "model_part_bytes": [
-    1900000000,
-    1900000000,
-    1428717224
+    1577230947,
+    1754254990,
+    1319179662
   ],
   "app": {
     "version": "1.0.0",
     "name": "JekyllHyde-1.0.0-win64",
+    "compresslevel": 9,
     "filename_full": "JekyllHyde-1.0.0-win64.zip",
     "filename_app": "JekyllHyde-1.0.0-app.zip",
     "model_parts_prefix": "JekyllHyde-1.0.0-model.part",
-    "published": "2026-06-14T10:53:12.347883+00:00",
+    "published": "2026-06-14T12:44:30.735904+00:00",
     "files": [
       {
         "path": "JekyllHyde-1.0.0-win64/pyproject.toml",
@@ -31,7 +33,7 @@
       },
       {
         "path": "JekyllHyde-1.0.0-win64/README.md",
-        "bytes": 4275
+        "bytes": 5201
       },
       {
         "path": "JekyllHyde-1.0.0-win64/LICENSE",
@@ -303,7 +305,7 @@
       },
       {
         "path": "JekyllHyde-1.0.0-win64/safety_eval/storage/packager.py",
-        "bytes": 6270
+        "bytes": 10143
       },
       {
         "path": "JekyllHyde-1.0.0-win64/safety_eval/store.py",
@@ -419,7 +421,7 @@
       },
       {
         "path": "JekyllHyde-1.0.0-win64/scripts/build_release.ps1",
-        "bytes": 672
+        "bytes": 789
       },
       {
         "path": "JekyllHyde-1.0.0-win64/scripts/check_health.ps1",
@@ -451,11 +453,11 @@
       },
       {
         "path": "JekyllHyde-1.0.0-win64/scripts/release/install.ps1",
-        "bytes": 2560
+        "bytes": 3423
       },
       {
         "path": "JekyllHyde-1.0.0-win64/scripts/release/INSTALL.txt",
-        "bytes": 572
+        "bytes": 768
       },
       {
         "path": "JekyllHyde-1.0.0-win64/scripts/restart.bat",
@@ -546,8 +548,12 @@
         "bytes": 1187
       },
       {
+        "path": "JekyllHyde-1.0.0-win64/data/learning/curated_hashes.txt",
+        "bytes": 18
+      },
+      {
         "path": "JekyllHyde-1.0.0-win64/data/learning/curated_train.jsonl",
-        "bytes": 1479
+        "bytes": 6548
       },
       {
         "path": "JekyllHyde-1.0.0-win64/data/learning/state.json",
@@ -563,7 +569,7 @@
       },
       {
         "path": "JekyllHyde-1.0.0-win64/install.ps1",
-        "bytes": 2560
+        "bytes": 3423
       },
       {
         "path": "JekyllHyde-1.0.0-win64/install.bat",
@@ -571,20 +577,22 @@
       },
       {
         "path": "JekyllHyde-1.0.0-win64/INSTALL.txt",
-        "bytes": 572
+        "bytes": 768
       }
     ],
-    "total_uncompressed_bytes": 545365,
-    "file_count": 137,
-    "zip_bytes": 182764
+    "total_uncompressed_bytes": 557486,
+    "compression": "zip-deflate-level-9",
+    "file_count": 138,
+    "zip_bytes": 186228
   },
   "full": {
     "version": "1.0.0",
     "name": "JekyllHyde-1.0.0-win64",
+    "compresslevel": 9,
     "filename_full": "JekyllHyde-1.0.0-win64.zip",
     "filename_app": "JekyllHyde-1.0.0-app.zip",
     "model_parts_prefix": "JekyllHyde-1.0.0-model.part",
-    "published": "2026-06-14T10:53:18.388942+00:00",
+    "published": "2026-06-14T12:47:51.373814+00:00",
     "files": [
       {
         "path": "JekyllHyde-1.0.0-win64/pyproject.toml",
@@ -592,7 +600,7 @@
       },
       {
         "path": "JekyllHyde-1.0.0-win64/README.md",
-        "bytes": 4275
+        "bytes": 5201
       },
       {
         "path": "JekyllHyde-1.0.0-win64/LICENSE",
@@ -864,7 +872,7 @@
       },
       {
         "path": "JekyllHyde-1.0.0-win64/safety_eval/storage/packager.py",
-        "bytes": 6270
+        "bytes": 10143
       },
       {
         "path": "JekyllHyde-1.0.0-win64/safety_eval/store.py",
@@ -980,7 +988,7 @@
       },
       {
         "path": "JekyllHyde-1.0.0-win64/scripts/build_release.ps1",
-        "bytes": 672
+        "bytes": 789
       },
       {
         "path": "JekyllHyde-1.0.0-win64/scripts/check_health.ps1",
@@ -1012,11 +1020,11 @@
       },
       {
         "path": "JekyllHyde-1.0.0-win64/scripts/release/install.ps1",
-        "bytes": 2560
+        "bytes": 3423
       },
       {
         "path": "JekyllHyde-1.0.0-win64/scripts/release/INSTALL.txt",
-        "bytes": 572
+        "bytes": 768
       },
       {
         "path": "JekyllHyde-1.0.0-win64/scripts/restart.bat",
@@ -1107,8 +1115,12 @@
         "bytes": 1187
       },
       {
+        "path": "JekyllHyde-1.0.0-win64/data/learning/curated_hashes.txt",
+        "bytes": 18
+      },
+      {
         "path": "JekyllHyde-1.0.0-win64/data/learning/curated_train.jsonl",
-        "bytes": 1479
+        "bytes": 6548
       },
       {
         "path": "JekyllHyde-1.0.0-win64/data/learning/state.json",
@@ -1152,7 +1164,7 @@
       },
       {
         "path": "JekyllHyde-1.0.0-win64/install.ps1",
-        "bytes": 2560
+        "bytes": 3423
       },
       {
         "path": "JekyllHyde-1.0.0-win64/install.bat",
@@ -1160,11 +1172,12 @@
       },
       {
         "path": "JekyllHyde-1.0.0-win64/INSTALL.txt",
-        "bytes": 572
+        "bytes": 768
       }
     ],
-    "total_uncompressed_bytes": 5263628866,
-    "file_count": 144,
-    "zip_bytes": 5263266107
+    "total_uncompressed_bytes": 5263640987,
+    "compression": "zip-deflate-level-9",
+    "file_count": 145,
+    "zip_bytes": 4657608475
   }
 }
