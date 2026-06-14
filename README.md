@@ -6,18 +6,24 @@
 
 ## Download install package (recommended)
 
-| Version | File | Size | Date |
-|---------|------|------|------|
-| **1.0.0** | [JekyllHyde-1.0.0-win64.zip](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.0.0/JekyllHyde-1.0.0-win64.zip) | ~5 GB | 2026-06-14 |
+GitHub limits single files to **2 GB**. Download **all files** from [Release v1.0.0](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.0.0):
 
-The ZIP contains the **full app + merged model weights** in one archive. GitHub source does **not** include `model.safetensors` (too large for git); use the release asset above.
+| File | Size | Purpose |
+|------|------|---------|
+| [JekyllHyde-1.0.0-app.zip](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.0.0/JekyllHyde-1.0.0-app.zip) | ~35 MB | Platform, scripts, configs |
+| [JekyllHyde-1.0.0-model.part00](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.0.0/JekyllHyde-1.0.0-model.part00) | ~1.8 GB | Model weights (part 1/3) |
+| [JekyllHyde-1.0.0-model.part01](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.0.0/JekyllHyde-1.0.0-model.part01) | ~1.8 GB | Model weights (part 2/3) |
+| [JekyllHyde-1.0.0-model.part02](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.0.0/JekyllHyde-1.0.0-model.part02) | ~1.4 GB | Model weights (part 3/3) |
+
+**Optional (local build only):** single `JekyllHyde-1.0.0-win64.zip` (~5 GB) via `scripts\build_release.ps1`
 
 ### Quick install (Windows)
 
-1. Download **`JekyllHyde-1.0.0-win64.zip`** from [Releases](https://github.com/Benjamin5607/model_JekyllHyde/releases).
-2. Extract to e.g. `C:\JekyllHyde`.
-3. Run **`install.bat`** (creates venv, installs deps, desktop shortcut).
-4. Double-click **Jekyll & Hyde** on Desktop → open **http://127.0.0.1:8080**
+1. Download **app.zip + all 3 model parts** into the same folder (e.g. `C:\JekyllHyde`).
+2. Extract **app.zip**.
+3. Copy **model.part00/01/02** into the extracted folder.
+4. Run **`install.bat`** → merges model, creates venv, desktop shortcut.
+5. Open **http://127.0.0.1:8080**
 
 **Requirements:** Windows 10/11 · Python 3.10+ · NVIDIA GPU 8 GB+ VRAM recommended
 
@@ -119,9 +125,9 @@ gh release create v1.0.0 dist/JekyllHyde-1.0.0-win64.zip --title "JekyllHyde 1.0
 
 ## Release history
 
-| Tag | Install file | Notes |
-|-----|--------------|-------|
-| [v1.0.0](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.0.0) | `JekyllHyde-1.0.0-win64.zip` | Initial release: platform + Gemma2-2B merged Jekyll/Hyde weights, learning pipeline, storage optimizer |
+| Tag | Files | Notes |
+|-----|-------|-------|
+| [v1.0.0](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.0.0) | `app.zip` + `model.part00–02` | Platform + Gemma2-2B merged weights (split for GitHub 2GB limit) |
 
 ---
 

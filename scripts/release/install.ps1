@@ -1,9 +1,6 @@
 #Requires -Version 5.1
-<#
-.SYNOPSIS
-  Install Jekyll & Hyde from extracted release folder.
-#>
 param(
+    [string]$ModelPartsDir = "",
     [switch]$SkipVenv
 )
 
@@ -13,6 +10,37 @@ Set-Location $InstallRoot
 
 Write-Host "Jekyll & Hyde installer v1.0.0"
 Write-Host "Install path: $InstallRoot"
+
+$ModelDir = Join-Path $InstallRoot "models\merged\jekyll-hyde"
+$ModelFile = Join-Path $ModelDir "model.safetensors"
+New-Item -ItemType Directory -Force -Path $ModelDir | Out-Null
+
+if (-not (Test-Path $ModelFile)) {
+    $parts = Get-ChildItem -Path $InstallRoot -Filter "JekyllHyde-*-model.part*" -ErrorAction SilentlyContinue |
+        Sort-Object Name
+    if ($parts.Count -gt 0) {
+        Write-Host "Merging model parts ($($parts.Count) files)..."
+        $fs = [System.IO.File]::Create($ModelFile)
+        try {
+            foreach ($p in $parts) {
+                Write-Host "  + $($p.Name)"
+                $bytes = [System.IO.File]::ReadAllBytes($p.FullName)
+                $fs.Write($bytes, 0, $bytes.Length)
+            }
+        } finally {
+            $fs.Close()
+        }
+        Write-Host "Model merged: $ModelFile"
+    } elseif ($ModelPartsDir -and (Test-Path $ModelPartsDir)) {
+        $parts = Get-ChildItem -Path $ModelPartsDir -Filter "JekyllHyde-*-model.part*" | Sort-Object Name
+        foreach ($p in $parts) { Copy-Item $p.FullName $InstallRoot }
+        & $PSCommandPath -SkipVenv:$SkipVenv
+        exit $LASTEXITCODE
+    } else {
+        Write-Host "WARN: model.safetensors not found."
+        Write-Host "Download model parts from GitHub Releases and place in this folder, then re-run install.ps1"
+    }
+}
 
 if (-not $SkipVenv) {
     $Venv = Join-Path $InstallRoot ".venv"
@@ -27,7 +55,6 @@ if (-not $SkipVenv) {
     $Py = "python"
 }
 
-Write-Host "Creating desktop shortcut..."
 $Vbs = Join-Path $InstallRoot "scripts\JekyllHyde.vbs"
 if (Test-Path $Vbs) {
     $Desktop = [Environment]::GetFolderPath("Desktop")
@@ -38,10 +65,8 @@ if (Test-Path $Vbs) {
     $Lnk.WorkingDirectory = $InstallRoot
     $Lnk.Description = "Jekyll & Hyde Platform"
     $Lnk.Save()
-    Write-Host "Shortcut: $Shortcut"
+    Write-Host "Desktop shortcut created."
 }
 
 Write-Host ""
-Write-Host "Install complete. Double-click 'Jekyll & Hyde' on Desktop or run:"
-Write-Host "  scripts\start.bat"
-Write-Host "  http://127.0.0.1:8080"
+Write-Host "Done. Run scripts\start.bat or open http://127.0.0.1:8080"
