@@ -1,0 +1,80 @@
+# Free verification providers for Jekyll & Hyde logical verification
+# All providers below work without paid API keys (optional keys in secrets/ only)
+
+providers:
+  local_guidelines:
+    enabled: true
+    kind: local
+    description: Match topic against active guideline sections
+  local_jekyll:
+    enabled: true
+    kind: local
+    description: Keyword Jekyll classifier on Hyde probes
+  local_logic:
+    enabled: true
+    kind: local
+    description: Cross-round Jekyll/Hyde consistency checks
+  wikipedia:
+    enabled: true
+    kind: http
+    description: Wikipedia open REST API — fact context
+    base_url: https://en.wikipedia.org/api/rest_v1
+  duckduckgo:
+    enabled: true
+    kind: http
+    description: DuckDuckGo instant answers — quick fact lookup
+    base_url: https://api.duckduckgo.com
+  wikidata:
+    enabled: true
+    kind: http
+    description: Wikidata open search — structured facts
+    base_url: https://www.wikidata.org/w/api.php
+  arxiv:
+    enabled: true
+    kind: http
+    description: arXiv API — policy/research citations
+    base_url: http://export.arxiv.org/api/query
+  dictionary:
+    enabled: true
+    kind: http
+    description: Free Dictionary API — term definitions
+    base_url: https://api.dictionaryapi.dev/api/v2/entries/en
+  conceptnet:
+    enabled: true
+    kind: http
+    description: ConceptNet open API — concept relations
+    base_url: http://api.conceptnet.io
+  open_meteo:
+    enabled: true
+    kind: http
+    description: Open-Meteo — weather fact verification
+    base_url: https://geocoding-api.open-meteo.com/v1
+  restcountries:
+    enabled: true
+    kind: http
+    description: REST Countries — geography facts
+    base_url: https://restcountries.com/v3.1
+  openlibrary:
+    enabled: true
+    kind: http
+    description: Open Library — book/content references
+    base_url: https://openlibrary.org
+
+# Optional MCP stdio servers (Cursor / Claude Desktop) — no API key required
+mcp_servers:
+  sequential-thinking:
+    command: npx
+    args: ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+    description: Step-by-step logic decomposition
+  memory:
+    command: npx
+    args: ["-y", "@modelcontextprotocol/server-memory"]
+    description: Persistent verification memory graph
+  time:
+    command: npx
+    args: ["-y", "@modelcontextprotocol/server-time"]
+    description: Time/date fact verification
+  fetch:
+    command: npx
+    args: ["-y", "@modelcontextprotocol/server-fetch"]
+    description: Fetch public URLs for fact-checking

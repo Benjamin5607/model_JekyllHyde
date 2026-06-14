@@ -1,0 +1,12 @@
+{
+  "generation": 0,
+  "interactions_total": 1,
+  "curated_total": 1,
+  "rejected_total": 0,
+  "curated_since_train": 1,
+  "last_train_at": "",
+  "last_curate_at": "2026-06-14T09:04:03.148744+00:00",
+  "last_train_samples": 0,
+  "training_in_progress": false,
+  "last_error": ""
+}

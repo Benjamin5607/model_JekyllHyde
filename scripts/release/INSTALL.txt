@@ -1,0 +1,17 @@
+Jekyll & Hyde — Install Package v1.0.0
+======================================
+
+1. Extract this ZIP to a folder (e.g. C:\JekyllHyde)
+2. Run install.bat (or install.ps1)
+3. Double-click "Jekyll & Hyde" on Desktop
+4. Open http://127.0.0.1:8080
+
+Requirements:
+- Windows 10/11
+- Python 3.10+ on PATH
+- NVIDIA GPU 8GB+ VRAM recommended (Gemma 2 2B merged model included)
+
+Model weights: models/merged/jekyll-hyde/ (~5 GB)
+License: see LICENSE and Gemma license at huggingface.co/google/gemma-2-2b-it
+
+Support: https://github.com/Benjamin5607/model_JekyllHyde

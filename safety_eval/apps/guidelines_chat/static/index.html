@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Guidelines Chat · Jekyll & Hyde</title>
+  <style>
+    :root {
+      --bg: #080a0f; --surface: #111520; --border: #1e2433;
+      --text: #eef0f6; --muted: #7c849a;
+      --mcp: #22d3ee; --jekyll: #60a5fa; --hyde: #f87171; --accent: #a78bfa;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg); color: var(--text);
+      height: 100vh; display: grid; grid-template-columns: 360px 1fr;
+    }
+    aside {
+      background: var(--surface); border-right: 1px solid var(--border);
+      display: grid; grid-template-rows: auto auto 1fr auto; gap: 0; height: 100vh;
+    }
+    .head { padding: 16px 18px; border-bottom: 1px solid var(--border); }
+    .head h1 { margin: 0 0 4px; font-size: 1.05rem; }
+    .head p { margin: 0; color: var(--muted); font-size: 0.78rem; }
+    .mcp-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 10px; padding: 6px 10px; border-radius: 8px;
+      background: rgba(34,211,238,0.08); border: 1px solid rgba(34,211,238,0.25);
+      color: var(--mcp); font-size: 0.72rem; font-weight: 600;
+    }
+    .mcp-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--mcp); animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    .meta { padding: 12px 18px; border-bottom: 1px solid var(--border); font-size: 0.72rem; color: var(--muted); line-height: 1.6; }
+    .gl-panel { padding: 12px 18px; overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
+    label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+    textarea {
+      flex: 1; min-height: 180px; margin-top: 6px; resize: none;
+      background: var(--bg); color: var(--text); border: 1px solid var(--border);
+      border-radius: 10px; padding: 10px; font: inherit; line-height: 1.45;
+    }
+    .actions { padding: 12px 18px; border-top: 1px solid var(--border); display: grid; gap: 8px; }
+    button {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: white; border: none; border-radius: 8px; padding: 9px 12px;
+      font-weight: 600; cursor: pointer; font-size: 0.82rem;
+    }
+    button.secondary { background: #171b28; border: 1px solid var(--border); color: var(--text); }
+    main { display: grid; grid-template-rows: auto 1fr auto; height: 100vh; }
+    .toolbar {
+      padding: 12px 18px; border-bottom: 1px solid var(--border);
+      display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+    }
+    select, input[type=text] {
+      background: var(--surface); color: var(--text); border: 1px solid var(--border);
+      border-radius: 8px; padding: 7px 10px; font: inherit;
+    }
+    #chat { overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+    .bubble {
+      max-width: 720px; padding: 12px 14px; border-radius: 14px;
+      border: 1px solid var(--border); white-space: pre-wrap; line-height: 1.55;
+    }
+    .bubble.user { align-self: flex-end; background: #0f1520; }
+    .bubble.bot { align-self: flex-start; background: #121826; }
+    .bubble .who { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.06em; margin-bottom: 6px; }
+    .who.user { color: #86efac; } .who.jekyll { color: var(--jekyll); } .who.mcp { color: var(--mcp); }
+    .composer {
+      border-top: 1px solid var(--border); padding: 14px 18px;
+      display: grid; grid-template-columns: 1fr auto; gap: 10px; background: var(--surface);
+    }
+    .composer input { min-height: 46px; width: 100%; }
+  </style>
+</head>
+<body>
+  <aside>
+    <div class="head">
+      <h1>Guidelines Chat</h1>
+      <p>MCP 가이드라인 · Jekyll & Hyde 대화</p>
+      <div class="mcp-badge"><span class="mcp-dot"></span> MCP sync active</div>
+    </div>
+    <div class="meta" id="meta">Loading…</div>
+    <div class="gl-panel">
+      <label>Active guidelines (MCP / manual)</label>
+      <textarea id="guidelines" placeholder="MCP set_guidelines로 텍스트를 보내거나 여기 직접 입력…"></textarea>
+    </div>
+    <div class="actions">
+      <button id="saveGl">Save guidelines</button>
+      <button class="secondary" id="syncMcp">Sync from store</button>
+      <button class="secondary" id="ensureModel">Ensure model (Gemma)</button>
+    </div>
+  </aside>
+
+  <main>
+    <div class="toolbar">
+      <select id="mode">
+        <option value="chat">Chat</option>
+        <option value="jekyll">Jekyll</option>
+        <option value="hyde">Hyde</option>
+      </select>
+      <select id="base">
+        <option value="gemma2-2b">gemma2:2b</option>
+        <option value="gemma2-9b">gemma2:9b</option>
+        <option value="gemma3-4b">gemma3:4b</option>
+        <option value="gemma3-12b">gemma3:12b</option>
+      </select>
+      <span id="modelTag" style="color:var(--muted);font-size:0.75rem">model: …</span>
+    </div>
+    <div id="chat"></div>
+    <div class="composer">
+      <input id="input" placeholder="APAC任意 언어 · 가이드라인 기반 대화…" />
+      <button id="send">Send</button>
+    </div>
+  </main>
+
+  <script>
+    const chat = document.getElementById('chat');
+    const guidelines = document.getElementById('guidelines');
+    const meta = document.getElementById('meta');
+    let lastUpdated = '';
+
+    function esc(t){return t.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+    function add(who, cls, text) {
+      const el = document.createElement('div');
+      el.className = 'bubble ' + cls;
+      el.innerHTML = `<div class="who ${who}">${who.toUpperCase()}</div>${esc(text)}`;
+      chat.appendChild(el);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    async function refresh() {
+      const [st, gl] = await Promise.all([
+        fetch('/api/status').then(r=>r.json()),
+        fetch('/api/guidelines').then(r=>r.json()),
+      ]);
+      if (gl.updated_at !== lastUpdated) {
+        guidelines.value = gl.text;
+        lastUpdated = gl.updated_at;
+        if (gl.source === 'mcp') add('mcp', 'bot', 'MCP guidelines updated: ' + gl.title);
+      }
+      meta.innerHTML = `Source: <b>${gl.source}</b><br>Updated: ${gl.updated_at}<br>Chars: ${st.guidelines_chars}<br>Model: ${st.model}${st.finetuned_available?' (LoRA)':''}`;
+      document.getElementById('modelTag').textContent = 'model: ' + st.model;
+    }
+
+    async function send() {
+      const text = document.getElementById('input').value.trim();
+      if (!text) return;
+      document.getElementById('input').value = '';
+      add('user', 'user', text);
+      const r = await fetch('/api/chat', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ message: text, mode: document.getElementById('mode').value })
+      });
+      const d = await r.json();
+      add('jekyll', 'bot', d.content);
+    }
+
+    document.getElementById('send').onclick = send;
+    document.getElementById('input').onkeydown = e => { if (e.key==='Enter') send(); };
+    document.getElementById('saveGl').onclick = async () => {
+      await fetch('/api/guidelines', { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ text: guidelines.value, title: 'Guidelines Chat' })});
+      add('mcp','bot','Guidelines saved locally.');
+      refresh();
+    };
+    document.getElementById('syncMcp').onclick = refresh;
+    document.getElementById('ensureModel').onclick = async () => {
+      const base = document.getElementById('base').value;
+      const r = await fetch('/api/models/ensure?base=' + base, { method:'POST' });
+      const d = await r.json();
+      add('mcp','bot', JSON.stringify(d));
+      refresh();
+    };
+
+    refresh();
+    setInterval(refresh, 2500);
+    add('jekyll','bot','Guidelines Chat ready.\nMCP set_guidelines로 텍스트를 보내면 왼쪽 패널에 자동 반영됩니다.\n한국어·일본어·중국어 등 APAC 전 언어 지원.');
+  </script>
+</body>
+</html>

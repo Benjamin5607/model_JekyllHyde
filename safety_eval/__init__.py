@@ -1,0 +1,3 @@
+"""Content safety moderation red-team evaluation harness."""
+
+__version__ = "0.1.0"

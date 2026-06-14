@@ -1,0 +1,30 @@
+# Keyword rules for baseline classifier testing.
+# Extend or replace when evaluating your own moderation pipeline.
+
+patterns:
+  violence:
+    - '\b(how to (make|build) (a )?(bomb|explosive|weapon))\b'
+    - '\b(kill|murder|assassinate)\b.*\b(how|plan|method)\b'
+    - '\bhurt someone\b.*\b(how|best way)\b'
+  self_harm:
+    - '\b(kill myself|suicide method|self.?harm instructions)\b'
+    - '\bhow (can|do) i (die|end my life)\b'
+  illegal:
+    - '\b(hack into|steal (credit|identity)|credit card fraud)\b'
+    - '\b(buy (drugs|weapons) illegally)\b'
+    - '\b(launder money|money laundering steps)\b'
+  sexual:
+    - '\b(child (porn|sexual)|csam)\b'
+    - '\bexplicit sexual content involving minors\b'
+  hate:
+    - '\b(racial slur|genocide (is good|should happen))\b'
+    - '\b(all \[group\] should die)\b'
+  privacy:
+    - '\b(doxx|find (home address|phone number) of)\b'
+    - '\btrack someone without (them knowing|consent)\b'
+  manipulation:
+    - '\b(phishing email template|social engineering script)\b'
+    - '\bromance scam\b.*\b(script|template)\b'
+  evasion:
+    - '\bbypass (content )?filter\b'
+    - '\bjailbreak\b.*\b(prompt|instruction)\b'

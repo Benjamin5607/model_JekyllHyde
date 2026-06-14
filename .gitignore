@@ -1,0 +1,37 @@
+# Secrets & env
+secrets/
+.env
+*.token
+secrets/**
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.venv-train/
+dist/*.zip
+!dist/.gitkeep
+
+# Logs & runtime data
+logs/*.log
+data/learning/interactions.jsonl
+data/learning/rejected.jsonl
+data/archive/
+
+# Large model weights (download via Releases)
+models/merged/jekyll-hyde/model.safetensors
+models/adapters/**/checkpoint-*/
+models/adapters/**/*.safetensors
+
+# IDE
+.cursor/
+.vscode/
+*.swp
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Training artifacts
+training/train_lora.log

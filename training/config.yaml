@@ -1,0 +1,54 @@
+# Jekyll & Hyde LoRA training configuration
+
+base_models:
+  gemma2-2b:
+    ollama: gemma2:2b
+    huggingface: google/gemma-2-2b-it
+    params_b: 2
+    vram_gb: 8
+  gemma2-9b:
+    ollama: gemma2:9b
+    huggingface: google/gemma-2-9b-it
+    params_b: 9
+    vram_gb: 24
+  gemma3-4b:
+    ollama: gemma3:4b
+    huggingface: google/gemma-3-4b-it
+    params_b: 4
+    vram_gb: 12
+  gemma3-12b:
+    ollama: gemma3:12b
+    huggingface: google/gemma-3-12b-it
+    params_b: 12
+    vram_gb: 32
+
+default_base: gemma2-2b
+
+lora:
+  r: 16
+  lora_alpha: 32
+  lora_dropout: 0.05
+  target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+
+training:
+  output_dir: models/adapters/jekyll-hyde-lora
+  merged_dir: models/merged/jekyll-hyde
+  max_seq_length: 2048
+  batch_size: 1
+  gradient_accumulation_steps: 8
+  learning_rate: 2.0e-4
+  num_epochs: 5
+  warmup_ratio: 0.05
+  logging_steps: 10
+  save_steps: 100
+
+ollama:
+  model_name: jekyll-hyde
+  modelfile: models/Modelfile.lora

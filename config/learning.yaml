@@ -1,0 +1,29 @@
+# Continuous learning configuration for Jekyll & Hyde
+
+paths:
+  interactions: data/learning/interactions.jsonl
+  curated: data/learning/curated_train.jsonl
+  rejected: data/learning/rejected.jsonl
+  state: data/learning/state.json
+
+quality:
+  min_assistant_chars: 80
+  min_quality_score: 0.65
+  require_markdown: true
+  reject_leak_patterns:
+    - "^model$"
+    - "<start_of_turn>"
+    - "Hyde test probe:"
+
+auto:
+  curate_after_each_turn: true
+  merge_dataset_on_curate: false
+  train_when_curated_reaches: 20
+  train_min_interval_hours: 6
+  train_epochs_incremental: 2
+  train_base: gemma2-2b
+  auto_train_enabled: true
+
+feedback:
+  upvote_boost: 0.35
+  downvote_reject: true

@@ -1,0 +1,2 @@
+## MCP Rule
+No harassment.

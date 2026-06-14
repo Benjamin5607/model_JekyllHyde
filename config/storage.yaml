@@ -1,0 +1,24 @@
+# Storage optimization thresholds
+
+paths:
+  logs_dir: logs
+  learning_dir: data/learning
+  adapters_dir: models/adapters
+  archive_dir: data/archive
+  dist_dir: dist
+
+rotation:
+  max_interaction_lines: 5000
+  max_log_bytes: 2097152
+  keep_archives: 12
+  gzip_level: 9
+
+dedupe:
+  curated_hash_file: data/learning/curated_hashes.txt
+
+prune:
+  keep_adapter_checkpoints: 1
+  compress_rejected_after_lines: 200
+
+schedule:
+  optimize_interval_minutes: 60

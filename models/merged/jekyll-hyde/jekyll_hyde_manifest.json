@@ -1,0 +1,11 @@
+{
+  "name": "jekyll-hyde",
+  "display_name": "Jekyll & Hyde",
+  "fine_tuned": true,
+  "method": "lora-merge",
+  "base_key": "gemma2-2b",
+  "base_huggingface": "google/gemma-2-2b-it",
+  "params_b": 2,
+  "merged_at": "2026-06-14T06:51:53.364851+00:00",
+  "identity": "Independent Gemma-derived model. LoRA weights merged into base weights. Not a prompt wrapper — this is the custom Jekyll & Hyde model."
+}
