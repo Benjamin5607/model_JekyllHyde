@@ -168,6 +168,34 @@ def check_manifest() -> None:
         ok(f"manifest specialization: {len(spec)} domains")
 
 
+def check_duel_routing() -> None:
+    print("\n[8] Duel mode routing")
+    from safety_eval.platform.duel import resolve_duel_kind
+
+    q = "compare samsung and hynix for investment insight report for this quarter"
+    kind = resolve_duel_kind(q, has_quant=True, has_mcp_guidelines=True)
+    if kind != "equity":
+        fail("resolve_duel_kind", f"finance duel got {kind}")
+    else:
+        ok("finance query → equity duel (even with MCP)")
+    policy = resolve_duel_kind("audit guideline section 3", has_quant=False, has_mcp_guidelines=True)
+    if policy != "guideline":
+        fail("resolve_duel_kind", f"policy got {policy}")
+    else:
+        ok("policy query → guideline duel")
+    debate = resolve_duel_kind("should we colonize mars", has_quant=False, has_mcp_guidelines=False)
+    if debate != "debate":
+        fail("resolve_duel_kind", f"open topic got {debate}")
+    else:
+        ok("open topic → debate duel")
+    from safety_eval.platform.duel import _jekyll_duel_user
+    final = _jekyll_duel_user("hyde text", 2, duel_kind="debate", total_rounds=2)
+    if "Middle ground" not in final:
+        fail("debate synthesis", "final round missing Middle ground prompt")
+    else:
+        ok("debate final round → middle ground synthesis")
+
+
 def main() -> int:
     print("=== Jekyll & Hyde cross-verification ===")
     check_imports()
@@ -177,6 +205,7 @@ def main() -> int:
     check_pipeline_mock()
     check_dataset()
     check_manifest()
+    check_duel_routing()
     print("\n=== Summary ===")
     if FAILURES:
         for f in FAILURES:

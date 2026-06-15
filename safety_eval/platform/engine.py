@@ -111,6 +111,8 @@ class JekyllHydeEngine:
         quant_ctx = build_quant_context(user_message, mode="duel")
         if quant_ctx:
             topic += "\n" + quant_ctx.to_prompt_block(mode="duel")
+            if len(quant_ctx.snapshots) >= 2:
+                topic += "\n" + compare_snapshots(quant_ctx.snapshots)
 
         if not runtime_ready():
             return EngineResponse(
@@ -132,6 +134,7 @@ class JekyllHydeEngine:
                 model_name=self.config.model,
                 temperature=self.config.temperature,
                 guideline_enforcement=mcp_gl,
+                user_message=user_message,
             )
             runtime = describe_runtime()
             transcript = "\n\n".join(

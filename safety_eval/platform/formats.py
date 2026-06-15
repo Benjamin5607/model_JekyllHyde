@@ -641,7 +641,7 @@ def max_tokens_for_format(format_id: str, default: int = 384) -> int:
 
 
 _EXPLICIT = [
-    (re.compile(r"(투자\s*메모|리서치\s*메모|investment\s*memo|equity\s*research|종목\s*분석)", re.I), "investment_memo"),
+    (re.compile(r"(투자\s*메모|리서치\s*메모|investment\s*(memo|insight|report)|equity\s*research|종목\s*분석)", re.I), "investment_memo"),
     (re.compile(r"\b(report|analysis report|리포트|보고서|レポート|报告)\b", re.I), "report"),
     (re.compile(r"\b(table|표로|表|表格|markdown table)\b", re.I), "comparison"),
     (re.compile(r"\b(compare|comparison|vs\.?|versus|비교|対比|比较)\b", re.I), "comparison"),
@@ -705,7 +705,7 @@ def detect_response_format(
         return FORMATS["gray_zone_map"]
     if "policy" in domains and _POLICY_ANALYTICAL.search(text):
         return FORMATS["guideline_audit"]
-    if has_quant and re.search(r"(투자\s*메모|리서치\s*메모|investment\s*memo|equity\s*research)", text, re.I):
+    if has_quant and re.search(r"(투자\s*메모|리서치\s*메모|investment\s*(memo|insight|report)|equity\s*research)", text, re.I):
         return FORMATS["investment_memo"]
 
     for pattern, fmt_id in _EXPLICIT:
