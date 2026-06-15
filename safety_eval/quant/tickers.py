@@ -13,7 +13,7 @@ TICKER_NAMES: dict[str, str] = {
 
 NAME_TO_TICKER: dict[str, str] = {
     "삼성전자": "005930.KS", "삼성": "005930.KS", "samsung": "005930.KS", "samsung electronics": "005930.KS",
-    "sk하이닉스": "000660.KS", "sk hynix": "000660.KS", "hynix": "000660.KS",
+    "sk하이닉스": "000660.KS", "sk hynix": "000660.KS", "hynix": "000660.KS", "하이닉스": "000660.KS",
     "apple": "AAPL", "nvidia": "NVDA", "테슬라": "TSLA", "tesla": "TSLA",
     "vinamilk": "VNM.VN", "vingroup": "VIC.VN", "tencent": "0700.HK", "tsmc": "2330.TW",
     "naver": "035420.KS", "kakao": "035720.KS", "reliance": "RELIANCE.NS",

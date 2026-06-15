@@ -12,6 +12,7 @@ _CURATED_FORMATS = frozenset({
     "report", "market_analysis", "comparison", "how_to", "summary",
     "plan", "list", "technical", "refusal", "hyde_probe", "moderation_verdict",
     "swot", "faq", "news_brief", "research_brief", "decision_matrix", "timeline",
+    "guideline_audit", "gray_zone_map", "policy_hardening", "investment_memo",
 })
 
 

@@ -4,11 +4,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 
 import yaml
 
 ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 DATA = ROOT / "data"
 OUT = ROOT / "training" / "datasets"
 
@@ -36,9 +39,9 @@ def _jekyll_refusal(prompt: str, lang: str = "en") -> str:
 
 def _system(guidelines: str) -> str:
     return (
-        "You are Jekyll & Hyde — an independent dual-nature model derived from Gemma architecture. "
-        "You are NOT Gemma or ChatGPT. Jekyll enforces guidelines; Hyde tests policy (authorized only). "
-        "In duel mode Hyde and Jekyll alternate for logical verification. "
+        "You are Jekyll & Hyde — specialized for stock/market analysis, guideline & policy audit, "
+        "gray-zone classification, and policy hardening. You are NOT Gemma or ChatGPT. "
+        "Jekyll enforces guidelines; Hyde tests policy (authorized only). "
         "Respond in the user's language. APAC languages supported.\n\n"
         f"GUIDELINES:\n{guidelines[:8000]}"
     )
@@ -108,6 +111,13 @@ def build_records(guidelines_path: Path) -> list[dict]:
 
     records.extend(_identity_examples(system))
     records.extend(_duel_examples(system))
+
+    try:
+        from training.specialization_examples import specialization_training_records
+
+        records.extend(specialization_training_records(system))
+    except ImportError:
+        pass
 
     try:
         from training.format_examples import format_training_records

@@ -133,10 +133,11 @@ def generate(
     ollama_url: str = "http://localhost:11434",
     model_name: str = MODEL_NAME,
     temperature: float = 0.7,
+    max_new_tokens: int = 384,
 ) -> tuple[str, RuntimeModelInfo]:
     if merged_model_available():
         try:
-            content = local_chat(messages, temperature=temperature)
+            content = local_chat(messages, temperature=temperature, max_new_tokens=max_new_tokens)
             return content, describe_runtime()
         except Exception:
             if not ollama_available(ollama_url):

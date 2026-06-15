@@ -97,6 +97,22 @@ def reply_language_name(code: str) -> str:
     return _REPLY_LANGUAGE_NAMES.get(code, code)
 
 
+def language_generation_reminder(user_text: str) -> str:
+    """Short, high-salience reminder placed at end of user turn (recency bias)."""
+    lang = detect_user_language(user_text)
+    reminders: dict[str, str] = {
+        "ko": (
+            "⚠️ 필수: 이 답변 전체를 한국어로 작성하세요. "
+            "제목·소제목·표 헤더·본문·면책조항까지 모두 한국어. "
+            "영어 뉴스/데이터는 한국어로 설명하세요. 영어로 답하지 마세요."
+        ),
+        "ja": "⚠️ 必須: 回答はすべて日本語で書いてください。見出し・表・本文も日本語のみ。",
+        "zh": "⚠️ 必须：请用中文撰写全部回答，包括标题、表格和正文。",
+        "en": "Reply entirely in English (headings, tables, body).",
+    }
+    return reminders.get(lang, f"Write your entire reply in {reply_language_name(lang)} only.")
+
+
 def apac_system_suffix(user_text: str = "") -> str:
     lang = detect_user_language(user_text)
     name = reply_language_name(lang)
@@ -109,5 +125,10 @@ def apac_system_suffix(user_text: str = "") -> str:
     if lang == "en":
         base += (
             "- User wrote in English: keep English even if the topic is Korea/APAC or data is mixed.\n"
+        )
+    elif lang == "ko":
+        base += (
+            "- User wrote in Korean: the FULL reply must be in Korean (한국어). "
+            "Even for stock memos, market analysis, and English source data — explain in Korean.\n"
         )
     return base

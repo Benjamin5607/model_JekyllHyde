@@ -43,6 +43,14 @@ class LearningCollector:
             score += 0.15
         if meta.get("format") and meta["format"] != "conversational":
             score += 0.1
+        if meta.get("domains"):
+            score += 0.1
+        specialist_formats = {
+            "market_analysis", "guideline_audit", "gray_zone_map",
+            "policy_hardening", "investment_memo", "moderation_verdict",
+        }
+        if meta.get("format") in specialist_formats:
+            score += 0.1
         if _LEAK.search(assistant):
             score -= 0.5
 

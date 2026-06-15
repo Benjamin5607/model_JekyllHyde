@@ -1,11 +1,11 @@
 {
   "generation": 0,
-  "interactions_total": 3,
-  "curated_total": 3,
+  "interactions_total": 13,
+  "curated_total": 12,
   "rejected_total": 1,
-  "curated_since_train": 3,
+  "curated_since_train": 12,
   "last_train_at": "",
-  "last_curate_at": "2026-06-14T12:40:27.374032+00:00",
+  "last_curate_at": "2026-06-15T15:14:13.507860+00:00",
   "last_train_samples": 0,
   "training_in_progress": false,
   "last_error": ""

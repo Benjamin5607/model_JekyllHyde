@@ -61,6 +61,12 @@ def main() -> None:
             "Independent Gemma-derived model. LoRA weights merged into base weights. "
             "Not a prompt wrapper — this is the custom Jekyll & Hyde model."
         ),
+        "specialization": [
+            "equity_market_analysis",
+            "guideline_policy_audit",
+            "gray_zone_classification",
+            "policy_weakness_hardening",
+        ],
     }
     manifest_path = merged_dir / "jekyll_hyde_manifest.json"
     manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")

@@ -7,6 +7,7 @@ from typing import Any
 
 from safety_eval.platform.formats import build_format_block
 from safety_eval.platform.persona import build_system_prompt
+from safety_eval.specialization.domains import build_specialization_block
 from safety_eval.platform.runtime import generate
 from safety_eval.verification.registry import run_verification
 
@@ -173,6 +174,10 @@ def run_duel(
             has_quant=has_quant,
             guideline_enforcement=guideline_enforcement,
             force_id="hyde_probe" if guideline_enforcement else "duel_transcript",
+            domains=build_specialization_block(topic, mode="hyde", has_quant=has_quant, has_guidelines=guideline_enforcement)[1],
+        )
+        hyde_spec, _ = build_specialization_block(
+            topic, mode="hyde", has_quant=has_quant, has_guidelines=guideline_enforcement,
         )
         hyde_system = build_system_prompt(
             mode="duel_hyde",
@@ -181,6 +186,7 @@ def run_duel(
             user_text=topic,
             guideline_enforcement=guideline_enforcement,
             format_block=hyde_fmt,
+            specialization_block=hyde_spec,
         )
         hyde_user = _hyde_duel_user(
             topic, round_num, prior_jekyll,
@@ -214,6 +220,10 @@ def run_duel(
             has_quant=has_quant,
             guideline_enforcement=guideline_enforcement,
             force_id="moderation_verdict" if guideline_enforcement else "duel_transcript",
+            domains=build_specialization_block(hyde_content, mode="jekyll", has_quant=has_quant, has_guidelines=guideline_enforcement)[1],
+        )
+        jekyll_spec, _ = build_specialization_block(
+            hyde_content, mode="jekyll", has_quant=has_quant, has_guidelines=guideline_enforcement,
         )
         jekyll_system = build_system_prompt(
             mode="duel_jekyll",
@@ -222,6 +232,7 @@ def run_duel(
             user_text=hyde_content,
             guideline_enforcement=guideline_enforcement,
             format_block=jekyll_fmt,
+            specialization_block=jekyll_spec,
         )
         jekyll_user = _jekyll_duel_user(
             hyde_content,

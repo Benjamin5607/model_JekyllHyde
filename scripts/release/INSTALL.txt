@@ -1,21 +1,27 @@
-Jekyll & Hyde — Install Package v1.0.0
+Jekyll & Hyde — Install Package v1.1.0
 ======================================
 
 All release files use maximum compression (gzip / ZIP deflate level 9).
 
-1. Download from GitHub Releases (v1.0.0):
-   - JekyllHyde-1.0.0-app.zip
-   - JekyllHyde-1.0.0-model.part00.gz
-   - JekyllHyde-1.0.0-model.part01.gz
-   - JekyllHyde-1.0.0-model.part02.gz
+1. Download from GitHub Releases (v1.1.0):
+   - JekyllHyde-1.1.0-app.zip
+   - JekyllHyde-1.1.0-model.part00.gz
+   - JekyllHyde-1.1.0-model.part01.gz
+   - JekyllHyde-1.1.0-model.part02.gz
 
 2. Extract app.zip to e.g. C:\JekyllHyde
 3. Copy the three .gz model parts into the same folder
 4. Run install.bat (decompresses + merges model, sets up venv)
 5. Open http://127.0.0.1:8080
 
+New in v1.1.0:
+  - Domain specialization (equity, policy, gray-zone, hardening)
+  - 5-stage investment memo pipeline (live data + per-section LLM analysis)
+  - Korean equity memos with locked market facts
+  - Verify install: python scripts\verify_today.py
+
 Optional local build (single compressed archive):
   scripts\build_release.ps1
-  -> dist\JekyllHyde-1.0.0-win64.zip (shows live progress during compression)
+  -> dist\JekyllHyde-1.1.0-win64.zip (shows live progress during compression)
 
 Support: https://github.com/Benjamin5607/model_JekyllHyde

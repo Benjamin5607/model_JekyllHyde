@@ -8,7 +8,7 @@ $ErrorActionPreference = "Stop"
 $InstallRoot = $PSScriptRoot
 Set-Location $InstallRoot
 
-Write-Host "Jekyll & Hyde installer v1.0.0 (gzip level-9 model parts)"
+Write-Host "Jekyll & Hyde installer v1.1.0 (gzip level-9 model parts)"
 Write-Host "Install path: $InstallRoot"
 
 $ModelDir = Join-Path $InstallRoot "models\merged\jekyll-hyde"

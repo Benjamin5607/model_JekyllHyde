@@ -1,0 +1,21 @@
+# Jekyll & Hyde domain specialization
+
+primary_domains:
+  - equity_market_analysis
+  - guideline_policy_audit
+  - gray_zone_classification
+  - policy_weakness_hardening
+
+routing:
+  auto_detect: true
+  inject_specialization_prompt: true
+
+formats:
+  quant: investment_memo
+  policy: guideline_audit
+  gray_zone: gray_zone_map
+  hardening: policy_hardening
+
+training:
+  specialization_examples: training/specialization_examples.py
+  regenerate: python training/prepare_dataset.py

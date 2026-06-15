@@ -6,6 +6,12 @@
   "base_key": "gemma2-2b",
   "base_huggingface": "google/gemma-2-2b-it",
   "params_b": 2,
-  "merged_at": "2026-06-14T06:51:53.364851+00:00",
-  "identity": "Independent Gemma-derived model. LoRA weights merged into base weights. Not a prompt wrapper — this is the custom Jekyll & Hyde model."
+  "merged_at": "2026-06-15T15:45:11.635653+00:00",
+  "identity": "Independent Gemma-derived model. LoRA weights merged into base weights. Not a prompt wrapper — this is the custom Jekyll & Hyde model.",
+  "specialization": [
+    "equity_market_analysis",
+    "guideline_policy_audit",
+    "gray_zone_classification",
+    "policy_weakness_hardening"
+  ]
 }

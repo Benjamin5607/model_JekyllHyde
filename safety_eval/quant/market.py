@@ -3,9 +3,7 @@
 from __future__ import annotations
 
 import datetime
-import random
 import re
-import time
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -32,6 +30,36 @@ class StockSnapshot:
     fundamentals: Fundamentals = field(default_factory=Fundamentals)
     news: str = ""
     trend: str = "unknown"
+    data_as_of: str = ""
+
+
+def analysis_anchor() -> dict[str, str]:
+    now = datetime.datetime.now(datetime.UTC).astimezone()
+    month = now.month
+    quarter = (month - 1) // 3 + 1
+    return {
+        "date": now.strftime("%Y-%m-%d"),
+        "time": now.strftime("%H:%M %Z"),
+        "year": str(now.year),
+        "quarter": f"Q{quarter} {now.year}",
+        "quarter_label_ko": f"{now.year}년 {quarter}분기",
+    }
+
+
+def _format_period(col: Any) -> str:
+    if hasattr(col, "strftime"):
+        dt = col.to_pydatetime() if hasattr(col, "to_pydatetime") else col
+        if isinstance(dt, datetime.datetime):
+            q = (dt.month - 1) // 3 + 1
+            return f"Q{q} {dt.year}"
+        return col.strftime("%Y-%m")
+    text = str(col)
+    m = re.match(r"(\d{4})-(\d{2})", text)
+    if m:
+        year, month = int(m.group(1)), int(m.group(2))
+        q = (month - 1) // 3 + 1
+        return f"Q{q} {year}"
+    return text
 
 
 def _fdr_symbol(ticker: str) -> str:
@@ -84,7 +112,7 @@ def get_fundamentals(ticker: str) -> Fundamentals:
         if q_fin is not None and not q_fin.empty:
             rows = [r for r in ("Total Revenue", "Operating Revenue", "Net Income") if r in q_fin.index]
             for col in q_fin.columns[:4]:
-                entry: dict[str, Any] = {"period": col.strftime("%Y-%m") if hasattr(col, "strftime") else str(col)}
+                entry: dict[str, Any] = {"period": _format_period(col)}
                 for row in rows:
                     val = q_fin.loc[row, col]
                     entry[row] = float(val) if val == val else None  # noqa: PLR0124
@@ -94,7 +122,7 @@ def get_fundamentals(ticker: str) -> Fundamentals:
     return fund
 
 
-def fetch_news(keyword: str, max_results: int = 3) -> str:
+def fetch_news(keyword: str, max_results: int = 5) -> str:
     try:
         from duckduckgo_search import DDGS
     except ImportError:
@@ -102,20 +130,29 @@ def fetch_news(keyword: str, max_results: int = 3) -> str:
 
     lines: list[str] = []
     seen: set[str] = set()
+    queries = [
+        f"{keyword} earnings stock news",
+        f"{keyword} 실적 주가",
+        f"{keyword} quarterly results",
+    ]
     try:
         with DDGS() as ddgs:
-            results = list(ddgs.news(keyword, timelimit="m", max_results=max_results))
-            if not results:
-                results = list(ddgs.text(f"{keyword} stock news", max_results=max_results))
-            for r in results:
-                url = r.get("url") or r.get("href") or ""
-                if url in seen:
-                    continue
-                lines.append(f"[{r.get('date', '?')}] {r.get('title', r.get('body', '')[:120])}")
-                seen.add(url)
+            for q in queries:
+                results = list(ddgs.news(q, timelimit="m", max_results=max_results))
+                if not results:
+                    results = list(ddgs.text(q, timelimit="m", max_results=max_results))
+                for r in results:
+                    url = r.get("url") or r.get("href") or ""
+                    if url in seen:
+                        continue
+                    title = r.get("title") or r.get("body", "")[:120]
+                    lines.append(f"[{r.get('date', '?')}] {title}")
+                    seen.add(url)
+                if len(lines) >= max_results:
+                    break
     except Exception:
         return _fetch_news_httpx(keyword, max_results)
-    return "\n".join(lines) if lines else "No recent news found."
+    return "\n".join(lines[:max_results]) if lines else "No recent news found."
 
 
 def _fetch_news_httpx(keyword: str, max_results: int) -> str:
@@ -172,6 +209,7 @@ def _infer_trend(quarterly: list[dict[str, Any]]) -> str:
 
 
 def get_stock_snapshot(ticker: str, name: str | None = None) -> StockSnapshot:
+    anchor = analysis_anchor()
     display = name or TICKER_NAMES.get(ticker, ticker)
     price, chg, source = get_price_data(ticker, display)
     fund = get_fundamentals(ticker)
@@ -186,12 +224,15 @@ def get_stock_snapshot(ticker: str, name: str | None = None) -> StockSnapshot:
         fundamentals=fund,
         news=news[:800],
         trend=trend,
+        data_as_of=anchor["date"],
     )
 
 
 def market_weather_text() -> str:
+    anchor = analysis_anchor()
     indices = get_market_indices()
+    header = f"Analysis as of {anchor['date']} ({anchor['quarter']}). Current quarter focus: {anchor['quarter_label_ko']}."
     if not indices:
-        return "Market indices unavailable."
+        return f"{header} Market indices unavailable."
     parts = [f"{k}: {v[0]:,.0f} ({v[1]:+.2f}%)" for k, v in indices.items()]
-    return "Market weather: " + ", ".join(parts)
+    return f"{header}\nMarket weather: " + ", ".join(parts)

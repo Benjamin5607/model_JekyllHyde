@@ -1,6 +1,6 @@
 # Jekyll & Hyde — `model_JekyllHyde`
 
-**Independent dual-persona LLM** (Gemma 2 2B + LoRA merge) with a self-hosted chat platform, MCP guidelines, structured responses, and continuous learning.
+**Independent dual-persona LLM** (Gemma 2 2B + LoRA merge) with a self-hosted chat platform, MCP guidelines, structured responses, domain specialization, and continuous learning.
 
 ---
 
@@ -8,16 +8,16 @@
 
 All release assets use **maximum compression (level 9)**. Model parts are **gzip-compressed** for smaller downloads.
 
-Download **all files** from [Release v1.0.0](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.0.0):
+Download **all files** from [Release v1.1.0](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.1.0):
 
 | File | Purpose |
 |------|---------|
-| [JekyllHyde-1.0.0-app.zip](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.0.0/JekyllHyde-1.0.0-app.zip) | Platform, scripts, configs (ZIP deflate L9) |
-| [model.part00.gz](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.0.0/JekyllHyde-1.0.0-model.part00.gz) | Model weights part 1/3 (gzip L9) |
-| [model.part01.gz](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.0.0/JekyllHyde-1.0.0-model.part01.gz) | Model weights part 2/3 (gzip L9) |
-| [model.part02.gz](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.0.0/JekyllHyde-1.0.0-model.part02.gz) | Model weights part 3/3 (gzip L9) |
+| [JekyllHyde-1.1.0-app.zip](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.1.0/JekyllHyde-1.1.0-app.zip) | Platform, scripts, configs (ZIP deflate L9) |
+| [model.part00.gz](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.1.0/JekyllHyde-1.1.0-model.part00.gz) | Model weights part 1/3 (gzip L9) |
+| [model.part01.gz](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.1.0/JekyllHyde-1.1.0-model.part01.gz) | Model weights part 2/3 (gzip L9) |
+| [model.part02.gz](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.1.0/JekyllHyde-1.1.0-model.part02.gz) | Model weights part 3/3 (gzip L9) |
 
-**Local build:** `scripts\build_release.ps1` builds `JekyllHyde-1.0.0-win64.zip` with **live progress** during level-9 compression (~30–90 min for the 5 GB model).
+**Local build:** `scripts\build_release.ps1` builds `JekyllHyde-1.1.0-win64.zip` with **live progress** during level-9 compression (~30–90 min for the 5 GB model).
 
 ### Quick install (Windows)
 
@@ -35,14 +35,34 @@ Download **all files** from [Release v1.0.0](https://github.com/Benjamin5607/mod
 
 | Feature | Description |
 |---------|-------------|
+| **Stock analysis** | Multi-stage investment memos with live Yahoo/FDR data (not financial advice) |
+| **Guideline audit** | Section mapping, conflicts, clarity ratings, patch suggestions |
+| **Gray-zone analysis** | Intent decomposition, allow/block/flag with dual reasoning |
+| **Policy hardening** | Gap register, exploit scenarios, recommended rule text, validation probes |
 | **Chat** | Sky-blue UI, multilingual (matches your message language) |
 | **Jekyll** | Guideline defense, structured refusals |
-| **Hyde** | Authorized red-team probes |
+| **Hyde** | Authorized red-team probes & gap finding |
 | **Duel** | Hyde↔Jekyll debate or MCP guideline stress-test |
-| **Quant** | Live market context (Korea, US, etc.) |
-| **Formats** | Reports, tables, SWOT, how-to, market analysis (Markdown) |
 | **Learning** | Chat feedback → curated dataset → incremental LoRA retrain |
-| **Storage opt** | Auto gzip archives, dedupe, log rotation, checkpoint prune |
+
+### v1.1.0 — Investment memo pipeline (2B-aware)
+
+For Korean/English equity memos, the platform runs a **5-stage pipeline** instead of one giant LLM call:
+
+```
+Stage 1 [CODE]  Collect live market data (Yahoo Finance, FDR)
+Stage 2 [CODE]  Render locked facts (prices, quarters, headlines)
+Stage 3 [LLM×N] Digest each headline → 2 Korean sentences
+Stage 4 [LLM×M] Analyze one section per call (7 sections)
+Stage 5 [CODE]  Assemble final markdown + disclaimer
+```
+
+- **Numbers never hallucinated** — tickers, prices, and quarterly rows come from code.
+- **LLM does the analysis** — headline interpretation and per-section expert commentary.
+- **Korean queries → Korean reports** with `[H1]` headline citations.
+- Typical latency: **40s–90s** (≈12 LLM calls for a peer memo).
+
+Cross-verify after install: `python scripts\verify_today.py`
 
 ---
 
@@ -117,16 +137,16 @@ scripts\build_release.ps1
 ```
 
 Shows **live progress** every 3 seconds while compressing at **level 9**:
-- `dist/JekyllHyde-1.0.0-app.zip`
-- `dist/JekyllHyde-1.0.0-win64.zip` (full single-file install)
-- `dist/JekyllHyde-1.0.0-model.partXX.gz` (GitHub upload parts)
+- `dist/JekyllHyde-1.1.0-app.zip`
+- `dist/JekyllHyde-1.1.0-win64.zip` (full single-file install)
+- `dist/JekyllHyde-1.1.0-model.partXX.gz` (GitHub upload parts)
 
 Replace GitHub release assets:
 
 ```powershell
-gh release delete-asset v1.0.0 JekyllHyde-1.0.0-model.part00 -R Benjamin5607/model_JekyllHyde -y
+gh release delete-asset v1.1.0 JekyllHyde-1.1.0-model.part00.gz -R Benjamin5607/model_JekyllHyde -y
 # ... then upload:
-gh release upload v1.0.0 dist/JekyllHyde-1.0.0-app.zip dist/*.gz dist/*.manifest.json -R Benjamin5607/model_JekyllHyde --clobber
+gh release upload v1.1.0 dist/JekyllHyde-1.1.0-app.zip dist/*.gz dist/*.manifest.json -R Benjamin5607/model_JekyllHyde --clobber
 ```
 
 ---
@@ -135,6 +155,7 @@ gh release upload v1.0.0 dist/JekyllHyde-1.0.0-app.zip dist/*.gz dist/*.manifest
 
 | Tag | Files | Notes |
 |-----|-------|-------|
+| [v1.1.0](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.1.0) | `app.zip` + `model.part00–02.gz` | Domain specialization, 5-stage investment memo pipeline, Korean equity memos |
 | [v1.0.0](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.0.0) | `app.zip` + `model.part00–02.gz` | Level-9 compression; gzip model parts for GitHub |
 
 ---
