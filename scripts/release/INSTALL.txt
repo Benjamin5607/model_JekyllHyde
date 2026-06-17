@@ -1,21 +1,14 @@
-Jekyll & Hyde — Install Package v1.2.0
+Jekyll & Hyde — Install Package v1.2.1
 ======================================
 
-1. Download from GitHub Releases (v1.2.0):
-   - JekyllHyde-1.2.0-app.zip
-   - JekyllHyde-1.2.0-model.part00.gz
-   - JekyllHyde-1.2.0-model.part01.gz
-   - JekyllHyde-1.2.0-model.part02.gz
+1. Download from GitHub Releases (v1.2.1):
+   - JekyllHyde-1.2.1-app.zip
+   - JekyllHyde-1.2.1-model.part00.gz
+   - JekyllHyde-1.2.1-model.part01.gz
+   - JekyllHyde-1.2.1-model.part02.gz
 
-2. Extract app.zip to e.g. C:\JekyllHyde
-3. Copy the three .gz model parts into the same folder
-4. Run install.bat
-5. Open http://127.0.0.1:8080
+2. Extract app.zip → copy .gz parts → run install.bat → http://127.0.0.1:8080
 
-New in v1.2.0:
-  - Duel routes by topic: equity | guideline | open debate
-  - All duels converge toward middle ground (final synthesis round)
-  - Investment queries in Duel: live-data bear/bull debate + gray zones
-  - Verify: python scripts\verify_today.py
+v1.2.1: project structure cleanup, dist auto-prune, duel routing (equity/guideline/debate).
 
-Support: https://github.com/Benjamin5607/model_JekyllHyde
+Verify: python scripts\verify_today.py

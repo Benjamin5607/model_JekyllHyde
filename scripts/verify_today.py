@@ -6,6 +6,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
 
 FAILURES: list[str] = []
 
@@ -27,7 +32,6 @@ def check_imports() -> None:
         "safety_eval.quant.harness",
         "safety_eval.quant.research",
         "safety_eval.quant.formatting",
-        "safety_eval.quant.korean_memo",
         "safety_eval.platform.formats",
         "safety_eval.i18n.apac",
     ]

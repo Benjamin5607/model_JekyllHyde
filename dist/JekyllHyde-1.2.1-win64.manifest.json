@@ -1,0 +1,1255 @@
+{
+  "version": "1.2.1",
+  "name": "JekyllHyde-1.2.1-win64",
+  "compresslevel": 9,
+  "filename_full": "JekyllHyde-1.2.1-win64.zip",
+  "filename_app": "JekyllHyde-1.2.1-app.zip",
+  "model_parts_prefix": "JekyllHyde-1.2.1-model.part",
+  "published": "2026-06-17T08:40:38.750705+00:00",
+  "app_zip_bytes": 229099,
+  "full_zip_bytes": 4657640487,
+  "model_parts_gz": [
+    "JekyllHyde-1.2.1-model.part00.gz",
+    "JekyllHyde-1.2.1-model.part01.gz",
+    "JekyllHyde-1.2.1-model.part02.gz"
+  ],
+  "model_part_bytes": [
+    1577228161,
+    1754248708,
+    1319177173
+  ],
+  "app": {
+    "version": "1.2.1",
+    "name": "JekyllHyde-1.2.1-win64",
+    "compresslevel": 9,
+    "filename_full": "JekyllHyde-1.2.1-win64.zip",
+    "filename_app": "JekyllHyde-1.2.1-app.zip",
+    "model_parts_prefix": "JekyllHyde-1.2.1-model.part",
+    "published": "2026-06-17T08:31:58.175629+00:00",
+    "files": [
+      {
+        "path": "JekyllHyde-1.2.1-win64/pyproject.toml",
+        "bytes": 1139
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/README.md",
+        "bytes": 4315
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/LICENSE",
+        "bytes": 1251
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/requirements.txt",
+        "bytes": 38
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/__init__.py",
+        "bytes": 87
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/apps/__init__.py",
+        "bytes": 0
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/apps/guidelines_chat/__init__.py",
+        "bytes": 0
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/apps/guidelines_chat/server.py",
+        "bytes": 4636
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/apps/guidelines_chat/static/index.html",
+        "bytes": 8296
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/arena.py",
+        "bytes": 4100
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/arena_report.py",
+        "bytes": 4676
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/blue_team/__init__.py",
+        "bytes": 752
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/blue_team/llm.py",
+        "bytes": 3703
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/categories.py",
+        "bytes": 1125
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/chat/__init__.py",
+        "bytes": 0
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/chat/agent.py",
+        "bytes": 9101
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/chat/server.py",
+        "bytes": 3067
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/chat/static/index.html",
+        "bytes": 6248
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/classifiers/__init__.py",
+        "bytes": 800
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/classifiers/base.py",
+        "bytes": 367
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/classifiers/http.py",
+        "bytes": 2110
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/classifiers/keyword.py",
+        "bytes": 2631
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/classifiers/mock.py",
+        "bytes": 992
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/cli.py",
+        "bytes": 3253
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/evaluator.py",
+        "bytes": 1583
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/evolution.py",
+        "bytes": 3483
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/evolution_report.py",
+        "bytes": 3020
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/guidelines.py",
+        "bytes": 2006
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/i18n/__init__.py",
+        "bytes": 0
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/i18n/apac.py",
+        "bytes": 4866
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/jekyll_hyde.py",
+        "bytes": 498
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/jekyll_hyde_cli.py",
+        "bytes": 6154
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/learning/__init__.py",
+        "bytes": 461
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/learning/collector.py",
+        "bytes": 4606
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/learning/curator.py",
+        "bytes": 3335
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/learning/pipeline.py",
+        "bytes": 5120
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/learning/store.py",
+        "bytes": 7617
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/loader.py",
+        "bytes": 1208
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/mcp/__init__.py",
+        "bytes": 0
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/mcp/server.py",
+        "bytes": 10357
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/memory.py",
+        "bytes": 4121
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/models.py",
+        "bytes": 1801
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/platform/__init__.py",
+        "bytes": 0
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/platform/duel.py",
+        "bytes": 16624
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/platform/engine.py",
+        "bytes": 17097
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/platform/formats.py",
+        "bytes": 22434
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/platform/local_model.py",
+        "bytes": 7981
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/platform/model_registry.py",
+        "bytes": 1256
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/platform/ollama_client.py",
+        "bytes": 4260
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/platform/persona.py",
+        "bytes": 6100
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/platform/prefs.py",
+        "bytes": 4718
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/platform/runtime.py",
+        "bytes": 4497
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/platform/serve.py",
+        "bytes": 15373
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/platform/static/platform.html",
+        "bytes": 58946
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/quant/__init__.py",
+        "bytes": 690
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/quant/analyzer.py",
+        "bytes": 8887
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/quant/formatting.py",
+        "bytes": 1141
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/quant/harness.py",
+        "bytes": 390
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/quant/market.py",
+        "bytes": 8023
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/quant/pipeline.py",
+        "bytes": 13141
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/quant/research.py",
+        "bytes": 9752
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/quant/resolver.py",
+        "bytes": 2181
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/quant/tickers.py",
+        "bytes": 2248
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/red_blue_cli.py",
+        "bytes": 156
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/red_team/__init__.py",
+        "bytes": 802
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/red_team/base.py",
+        "bytes": 1576
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/red_team/guideline.py",
+        "bytes": 10657
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/red_team/llm.py",
+        "bytes": 3842
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/red_team/mutations.py",
+        "bytes": 2307
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/red_team/template.py",
+        "bytes": 3247
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/report.py",
+        "bytes": 4539
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/specialization/__init__.py",
+        "bytes": 299
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/specialization/domains.py",
+        "bytes": 6260
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/storage/__init__.py",
+        "bytes": 469
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/storage/optimizer.py",
+        "bytes": 10090
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/storage/packager.py",
+        "bytes": 10143
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/store.py",
+        "bytes": 4610
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/verification/__init__.py",
+        "bytes": 245
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/verification/base.py",
+        "bytes": 1355
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/verification/http_client.py",
+        "bytes": 386
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/verification/providers/__init__.py",
+        "bytes": 46
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/verification/providers/arxiv.py",
+        "bytes": 1406
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/verification/providers/conceptnet.py",
+        "bytes": 1209
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/verification/providers/dictionary_api.py",
+        "bytes": 1498
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/verification/providers/duckduckgo.py",
+        "bytes": 1583
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/verification/providers/local_guidelines.py",
+        "bytes": 1873
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/verification/providers/local_jekyll.py",
+        "bytes": 1627
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/verification/providers/local_logic.py",
+        "bytes": 2173
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/verification/providers/open_meteo.py",
+        "bytes": 1931
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/verification/providers/openlibrary.py",
+        "bytes": 1285
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/verification/providers/restcountries.py",
+        "bytes": 1527
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/verification/providers/wikidata.py",
+        "bytes": 1312
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/verification/providers/wikipedia.py",
+        "bytes": 1764
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/verification/registry.py",
+        "bytes": 4889
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/training/config.yaml",
+        "bytes": 1068
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/training/continuous.py",
+        "bytes": 1208
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/training/datasets/jekyll_hyde_train.jsonl",
+        "bytes": 177201
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/training/format_examples.py",
+        "bytes": 4913
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/training/merge_and_export.py",
+        "bytes": 3696
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/training/prepare_dataset.py",
+        "bytes": 12125
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/training/README.md",
+        "bytes": 2098
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/training/specialization_examples.py",
+        "bytes": 8381
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/training/train_lora.log",
+        "bytes": 5118
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/training/train_lora.py",
+        "bytes": 5790
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/build_release.bat",
+        "bytes": 399
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/build_release.ps1",
+        "bytes": 789
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/check_health.ps1",
+        "bytes": 299
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/create_model.py",
+        "bytes": 1767
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/evolve_train.bat",
+        "bytes": 520
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/JekyllHyde.vbs",
+        "bytes": 287
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/launch.bat",
+        "bytes": 34
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/launch.ps1",
+        "bytes": 2978
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/release/install.bat",
+        "bytes": 125
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/release/install.ps1",
+        "bytes": 3423
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/release/INSTALL.txt",
+        "bytes": 500
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/restart.bat",
+        "bytes": 94
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/run_server.bat",
+        "bytes": 1103
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/setup_free_mcp.py",
+        "bytes": 1326
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/setup_platform.bat",
+        "bytes": 1136
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/setup_training.py",
+        "bytes": 4406
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/start.bat",
+        "bytes": 129
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/start_guidelines_chat.bat",
+        "bytes": 34
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/start_jekyll_hyde.bat",
+        "bytes": 34
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/start_platform.bat",
+        "bytes": 34
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/stop.bat",
+        "bytes": 100
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/stop.ps1",
+        "bytes": 296
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/train_lora.bat",
+        "bytes": 1120
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/verify_today.py",
+        "bytes": 8375
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/config/learning.yaml",
+        "bytes": 707
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/config/platform_prefs.yaml",
+        "bytes": 79
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/config/specialization.yaml",
+        "bytes": 498
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/config/storage.yaml",
+        "bytes": 539
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/config/verification_providers.yaml",
+        "bytes": 2595
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/data/active_guidelines.md",
+        "bytes": 27
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/data/active_guidelines.meta.json",
+        "bytes": 100
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/data/community_guidelines.md",
+        "bytes": 2343
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/data/guideline_probes.yaml",
+        "bytes": 4350
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/data/guideline_probes_apac.yaml",
+        "bytes": 2993
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/data/keyword_rules.yaml",
+        "bytes": 1187
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/data/learning/curated_hashes.txt",
+        "bytes": 270
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/data/learning/curated_train.jsonl",
+        "bytes": 14828
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/data/learning/state.json",
+        "bytes": 294
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/data/red_team_seeds.yaml",
+        "bytes": 2165
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/data/test_cases.yaml",
+        "bytes": 6258
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/install.ps1",
+        "bytes": 3423
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/install.bat",
+        "bytes": 125
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/INSTALL.txt",
+        "bytes": 500
+      }
+    ],
+    "total_uncompressed_bytes": 707955,
+    "compression": "zip-deflate-level-9",
+    "file_count": 147,
+    "zip_bytes": 229099
+  },
+  "full": {
+    "version": "1.2.1",
+    "name": "JekyllHyde-1.2.1-win64",
+    "compresslevel": 9,
+    "filename_full": "JekyllHyde-1.2.1-win64.zip",
+    "filename_app": "JekyllHyde-1.2.1-app.zip",
+    "model_parts_prefix": "JekyllHyde-1.2.1-model.part",
+    "published": "2026-06-17T08:35:23.046121+00:00",
+    "files": [
+      {
+        "path": "JekyllHyde-1.2.1-win64/pyproject.toml",
+        "bytes": 1139
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/README.md",
+        "bytes": 4315
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/LICENSE",
+        "bytes": 1251
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/requirements.txt",
+        "bytes": 38
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/__init__.py",
+        "bytes": 87
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/apps/__init__.py",
+        "bytes": 0
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/apps/guidelines_chat/__init__.py",
+        "bytes": 0
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/apps/guidelines_chat/server.py",
+        "bytes": 4636
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/apps/guidelines_chat/static/index.html",
+        "bytes": 8296
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/arena.py",
+        "bytes": 4100
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/arena_report.py",
+        "bytes": 4676
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/blue_team/__init__.py",
+        "bytes": 752
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/blue_team/llm.py",
+        "bytes": 3703
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/categories.py",
+        "bytes": 1125
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/chat/__init__.py",
+        "bytes": 0
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/chat/agent.py",
+        "bytes": 9101
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/chat/server.py",
+        "bytes": 3067
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/chat/static/index.html",
+        "bytes": 6248
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/classifiers/__init__.py",
+        "bytes": 800
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/classifiers/base.py",
+        "bytes": 367
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/classifiers/http.py",
+        "bytes": 2110
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/classifiers/keyword.py",
+        "bytes": 2631
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/classifiers/mock.py",
+        "bytes": 992
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/cli.py",
+        "bytes": 3253
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/evaluator.py",
+        "bytes": 1583
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/evolution.py",
+        "bytes": 3483
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/evolution_report.py",
+        "bytes": 3020
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/guidelines.py",
+        "bytes": 2006
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/i18n/__init__.py",
+        "bytes": 0
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/i18n/apac.py",
+        "bytes": 4866
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/jekyll_hyde.py",
+        "bytes": 498
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/jekyll_hyde_cli.py",
+        "bytes": 6154
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/learning/__init__.py",
+        "bytes": 461
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/learning/collector.py",
+        "bytes": 4606
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/learning/curator.py",
+        "bytes": 3335
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/learning/pipeline.py",
+        "bytes": 5120
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/learning/store.py",
+        "bytes": 7617
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/loader.py",
+        "bytes": 1208
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/mcp/__init__.py",
+        "bytes": 0
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/mcp/server.py",
+        "bytes": 10357
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/memory.py",
+        "bytes": 4121
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/models.py",
+        "bytes": 1801
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/platform/__init__.py",
+        "bytes": 0
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/platform/duel.py",
+        "bytes": 16624
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/platform/engine.py",
+        "bytes": 17097
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/platform/formats.py",
+        "bytes": 22434
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/platform/local_model.py",
+        "bytes": 7981
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/platform/model_registry.py",
+        "bytes": 1256
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/platform/ollama_client.py",
+        "bytes": 4260
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/platform/persona.py",
+        "bytes": 6100
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/platform/prefs.py",
+        "bytes": 4718
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/platform/runtime.py",
+        "bytes": 4497
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/platform/serve.py",
+        "bytes": 15373
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/platform/static/platform.html",
+        "bytes": 58946
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/quant/__init__.py",
+        "bytes": 690
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/quant/analyzer.py",
+        "bytes": 8887
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/quant/formatting.py",
+        "bytes": 1141
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/quant/harness.py",
+        "bytes": 390
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/quant/market.py",
+        "bytes": 8023
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/quant/pipeline.py",
+        "bytes": 13141
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/quant/research.py",
+        "bytes": 9752
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/quant/resolver.py",
+        "bytes": 2181
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/quant/tickers.py",
+        "bytes": 2248
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/red_blue_cli.py",
+        "bytes": 156
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/red_team/__init__.py",
+        "bytes": 802
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/red_team/base.py",
+        "bytes": 1576
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/red_team/guideline.py",
+        "bytes": 10657
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/red_team/llm.py",
+        "bytes": 3842
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/red_team/mutations.py",
+        "bytes": 2307
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/red_team/template.py",
+        "bytes": 3247
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/report.py",
+        "bytes": 4539
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/specialization/__init__.py",
+        "bytes": 299
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/specialization/domains.py",
+        "bytes": 6260
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/storage/__init__.py",
+        "bytes": 469
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/storage/optimizer.py",
+        "bytes": 10090
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/storage/packager.py",
+        "bytes": 10143
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/store.py",
+        "bytes": 4610
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/verification/__init__.py",
+        "bytes": 245
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/verification/base.py",
+        "bytes": 1355
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/verification/http_client.py",
+        "bytes": 386
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/verification/providers/__init__.py",
+        "bytes": 46
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/verification/providers/arxiv.py",
+        "bytes": 1406
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/verification/providers/conceptnet.py",
+        "bytes": 1209
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/verification/providers/dictionary_api.py",
+        "bytes": 1498
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/verification/providers/duckduckgo.py",
+        "bytes": 1583
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/verification/providers/local_guidelines.py",
+        "bytes": 1873
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/verification/providers/local_jekyll.py",
+        "bytes": 1627
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/verification/providers/local_logic.py",
+        "bytes": 2173
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/verification/providers/open_meteo.py",
+        "bytes": 1931
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/verification/providers/openlibrary.py",
+        "bytes": 1285
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/verification/providers/restcountries.py",
+        "bytes": 1527
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/verification/providers/wikidata.py",
+        "bytes": 1312
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/verification/providers/wikipedia.py",
+        "bytes": 1764
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/safety_eval/verification/registry.py",
+        "bytes": 4889
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/training/config.yaml",
+        "bytes": 1068
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/training/continuous.py",
+        "bytes": 1208
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/training/datasets/jekyll_hyde_train.jsonl",
+        "bytes": 177201
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/training/format_examples.py",
+        "bytes": 4913
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/training/merge_and_export.py",
+        "bytes": 3696
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/training/prepare_dataset.py",
+        "bytes": 12125
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/training/README.md",
+        "bytes": 2098
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/training/specialization_examples.py",
+        "bytes": 8381
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/training/train_lora.log",
+        "bytes": 5118
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/training/train_lora.py",
+        "bytes": 5790
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/build_release.bat",
+        "bytes": 399
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/build_release.ps1",
+        "bytes": 789
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/check_health.ps1",
+        "bytes": 299
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/create_model.py",
+        "bytes": 1767
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/evolve_train.bat",
+        "bytes": 520
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/JekyllHyde.vbs",
+        "bytes": 287
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/launch.bat",
+        "bytes": 34
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/launch.ps1",
+        "bytes": 2978
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/release/install.bat",
+        "bytes": 125
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/release/install.ps1",
+        "bytes": 3423
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/release/INSTALL.txt",
+        "bytes": 500
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/restart.bat",
+        "bytes": 94
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/run_server.bat",
+        "bytes": 1103
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/setup_free_mcp.py",
+        "bytes": 1326
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/setup_platform.bat",
+        "bytes": 1136
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/setup_training.py",
+        "bytes": 4406
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/start.bat",
+        "bytes": 129
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/start_guidelines_chat.bat",
+        "bytes": 34
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/start_jekyll_hyde.bat",
+        "bytes": 34
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/start_platform.bat",
+        "bytes": 34
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/stop.bat",
+        "bytes": 100
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/stop.ps1",
+        "bytes": 296
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/train_lora.bat",
+        "bytes": 1120
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/scripts/verify_today.py",
+        "bytes": 8375
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/config/learning.yaml",
+        "bytes": 707
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/config/platform_prefs.yaml",
+        "bytes": 79
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/config/specialization.yaml",
+        "bytes": 498
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/config/storage.yaml",
+        "bytes": 539
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/config/verification_providers.yaml",
+        "bytes": 2595
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/data/active_guidelines.md",
+        "bytes": 27
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/data/active_guidelines.meta.json",
+        "bytes": 100
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/data/community_guidelines.md",
+        "bytes": 2343
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/data/guideline_probes.yaml",
+        "bytes": 4350
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/data/guideline_probes_apac.yaml",
+        "bytes": 2993
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/data/keyword_rules.yaml",
+        "bytes": 1187
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/data/learning/curated_hashes.txt",
+        "bytes": 270
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/data/learning/curated_train.jsonl",
+        "bytes": 14828
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/data/learning/state.json",
+        "bytes": 294
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/data/red_team_seeds.yaml",
+        "bytes": 2165
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/data/test_cases.yaml",
+        "bytes": 6258
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/models/merged/jekyll-hyde/chat_template.jinja",
+        "bytes": 594
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/models/merged/jekyll-hyde/config.json",
+        "bytes": 1660
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/models/merged/jekyll-hyde/generation_config.json",
+        "bytes": 198
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/models/merged/jekyll-hyde/jekyll_hyde_manifest.json",
+        "bytes": 572
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/models/merged/jekyll-hyde/model.safetensors",
+        "bytes": 5228717224
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/models/merged/jekyll-hyde/tokenizer.json",
+        "bytes": 34362872
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/models/merged/jekyll-hyde/tokenizer_config.json",
+        "bytes": 538
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/install.ps1",
+        "bytes": 3423
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/install.bat",
+        "bytes": 125
+      },
+      {
+        "path": "JekyllHyde-1.2.1-win64/INSTALL.txt",
+        "bytes": 500
+      }
+    ],
+    "total_uncompressed_bytes": 5263791613,
+    "compression": "zip-deflate-level-9",
+    "file_count": 154,
+    "zip_bytes": 4657640487
+  }
+}

@@ -151,6 +151,45 @@ class StorageOptimizer:
         rejected.write_text("", encoding="utf-8")
         return {"compressed": True, "archive": gz_path.name, "saved_bytes": saved}
 
+    def _prune_dist_artifacts(self) -> dict[str, Any]:
+        import re
+
+        prune_cfg = self.cfg.get("prune", {})
+        if not prune_cfg.get("dist_remove_stale_versions", True):
+            return {"removed": [], "skipped": True}
+
+        dist_dir = ROOT / self.cfg.get("paths", {}).get("dist_dir", "dist")
+        if not dist_dir.exists():
+            return {"removed": []}
+
+        from safety_eval.storage.packager import RELEASE_VERSION
+
+        keep_prefix = f"JekyllHyde-{RELEASE_VERSION}"
+        keep_win64 = bool(prune_cfg.get("dist_keep_win64_zip", False))
+        removed: list[str] = []
+        raw_part = re.compile(r"JekyllHyde-.*-model\.part\d{2}$")
+
+        for path in list(dist_dir.iterdir()):
+            name = path.name
+            if name in (".gitkeep", "RELEASES.md"):
+                continue
+            delete = False
+            if name.startswith("JekyllHyde-") and not name.startswith(keep_prefix):
+                delete = True
+            elif raw_part.match(name):
+                delete = True
+            elif name.endswith("-win64.zip") and not keep_win64:
+                delete = True
+            elif name in ("build.log", "release.log"):
+                delete = True
+            if delete:
+                if path.is_dir():
+                    shutil.rmtree(path, ignore_errors=True)
+                else:
+                    path.unlink(missing_ok=True)
+                removed.append(name)
+        return {"removed": removed, "keep_version": RELEASE_VERSION}
+
     def optimize(self) -> dict[str, Any]:
         with _lock:
             max_lines = int(self.cfg.get("rotation", {}).get("max_interaction_lines", 5000))
@@ -164,6 +203,7 @@ class StorageOptimizer:
                 "adapter_prune": self._prune_adapter_checkpoints(),
                 "rejected": self._compress_rejected(),
                 "archive_prune": self._prune_old_archives(),
+                "dist_prune": self._prune_dist_artifacts(),
             }
             report["disk"] = self.disk_summary()
             return report

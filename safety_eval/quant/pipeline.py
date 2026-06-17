@@ -17,16 +17,11 @@ from typing import Any, Literal
 
 from safety_eval.i18n.apac import language_generation_reminder
 from safety_eval.quant.analyzer import QuantContext
-from safety_eval.quant.formatting import fmt_krw_price, fmt_quarter_row
+from safety_eval.quant.formatting import fmt_krw_price, fmt_quarter_row, ko_display_name
 from safety_eval.quant.market import analysis_anchor
 from safety_eval.quant.research import CompanyDossier, ResearchHit
 
 GenerateFn = Callable[[list[dict[str, str]], float, int], tuple[str, Any]]
-
-DISPLAY_KO: dict[str, str] = {
-    "005930.KS": "삼성전자",
-    "000660.KS": "SK하이닉스",
-}
 
 SECTION_SPECS_KO: list[tuple[str, str, int, bool]] = [
     ("핵심 요약", "두 회사 포지션 차이와 이번 분기 관전 포인트.", 55, True),
@@ -57,7 +52,7 @@ class MemoPipelineResult:
 
 
 def _ko_name(ticker: str, fallback: str) -> str:
-    return DISPLAY_KO.get(ticker, fallback)
+    return ko_display_name(ticker, fallback)
 
 
 def _trend_ko(trend: str) -> str:

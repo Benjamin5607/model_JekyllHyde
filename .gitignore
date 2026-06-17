@@ -32,7 +32,9 @@ dist/build.log
 dist/release.log
 !dist/.gitkeep
 !dist/RELEASES.md
-!dist/*.manifest.json
+
+models/Modelfile.generated
+models/Modelfile.merged.generated
 
 # IDE
 .cursor/

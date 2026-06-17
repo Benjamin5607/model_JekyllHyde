@@ -19,6 +19,8 @@ dedupe:
 prune:
   keep_adapter_checkpoints: 1
   compress_rejected_after_lines: 200
+  dist_keep_win64_zip: false
+  dist_remove_stale_versions: true
 
 schedule:
   optimize_interval_minutes: 60

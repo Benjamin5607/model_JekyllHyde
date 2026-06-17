@@ -2,6 +2,17 @@
 
 from __future__ import annotations
 
+DISPLAY_KO: dict[str, str] = {
+    "005930.KS": "삼성전자",
+    "000660.KS": "SK하이닉스",
+    "035420.KS": "NAVER",
+    "035720.KS": "카카오",
+}
+
+
+def ko_display_name(ticker: str, fallback: str) -> str:
+    return DISPLAY_KO.get(ticker, fallback)
+
 
 def fmt_krw_price(amount: float | None) -> str:
     if amount is None:
