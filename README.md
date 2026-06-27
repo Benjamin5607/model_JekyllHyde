@@ -6,12 +6,12 @@
 
 ## Download install package (recommended)
 
-Download **all files** from [Release v1.2.1](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.1):
+Download **all files** from [Release v1.2.2](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.2):
 
 | File | Purpose |
 |------|---------|
-| [JekyllHyde-1.2.1-app.zip](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.2.1/JekyllHyde-1.2.1-app.zip) | Platform, scripts, configs |
-| [model.part00–02.gz](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.1) | Model weights (gzip L9, 3 parts) |
+| [JekyllHyde-1.2.2-app.zip](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.2.2/JekyllHyde-1.2.2-app.zip) | Platform, scripts, configs |
+| [model.part00–02.gz](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.2) | Model weights (gzip L9, 3 parts) |
 
 1. Extract **app.zip** → run **`install.bat`** (with `.gz` parts in same folder) → **http://127.0.0.1:8080**
 
@@ -27,7 +27,7 @@ model_JekyllHyde/
 │   ├── platform/          # Engine, duel, UI server, formats
 │   ├── quant/             # Market data, pipeline, research
 │   ├── specialization/    # Domain detection (quant/policy/gray/hardening)
-│   ├── learning/          # Feedback → curated training
+│   ├── learning/          # Data diet, curator, continuous train pipeline
 │   ├── storage/           # Optimizer + release packager
 │   ├── verification/      # Free API cross-check providers
 │   └── mcp/               # Cursor MCP server
@@ -52,7 +52,14 @@ model_JekyllHyde/
 | **Chat + investment memo** | 5-stage pipeline: live data → per-section LLM → assemble |
 | **Duel** | Auto-routes: **equity** (market debate) · **guideline** (MCP red-team) · **debate** (any topic → middle ground) |
 | **Guideline / gray-zone / hardening** | Domain-specialized prompts + LoRA |
-| **Learning** | UI feedback → curated JSONL → incremental LoRA |
+| **Learning** | Data diet (semantic dedup + persona caps) → QLoRA adapter updates |
+
+### Data diet (efficiency)
+
+- **Semantic dedup:** bge-small embeddings; cosine ≥ 0.92 rejects near-duplicates (not just hash)
+- **Balancing:** FIFO caps per category & persona; max 2,000 curated records
+- **Compact prompts:** slim Jekyll/Hyde routing + compact quant digest (fewer tokens)
+- **Run cleanup:** `python scripts\data_diet.py`
 
 ### Duel routing
 
@@ -73,9 +80,9 @@ pip install -e ".[train,quant,mcp]"
 scripts\start.bat
 ```
 
-Verify: `python scripts\verify_today.py`
+Verify: `python scripts\verify_today.py` · Data diet: `python scripts\data_diet.py`
 
-Storage cleanup (rotates logs, dedupes learning data, prunes old dist/checkpoints):
+Storage cleanup (rotates logs, semantic dedupe, prunes old dist/checkpoints):
 
 ```powershell
 python -m safety_eval.storage.optimizer
@@ -89,7 +96,7 @@ python -m safety_eval.storage.optimizer
 scripts\build_release.ps1
 ```
 
-Output: `dist/JekyllHyde-1.2.1-app.zip` + `model.partXX.gz` + manifest. Optimizer removes stale `dist/` versions automatically.
+Output: `dist/JekyllHyde-1.2.2-app.zip` + `model.partXX.gz` + manifest.
 
 ---
 
@@ -97,7 +104,8 @@ Output: `dist/JekyllHyde-1.2.1-app.zip` + `model.partXX.gz` + manifest. Optimize
 
 | Tag | Notes |
 |-----|-------|
-| [v1.2.1](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.1) | Structure cleanup, dist auto-prune, removed dead code |
+| [v1.2.2](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.2) | Data diet, semantic dedup, slim routing, compact quant |
+| [v1.2.1](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.1) | Structure cleanup, dist auto-prune |
 | [v1.2.0](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.0) | Duel middle-ground synthesis |
 | [v1.1.0](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.1.0) | 5-stage investment memo pipeline |
 | [v1.0.0](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.0.0) | Initial release |

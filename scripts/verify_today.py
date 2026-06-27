@@ -200,6 +200,28 @@ def check_duel_routing() -> None:
         ok("debate final round → middle ground synthesis")
 
 
+def check_data_diet() -> None:
+    print("\n[9] Data diet")
+    from safety_eval.learning.diet import DataDiet, content_hash, load_jsonl
+
+    path = ROOT / "training" / "datasets" / "jekyll_hyde_train.jsonl"
+    rows = load_jsonl(path)
+    if len(rows) < 40:
+        fail("dataset size", f"only {len(rows)} after diet")
+    else:
+        ok(f"{len(rows)} records after semantic diet")
+    hashes = {content_hash(r) for r in rows}
+    if len(hashes) != len(rows):
+        fail("hash dupes", f"{len(rows) - len(hashes)} duplicate hashes remain")
+    else:
+        ok("no hash duplicates in training set")
+    diet = DataDiet()
+    if diet.index_path.exists():
+        ok("embedding index present")
+    else:
+        fail("embedding index", "missing")
+
+
 def main() -> int:
     print("=== Jekyll & Hyde cross-verification ===")
     check_imports()
@@ -210,6 +232,7 @@ def main() -> int:
     check_dataset()
     check_manifest()
     check_duel_routing()
+    check_data_diet()
     print("\n=== Summary ===")
     if FAILURES:
         for f in FAILURES:

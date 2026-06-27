@@ -9,6 +9,7 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from safety_eval.learning.store import LearningState, get_learning_store
+from safety_eval.storage.optimizer import get_optimizer
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 PYTHON = ROOT / ".venv-train" / "Scripts" / "python.exe"
@@ -99,6 +100,16 @@ class LearningPipeline:
                 proc = subprocess.run(cmd, cwd=str(ROOT), capture_output=True, text=True, timeout=7200)
                 if proc.returncode != 0:
                     raise RuntimeError(proc.stderr[-800:] or proc.stdout[-800:] or "train failed")
+
+            qcfg = self.cfg.get("quantize", {})
+            if qcfg.get("export_gguf_after_train", False):
+                subprocess.run(
+                    [str(PYTHON), str(ROOT / "training" / "quantize_export.py")],
+                    cwd=str(ROOT),
+                    capture_output=True,
+                    text=True,
+                    timeout=7200,
+                )
 
             from safety_eval.platform.local_model import reload_model
 

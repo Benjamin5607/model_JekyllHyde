@@ -16,6 +16,15 @@ DATA = ROOT / "data"
 OUT = ROOT / "training" / "datasets"
 
 
+def _load_cfg_diet_enabled() -> bool:
+    cfg_path = ROOT / "config" / "learning.yaml"
+    if not cfg_path.exists():
+        return True
+    with cfg_path.open(encoding="utf-8") as f:
+        cfg = yaml.safe_load(f) or {}
+    return cfg.get("diet", {}).get("enabled", True)
+
+
 def _load_yaml_probes(path: Path) -> list[dict]:
     if not path.exists():
         return []
@@ -210,6 +219,15 @@ def main() -> None:
     args = parser.parse_args()
 
     records = build_records(args.guidelines)
+
+    from safety_eval.learning.diet import DataDiet
+
+    if _load_cfg_diet_enabled():
+        diet = DataDiet()
+        records, stats = diet.apply(records, rebuild_index=False)
+        print(f"Data diet: {stats.input_count} -> {stats.output_count} "
+              f"(hash -{stats.hash_removed}, semantic -{stats.semantic_removed}, balance -{stats.balance_removed})")
+
     args.out.parent.mkdir(parents=True, exist_ok=True)
     with args.out.open("w", encoding="utf-8") as f:
         for rec in records:

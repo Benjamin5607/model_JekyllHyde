@@ -23,7 +23,28 @@ auto:
   train_epochs_incremental: 2
   train_base: gemma2-2b
   auto_train_enabled: true
+  adapter_only: true
 
 feedback:
   upvote_boost: 0.35
   downvote_reject: true
+
+diet:
+  enabled: true
+  semantic_threshold: 0.92
+  embedding_model: BAAI/bge-small-en-v1.5
+  embedding_index: data/learning/embedding_index.json
+  max_total_records: 2000
+  category_caps:
+    quant: 400
+    policy: 500
+    duel: 300
+    chat: 800
+  persona_caps:
+    jekyll: 800
+    hyde: 600
+    neutral: 1200
+
+quantize:
+  export_gguf_after_train: false
+  gguf_quant: q4_k_m

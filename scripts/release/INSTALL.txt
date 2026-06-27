@@ -1,14 +1,16 @@
-Jekyll & Hyde — Install Package v1.2.1
+Jekyll & Hyde — Install Package v1.2.2
 ======================================
 
-1. Download from GitHub Releases (v1.2.1):
-   - JekyllHyde-1.2.1-app.zip
-   - JekyllHyde-1.2.1-model.part00.gz
-   - JekyllHyde-1.2.1-model.part01.gz
-   - JekyllHyde-1.2.1-model.part02.gz
+1. Download from GitHub Releases (v1.2.2):
+   - JekyllHyde-1.2.2-app.zip
+   - JekyllHyde-1.2.2-model.part00.gz
+   - JekyllHyde-1.2.2-model.part01.gz
+   - JekyllHyde-1.2.2-model.part02.gz
 
 2. Extract app.zip → copy .gz parts → run install.bat → http://127.0.0.1:8080
 
-v1.2.1: project structure cleanup, dist auto-prune, duel routing (equity/guideline/debate).
-
-Verify: python scripts\verify_today.py
+New in v1.2.2:
+  - Data diet: semantic dedup (bge-small) + persona/category caps
+  - Slim Jekyll/Hyde prompt routing (2B-friendly)
+  - Compact quant digest for faster inference
+  - python scripts\data_diet.py  |  python scripts\verify_today.py

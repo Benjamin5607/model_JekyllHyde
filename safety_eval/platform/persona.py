@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from safety_eval.i18n.apac import APAC_LANGUAGE_POLICY
+from safety_eval.platform.router import resolve_persona_focus, slim_core_identity
 
 MODEL_NAME = "jekyll-hyde"
 DEFAULT_BASE = "gemma2:2b"
@@ -104,14 +105,12 @@ def build_system_prompt(
     from safety_eval.i18n.apac import apac_system_suffix
 
     mode = mode.lower()
+    focus = resolve_persona_focus(mode=mode, user_text=user_text)
+
     if mode == "jekyll":
-        role = JEKYLL_PERSONA
-        if quant_block:
-            role = QUANT_JEKYLL
+        role = QUANT_JEKYLL if quant_block else JEKYLL_PERSONA
     elif mode == "hyde":
-        role = HYDE_PERSONA
-        if quant_block:
-            role = QUANT_HYDE
+        role = QUANT_HYDE if quant_block else HYDE_PERSONA
     elif mode == "duel_hyde":
         role = DUEL_GUIDELINE_HYDE if guideline_enforcement else DUEL_DEBATE_HYDE
     elif mode == "duel_jekyll":
@@ -119,7 +118,7 @@ def build_system_prompt(
     else:
         role = CHAT_PERSONA
 
-    parts = [CORE_IDENTITY, APAC_LANGUAGE_POLICY, role]
+    parts = [slim_core_identity(focus), APAC_LANGUAGE_POLICY, role]
     if specialization_block:
         parts.append(specialization_block)
     if format_block:

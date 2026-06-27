@@ -13,8 +13,8 @@ from safety_eval.platform.duel import run_duel
 from safety_eval.platform.formats import build_format_block, format_refusal, max_tokens_for_format, temperature_for_format
 from safety_eval.platform.persona import build_system_prompt
 from safety_eval.specialization.domains import build_specialization_block, primary_domain
-from safety_eval.quant.analyzer import build_quant_context, compare_snapshots, finance_query_with_history, is_finance_query, is_temporal_market_correction
-from safety_eval.quant.pipeline import run_investment_memo_pipeline
+from safety_eval.quant.analyzer import build_quant_context, finance_query_with_history, is_finance_query, is_temporal_market_correction
+from safety_eval.quant.compact import compact_quant_digest
 from safety_eval.store import GuidelinesStore, get_guidelines_store
 from safety_eval.learning.collector import get_collector
 
@@ -110,9 +110,7 @@ class JekyllHydeEngine:
         )
         quant_ctx = build_quant_context(user_message, mode="duel")
         if quant_ctx:
-            topic += "\n" + quant_ctx.to_prompt_block(mode="duel")
-            if len(quant_ctx.snapshots) >= 2:
-                topic += "\n" + compare_snapshots(quant_ctx.snapshots)
+            topic += "\n" + compact_quant_digest(quant_ctx)
 
         if not runtime_ready():
             return EngineResponse(
@@ -231,9 +229,7 @@ class JekyllHydeEngine:
             quant_block = ""
         else:
             locked_preamble = ""
-            quant_block = quant_ctx.to_prompt_block(mode=mode) if quant_ctx else ""
-            if has_comparison:
-                quant_block += "\n" + compare_snapshots(quant_ctx.snapshots)
+            quant_block = compact_quant_digest(quant_ctx) if quant_ctx else ""
             user_payload = user_message
             if quant_block:
                 lang_name = reply_language_name(lang)

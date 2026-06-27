@@ -94,7 +94,16 @@ class LearningStore:
             state.interactions_total += 1
             self.save_state(state)
 
-    def append_curated_training(self, record: dict[str, Any]) -> None:
+    def append_curated_training(self, record: dict[str, Any]) -> bool:
+        """Append if not duplicate. Returns True if stored."""
+        from safety_eval.learning.diet import DataDiet
+
+        diet_cfg = self.cfg.get("diet", {})
+        if diet_cfg.get("enabled", True):
+            diet = DataDiet(self.cfg)
+            if diet.is_near_duplicate(record):
+                return False
+
         with _lock:
             with self.curated_path.open("a", encoding="utf-8") as f:
                 f.write(json.dumps(record, ensure_ascii=False) + "\n")
@@ -103,6 +112,10 @@ class LearningStore:
             state.curated_since_train += 1
             state.last_curate_at = datetime.now(UTC).isoformat()
             self.save_state(state)
+
+        if diet_cfg.get("enabled", True):
+            DataDiet(self.cfg).register_record(record)
+        return True
 
     def append_rejected(self, record: InteractionRecord, reason: str) -> None:
         with _lock:

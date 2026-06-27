@@ -81,31 +81,16 @@ class StorageOptimizer:
         return results
 
     def _dedupe_curated(self) -> dict[str, Any]:
+        from safety_eval.learning.diet import clean_file
+
         curated = self.learning_dir / "curated_train.jsonl"
         if not curated.exists():
             return {"deduped": 0}
-        dedupe_cfg = self.cfg.get("dedupe", {})
-        hash_file = ROOT / dedupe_cfg.get("curated_hash_file", "data/learning/curated_hashes.txt")
-        known: set[str] = set()
-        if hash_file.exists():
-            known = {ln.strip() for ln in hash_file.read_text(encoding="utf-8").splitlines() if ln.strip()}
-
-        kept: list[str] = []
-        removed = 0
-        for line in curated.read_text(encoding="utf-8").splitlines():
-            if not line.strip():
-                continue
-            h = hashlib.sha256(line.encode("utf-8")).hexdigest()[:16]
-            if h in known:
-                removed += 1
-                continue
-            known.add(h)
-            kept.append(line)
-
-        curated.write_text("\n".join(kept) + ("\n" if kept else ""), encoding="utf-8")
-        hash_file.parent.mkdir(parents=True, exist_ok=True)
-        hash_file.write_text("\n".join(sorted(known)) + ("\n" if known else ""), encoding="utf-8")
-        return {"deduped": removed, "remaining": len(kept)}
+        stats = clean_file(curated, rebuild_index=False)
+        return {
+            "deduped": stats.hash_removed + stats.semantic_removed + stats.balance_removed,
+            "remaining": stats.output_count,
+        }
 
     def _prune_adapter_checkpoints(self) -> dict[str, Any]:
         keep_n = int(self.cfg.get("prune", {}).get("keep_adapter_checkpoints", 1))

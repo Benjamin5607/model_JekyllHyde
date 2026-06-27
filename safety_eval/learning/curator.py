@@ -71,7 +71,8 @@ class LearningCurator:
     def try_curate(self, rec: InteractionRecord, *, force: bool = False) -> bool:
         if not self._passes_quality(rec, force=force):
             return False
-        self.store.append_curated_training(self.to_training_record(rec))
+        if not self.store.append_curated_training(self.to_training_record(rec)):
+            return False
         self.store.mark_curated(rec.id)
         return True
 

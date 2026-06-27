@@ -22,6 +22,7 @@ train = [
     "datasets>=2.18",
     "accelerate>=0.28",
     "bitsandbytes>=0.43",
+    "sentence-transformers>=3.0",
 ]
 quant = [
     "yfinance>=0.2",
