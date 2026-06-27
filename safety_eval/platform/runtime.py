@@ -11,7 +11,7 @@ from safety_eval.platform.local_model import (
     is_loaded,
     is_loading,
     load_error,
-    merged_model_available,
+    model_weights_available,
     preload as preload_local,
     read_manifest,
 )
@@ -38,7 +38,7 @@ class RuntimeModelInfo:
 
 
 def describe_runtime() -> RuntimeModelInfo:
-    if merged_model_available():
+    if model_weights_available():
         info = get_local_model_info()
         manifest = read_manifest()
         return RuntimeModelInfo(
@@ -89,11 +89,11 @@ def describe_runtime() -> RuntimeModelInfo:
 
 
 def uses_local_model() -> bool:
-    return merged_model_available()
+    return model_weights_available()
 
 
 def runtime_ready() -> bool:
-    if merged_model_available():
+    if model_weights_available():
         return is_loaded()
     if ollama_available():
         info = ensure_model(prefer_finetuned=True)
@@ -102,7 +102,7 @@ def runtime_ready() -> bool:
 
 
 def model_status() -> dict[str, str | bool | None]:
-    if merged_model_available():
+    if model_weights_available():
         return {
             "ready": is_loaded(),
             "loading": is_loading(),
@@ -119,7 +119,7 @@ def model_status() -> dict[str, str | bool | None]:
 
 
 def warmup() -> RuntimeModelInfo:
-    if merged_model_available():
+    if model_weights_available():
         try:
             preload_local()
         except Exception:
@@ -134,10 +134,16 @@ def generate(
     model_name: str = MODEL_NAME,
     temperature: float = 0.7,
     max_new_tokens: int = 384,
+    adapter: str | None = None,
 ) -> tuple[str, RuntimeModelInfo]:
-    if merged_model_available():
+    if model_weights_available():
         try:
-            content = local_chat(messages, temperature=temperature, max_new_tokens=max_new_tokens)
+            content = local_chat(
+                messages,
+                temperature=temperature,
+                max_new_tokens=max_new_tokens,
+                adapter=adapter,
+            )
             return content, describe_runtime()
         except Exception:
             if not ollama_available(ollama_url):

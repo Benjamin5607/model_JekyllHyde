@@ -18,8 +18,10 @@ echo Step 2: Test Gemma access
 %VENV% -c "from huggingface_hub import hf_hub_download; print(hf_hub_download('google/gemma-2-2b-it','config.json'))"
 echo Step 3: Dataset
 %VENV% training\prepare_dataset.py
-echo Step 4: LoRA train (RTX 5060 Ti 16GB - gemma2-2b recommended)
-%VENV% training\train_lora.py --base gemma2-2b --4bit
-echo Step 5: Merge + Ollama jekyll-hyde-ft
-%VENV% training\merge_and_export.py --base gemma2-2b --ollama
+echo Step 4: Dual LoRA train (Jekyll + Hyde adapters)
+%VENV% training\train_lora.py --base gemma2-2b --4bit --persona both
+echo Step 5: Merge Jekyll snapshot + optional Ollama
+%VENV% training\merge_and_export.py --base gemma2-2b --persona jekyll --ollama
+echo Step 6: GGUF export (if llama.cpp installed)
+%VENV% training\quantize_export.py
 echo Done.

@@ -318,6 +318,7 @@ def run_duel(
             ollama_url=ollama_url,
             model_name=model_name,
             temperature=temperature + 0.1,
+            adapter="hyde",
         )
         turns.append(DuelTurn("hyde", round_num, hyde_content))
         transcript.append({"role": "assistant", "content": f"[Hyde R{round_num}] {hyde_content}"})
@@ -376,6 +377,7 @@ def run_duel(
             ollama_url=ollama_url,
             model_name=model_name,
             temperature=temperature,
+            adapter="jekyll",
         )
         turns.append(DuelTurn("jekyll", round_num, jekyll_content))
         transcript.append({"role": "assistant", "content": f"[Jekyll R{round_num}] {jekyll_content}"})

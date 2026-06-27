@@ -222,6 +222,44 @@ def check_data_diet() -> None:
         fail("embedding index", "missing")
 
 
+def check_dual_lora() -> None:
+    print("\n[10] Dual LoRA routing")
+    from safety_eval.learning.persona_data import filter_records_for_persona
+    from safety_eval.platform.local_model import dual_adapters_available, resolve_adapter
+    from safety_eval.platform.router import resolve_persona_focus
+    from training.bootstrap_adapters import bootstrap_dual_adapters
+
+    status = bootstrap_dual_adapters()
+    if dual_adapters_available():
+        ok("jekyll-lora + hyde-lora ready")
+    elif status.get("jekyll") == "bootstrapped" or status.get("hyde") == "bootstrapped":
+        ok("adapters bootstrapped from legacy")
+    else:
+        fail("dual adapters", f"status={status}")
+
+    if resolve_adapter("hyde") != "hyde" or resolve_adapter("jekyll") != "jekyll":
+        fail("resolve_adapter", "persona mapping broken")
+    else:
+        ok("adapter resolve jekyll/hyde")
+
+    focus = resolve_persona_focus(mode="hyde", user_text="test")
+    if focus != "hyde":
+        fail("persona focus", f"hyde mode -> {focus}")
+    else:
+        ok("hyde mode -> hyde adapter focus")
+
+    path = ROOT / "training" / "datasets" / "jekyll_hyde_train.jsonl"
+    from safety_eval.learning.diet import load_jsonl
+
+    rows = load_jsonl(path)
+    j_rows = filter_records_for_persona(rows, "jekyll")
+    h_rows = filter_records_for_persona(rows, "hyde")
+    if len(j_rows) < 10 or len(h_rows) < 5:
+        fail("persona split", f"jekyll={len(j_rows)} hyde={len(h_rows)}")
+    else:
+        ok(f"persona split jekyll={len(j_rows)} hyde={len(h_rows)}")
+
+
 def main() -> int:
     print("=== Jekyll & Hyde cross-verification ===")
     check_imports()
@@ -233,6 +271,7 @@ def main() -> int:
     check_manifest()
     check_duel_routing()
     check_data_diet()
+    check_dual_lora()
     print("\n=== Summary ===")
     if FAILURES:
         for f in FAILURES:

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import subprocess
 import sys
 import threading
@@ -80,6 +81,28 @@ class LearningPipeline:
         threading.Thread(target=_run, daemon=True, name="jh-learn-train").start()
         return {"started": True}
 
+    def _run_gguf_export(self, qcfg: dict) -> dict:
+        if not qcfg.get("export_gguf_after_train", True):
+            return {"skipped": True, "reason": "disabled in config"}
+        proc = subprocess.run(
+            [
+                str(PYTHON),
+                str(ROOT / "training" / "quantize_export.py"),
+                "--quant",
+                qcfg.get("gguf_quant", "q4_k_m"),
+            ],
+            cwd=str(ROOT),
+            capture_output=True,
+            text=True,
+            timeout=7200,
+        )
+        if proc.returncode != 0:
+            return {"ok": False, "reason": (proc.stderr or proc.stdout or "quantize failed")[-400:]}
+        try:
+            return json.loads(proc.stdout.strip().splitlines()[-1])
+        except (json.JSONDecodeError, IndexError):
+            return {"ok": False, "reason": proc.stdout[-400:] or "unknown quantize output"}
+
     def _run_training_cycle(self) -> None:
         state = self.store.load_state()
         state.training_in_progress = True
@@ -89,27 +112,37 @@ class LearningPipeline:
         auto = self.cfg.get("auto", {})
         base = auto.get("train_base", "gemma2-2b")
         epochs = auto.get("train_epochs_incremental", 2)
+        qcfg = self.cfg.get("quantize", {})
 
         try:
             get_optimizer().optimize()
             self.maybe_merge_dataset()
-            for cmd in (
-                [str(PYTHON), str(ROOT / "training" / "train_lora.py"), "--base", base, "--4bit", "--epochs", str(epochs)],
+            train_cmds = [
+                [
+                    str(PYTHON),
+                    str(ROOT / "training" / "train_lora.py"),
+                    "--base",
+                    base,
+                    "--4bit",
+                    "--epochs",
+                    str(epochs),
+                    "--persona",
+                    "both",
+                ],
                 [str(PYTHON), str(ROOT / "training" / "merge_and_export.py"), "--base", base],
-            ):
+            ]
+            for cmd in train_cmds:
                 proc = subprocess.run(cmd, cwd=str(ROOT), capture_output=True, text=True, timeout=7200)
                 if proc.returncode != 0:
                     raise RuntimeError(proc.stderr[-800:] or proc.stdout[-800:] or "train failed")
 
-            qcfg = self.cfg.get("quantize", {})
-            if qcfg.get("export_gguf_after_train", False):
-                subprocess.run(
-                    [str(PYTHON), str(ROOT / "training" / "quantize_export.py")],
-                    cwd=str(ROOT),
-                    capture_output=True,
-                    text=True,
-                    timeout=7200,
-                )
+            gguf_result = self._run_gguf_export(qcfg)
+            if not gguf_result.get("ok") and not gguf_result.get("skipped"):
+                note = gguf_result.get("reason", "gguf export failed")
+                if not gguf_result.get("skipped"):
+                    state = self.store.load_state()
+                    state.last_error = f"gguf: {note}"[:500]
+                    self.store.save_state(state)
 
             from safety_eval.platform.local_model import reload_model
 
@@ -121,6 +154,8 @@ class LearningPipeline:
             state.curated_since_train = 0
             state.last_train_samples = state.curated_total
             state.training_in_progress = False
+            if gguf_result.get("ok"):
+                state.last_error = ""
             self.store.save_state(state)
         except Exception as exc:
             state = self.store.load_state()

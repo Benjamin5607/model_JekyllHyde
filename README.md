@@ -1,17 +1,17 @@
 # Jekyll & Hyde — `model_JekyllHyde`
 
-**Independent dual-persona LLM** (Gemma 2 2B + LoRA merge) with a self-hosted chat platform, MCP guidelines, structured responses, domain specialization, and continuous learning.
+**Independent dual-persona LLM** (Gemma 2 2B + **dual LoRA adapters**) with a self-hosted chat platform, MCP guidelines, structured responses, domain specialization, and continuous learning.
 
 ---
 
 ## Download install package (recommended)
 
-Download **all files** from [Release v1.2.2](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.2):
+Download **all files** from [Release v1.2.3](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.3):
 
 | File | Purpose |
 |------|---------|
-| [JekyllHyde-1.2.2-app.zip](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.2.2/JekyllHyde-1.2.2-app.zip) | Platform, scripts, configs |
-| [model.part00–02.gz](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.2) | Model weights (gzip L9, 3 parts) |
+| [JekyllHyde-1.2.3-app.zip](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.2.3/JekyllHyde-1.2.3-app.zip) | Platform, scripts, configs |
+| [model.part00–02.gz](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.3) | Model weights (gzip L9, 3 parts) |
 
 1. Extract **app.zip** → run **`install.bat`** (with `.gz` parts in same folder) → **http://127.0.0.1:8080**
 
@@ -34,7 +34,7 @@ model_JekyllHyde/
 ├── training/              # LoRA dataset, train, merge
 ├── models/
 │   ├── merged/jekyll-hyde/   # Fine-tuned weights (download via Releases)
-│   └── adapters/             # LoRA adapter (training)
+│   └── adapters/             # jekyll-lora + hyde-lora (runtime switching)
 ├── config/                # Platform, storage, specialization YAML
 ├── data/                  # Guidelines probes, learning queue
 ├── scripts/               # start/stop, install, build_release, verify
@@ -51,8 +51,8 @@ model_JekyllHyde/
 |---------|-------------|
 | **Chat + investment memo** | 5-stage pipeline: live data → per-section LLM → assemble |
 | **Duel** | Auto-routes: **equity** (market debate) · **guideline** (MCP red-team) · **debate** (any topic → middle ground) |
-| **Guideline / gray-zone / hardening** | Domain-specialized prompts + LoRA |
-| **Learning** | Data diet (semantic dedup + persona caps) → QLoRA adapter updates |
+| **Guideline / gray-zone / hardening** | Slim persona routing + **Jekyll/Hyde LoRA switch** |
+| **Learning** | Data diet → dual QLoRA updates → auto GGUF export (llama.cpp) |
 
 ### Data diet (efficiency)
 
@@ -60,6 +60,13 @@ model_JekyllHyde/
 - **Balancing:** FIFO caps per category & persona; max 2,000 curated records
 - **Compact prompts:** slim Jekyll/Hyde routing + compact quant digest (fewer tokens)
 - **Run cleanup:** `python scripts\data_diet.py`
+
+### Dual LoRA + GGUF pipeline (v1.2.3+)
+
+- **Runtime:** 4-bit frozen Gemma base + `jekyll-lora` / `hyde-lora` hot-swap per request
+- **Training:** `train_lora.py --persona both` filters dataset by persona bucket
+- **Deploy snapshot:** merge Jekyll adapter → optional GGUF Q4_K_M after each continuous-learning cycle
+- **Bootstrap:** legacy `jekyll-hyde-lora` auto-copies to both adapters if missing
 
 ### Duel routing
 
@@ -96,7 +103,7 @@ python -m safety_eval.storage.optimizer
 scripts\build_release.ps1
 ```
 
-Output: `dist/JekyllHyde-1.2.2-app.zip` + `model.partXX.gz` + manifest.
+Output: `dist/JekyllHyde-1.2.3-app.zip` + `model.partXX.gz` + manifest.
 
 ---
 
@@ -104,6 +111,7 @@ Output: `dist/JekyllHyde-1.2.2-app.zip` + `model.partXX.gz` + manifest.
 
 | Tag | Notes |
 |-----|-------|
+| v1.2.3 | [Dual LoRA + auto GGUF](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.3) |
 | [v1.2.2](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.2) | Data diet, semantic dedup, slim routing, compact quant |
 | [v1.2.1](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.1) | Structure cleanup, dist auto-prune |
 | [v1.2.0](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.0) | Duel middle-ground synthesis |

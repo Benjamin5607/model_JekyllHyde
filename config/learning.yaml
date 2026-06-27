@@ -46,5 +46,6 @@ diet:
     neutral: 1200
 
 quantize:
-  export_gguf_after_train: false
+  export_gguf_after_train: true
   gguf_quant: q4_k_m
+  prune_old_gguf: true

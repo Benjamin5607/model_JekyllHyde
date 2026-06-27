@@ -37,9 +37,15 @@ lora:
     - up_proj
     - down_proj
 
+adapters:
+  legacy: models/adapters/jekyll-hyde-lora
+  jekyll: models/adapters/jekyll-lora
+  hyde: models/adapters/hyde-lora
+
 training:
   output_dir: models/adapters/jekyll-hyde-lora
   merged_dir: models/merged/jekyll-hyde
+  merge_persona: jekyll
   max_seq_length: 2048
   batch_size: 1
   gradient_accumulation_steps: 8

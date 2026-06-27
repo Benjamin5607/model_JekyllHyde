@@ -28,7 +28,7 @@ from safety_eval.platform.ollama_client import (
     ollama_available,
     pull_base,
 )
-from safety_eval.platform.local_model import is_loaded, is_loading, load_error, merged_model_available
+from safety_eval.platform.local_model import is_loaded, is_loading, load_error, model_weights_available
 from safety_eval.platform.runtime import describe_runtime, model_status, runtime_ready, warmup, uses_local_model
 from safety_eval.platform.persona import DISPLAY_NAME
 from safety_eval.platform.prefs import (

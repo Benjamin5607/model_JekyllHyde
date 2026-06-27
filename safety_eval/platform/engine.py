@@ -8,6 +8,7 @@ from typing import Any, Literal
 from safety_eval.blue_team import build_blue_team
 from safety_eval.i18n.apac import detect_user_language, language_generation_reminder, reply_language_name
 from safety_eval.platform.ollama_client import MODEL_NAME
+from safety_eval.platform.router import resolve_persona_focus
 from safety_eval.platform.runtime import describe_runtime, generate, runtime_ready
 from safety_eval.platform.duel import run_duel
 from safety_eval.platform.formats import build_format_block, format_refusal, max_tokens_for_format, temperature_for_format
@@ -307,6 +308,7 @@ class JekyllHydeEngine:
         llm_sections = 0
 
         pipeline_stages: list[dict[str, str]] = []
+        adapter_focus = resolve_persona_focus(mode=mode, user_text=user_message, domains=domains)
 
         try:
             if analyst_harness and quant_ctx:
@@ -325,6 +327,7 @@ class JekyllHydeEngine:
                         model_name=self.config.model,
                         temperature=temp,
                         max_new_tokens=max_tok,
+                        adapter="jekyll",
                     )
 
                 pipe = run_investment_memo_pipeline(quant_ctx, user_message, _gen_step)
@@ -342,6 +345,7 @@ class JekyllHydeEngine:
                     model_name=self.config.model,
                     temperature=gen_temp,
                     max_new_tokens=max_tokens,
+                    adapter=adapter_focus,
                 )
 
             active_model = runtime.name

@@ -14,11 +14,11 @@ Write-Host "Optimizing storage..."
 & $Py -m safety_eval.storage.optimizer | Out-Null
 
 Write-Host "Building install packages (compresslevel=9, live progress every 3s)..."
-Write-Host "Model compression may take 30-90 minutes — progress lines will print continuously."
+Write-Host "Model compression may take 30-90 minutes - progress lines will print continuously."
 & $Py -m safety_eval.storage.packager
 
-$Zip = Join-Path $Root "dist\JekyllHyde-1.2.2-win64.zip"
+$Zip = Join-Path $Root "dist\JekyllHyde-1.2.3-win64.zip"
 if (Test-Path $Zip) {
     $Mb = [math]::Round((Get-Item $Zip).Length / 1MB, 1)
-    Write-Host "Done: $Zip ($Mb MB)"
+    Write-Host ('Done: {0} ({1} MB)' -f $Zip, $Mb)
 }

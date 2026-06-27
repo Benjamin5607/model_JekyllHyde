@@ -1,4 +1,4 @@
-"""Load and run the fine-tuned Jekyll & Hyde model (merged LoRA weights)."""
+"""Load and run the fine-tuned Jekyll & Hyde model (dual LoRA or merged weights)."""
 
 from __future__ import annotations
 
@@ -6,16 +6,57 @@ import json
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
+
+import yaml
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 MERGED_DIR = ROOT / "models" / "merged" / "jekyll-hyde"
 MANIFEST_PATH = MERGED_DIR / "jekyll_hyde_manifest.json"
+TRAIN_CONFIG = ROOT / "training" / "config.yaml"
+
+AdapterName = Literal["jekyll", "hyde"]
 
 _model = None
 _tokenizer = None
 _load_error: str | None = None
 _loading = False
+_backend: str = "none"
+_active_adapter: AdapterName = "jekyll"
+_base_model_id: str = "google/gemma-2-2b-it"
+
+
+def _adapter_dirs() -> dict[AdapterName, Path]:
+    defaults: dict[AdapterName, Path] = {
+        "jekyll": ROOT / "models" / "adapters" / "jekyll-lora",
+        "hyde": ROOT / "models" / "adapters" / "hyde-lora",
+    }
+    if TRAIN_CONFIG.exists():
+        with TRAIN_CONFIG.open(encoding="utf-8") as f:
+            cfg = yaml.safe_load(f) or {}
+        adapters = cfg.get("adapters") or {}
+        for key in ("jekyll", "hyde"):
+            rel = adapters.get(key)
+            if rel:
+                defaults[key] = ROOT / rel  # type: ignore[literal-required]
+    return defaults
+
+
+def _adapter_ready(path: Path) -> bool:
+    return (path / "adapter_config.json").exists()
+
+
+def dual_adapters_available() -> bool:
+    dirs = _adapter_dirs()
+    return _adapter_ready(dirs["jekyll"]) and _adapter_ready(dirs["hyde"])
+
+
+def merged_model_available() -> bool:
+    return (MERGED_DIR / "config.json").exists()
+
+
+def model_weights_available() -> bool:
+    return dual_adapters_available() or merged_model_available()
 
 
 def is_loaded() -> bool:
@@ -30,6 +71,21 @@ def load_error() -> str | None:
     return _load_error
 
 
+def backend_mode() -> str:
+    return _backend
+
+
+def active_adapter() -> AdapterName:
+    return _active_adapter
+
+
+def resolve_adapter(persona: str | None) -> AdapterName:
+    focus = (persona or "balanced").lower()
+    if focus == "hyde":
+        return "hyde"
+    return "jekyll"
+
+
 @dataclass(frozen=True)
 class LocalModelInfo:
     name: str
@@ -39,17 +95,24 @@ class LocalModelInfo:
     base: str
     backend: str
     params_b: int | None = None
-    method: str = "lora-merge"
-
-
-def merged_model_available() -> bool:
-    return (MERGED_DIR / "config.json").exists()
+    method: str = "dual-lora"
+    active_adapter: str = "jekyll"
 
 
 def read_manifest() -> dict[str, Any]:
     if MANIFEST_PATH.exists():
         with MANIFEST_PATH.open(encoding="utf-8") as f:
             return json.load(f)
+    if dual_adapters_available():
+        return {
+            "name": "jekyll-hyde",
+            "display_name": "Jekyll & Hyde",
+            "fine_tuned": True,
+            "base_huggingface": _base_model_id,
+            "base_key": "gemma2-2b",
+            "method": "dual-lora",
+            "params_b": 2,
+        }
     if merged_model_available():
         return {
             "name": "jekyll-hyde",
@@ -65,7 +128,7 @@ def read_manifest() -> dict[str, Any]:
 
 def get_local_model_info() -> LocalModelInfo:
     manifest = read_manifest()
-    if not merged_model_available():
+    if not model_weights_available():
         return LocalModelInfo(
             name="jekyll-hyde",
             display_name="Jekyll & Hyde",
@@ -74,6 +137,7 @@ def get_local_model_info() -> LocalModelInfo:
             base="",
             backend="local",
         )
+    method = manifest.get("method", "dual-lora" if dual_adapters_available() else "lora-merge")
     return LocalModelInfo(
         name=manifest.get("name", "jekyll-hyde"),
         display_name=manifest.get("display_name", "Jekyll & Hyde"),
@@ -82,7 +146,8 @@ def get_local_model_info() -> LocalModelInfo:
         base=manifest.get("base_huggingface", manifest.get("base", "gemma")),
         backend="local",
         params_b=manifest.get("params_b"),
-        method=manifest.get("method", "lora-merge"),
+        method=method,
+        active_adapter=_active_adapter,
     )
 
 
@@ -142,56 +207,139 @@ def clean_generation(text: str) -> str:
     return "\n\n".join(deduped).strip()
 
 
+def _load_dual_adapters() -> tuple[Any, Any]:
+    global _backend, _active_adapter, _base_model_id
+
+    import sys
+
+    if str(ROOT) not in sys.path:
+        sys.path.insert(0, str(ROOT))
+    from training.bootstrap_adapters import bootstrap_dual_adapters
+
+    bootstrap_dual_adapters()
+    if not dual_adapters_available():
+        raise RuntimeError("Dual LoRA adapters missing. Run training/train_lora.py --persona both")
+
+    import os
+
+    os.environ.setdefault("HF_HUB_DISABLE_PROGRESS_BARS", "1")
+    os.environ.setdefault("TRANSFORMERS_NO_ADVISORY_WARNINGS", "1")
+
+    import torch
+    from peft import PeftModel
+    from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+
+    manifest = read_manifest()
+    model_id = manifest.get("base_huggingface", _base_model_id)
+    _base_model_id = model_id
+    dirs = _adapter_dirs()
+
+    tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+
+    if torch.cuda.is_available():
+        quant = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_compute_dtype=torch.float16,
+            bnb_4bit_use_double_quant=True,
+        )
+        base = AutoModelForCausalLM.from_pretrained(
+            model_id,
+            trust_remote_code=True,
+            quantization_config=quant,
+            device_map="auto",
+        )
+    else:
+        base = AutoModelForCausalLM.from_pretrained(
+            model_id,
+            trust_remote_code=True,
+            torch_dtype=torch.float32,
+            device_map="cpu",
+        )
+
+    model = PeftModel.from_pretrained(base, str(dirs["jekyll"]), adapter_name="jekyll")
+    model.load_adapter(str(dirs["hyde"]), adapter_name="hyde")
+    model.set_adapter("jekyll")
+    model.eval()
+    _backend = "dual-lora"
+    _active_adapter = "jekyll"
+    return model, tokenizer
+
+
+def _load_merged() -> tuple[Any, Any]:
+    global _backend
+
+    import os
+
+    os.environ.setdefault("HF_HUB_DISABLE_PROGRESS_BARS", "1")
+    os.environ.setdefault("TRANSFORMERS_NO_ADVISORY_WARNINGS", "1")
+
+    import torch
+    from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+
+    tokenizer = AutoTokenizer.from_pretrained(MERGED_DIR, trust_remote_code=True)
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+
+    if torch.cuda.is_available():
+        quant = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_compute_dtype=torch.float16,
+            bnb_4bit_use_double_quant=True,
+        )
+        model = AutoModelForCausalLM.from_pretrained(
+            MERGED_DIR,
+            trust_remote_code=True,
+            quantization_config=quant,
+            device_map="auto",
+        )
+    else:
+        model = AutoModelForCausalLM.from_pretrained(
+            MERGED_DIR,
+            trust_remote_code=True,
+            torch_dtype=torch.float32,
+            device_map="cpu",
+        )
+
+    model.eval()
+    _backend = "merged"
+    return model, tokenizer
+
+
+def _set_active_adapter(name: AdapterName) -> None:
+    global _active_adapter
+    if _model is None or _backend != "dual-lora":
+        return
+    _model.set_adapter(name)
+    _active_adapter = name
+
+
 def _ensure_loaded() -> tuple[Any, Any]:
     global _model, _tokenizer, _load_error
 
     if _model is not None and _tokenizer is not None:
         return _model, _tokenizer
 
-    if not merged_model_available():
-        raise RuntimeError(f"Fine-tuned model not found at {MERGED_DIR}. Run training/merge first.")
+    if not model_weights_available():
+        raise RuntimeError(
+            "Fine-tuned model not found. Run training/train_lora.py --persona both then merge."
+        )
 
     try:
-        import os
-
-        os.environ.setdefault("HF_HUB_DISABLE_PROGRESS_BARS", "1")
-        os.environ.setdefault("TRANSFORMERS_NO_ADVISORY_WARNINGS", "1")
-
-        import torch
-        from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+        import torch  # noqa: F401
+        from transformers import AutoModelForCausalLM  # noqa: F401
     except ImportError as exc:
         _load_error = "Install training env: pip install -e '.[train]' (or use .venv-train)"
         raise RuntimeError(_load_error) from exc
 
     try:
-        tokenizer = AutoTokenizer.from_pretrained(MERGED_DIR, trust_remote_code=True)
-        if tokenizer.pad_token is None:
-            tokenizer.pad_token = tokenizer.eos_token
-
-        if torch.cuda.is_available():
-            quant = BitsAndBytesConfig(
-                load_in_4bit=True,
-                bnb_4bit_quant_type="nf4",
-                bnb_4bit_compute_dtype=torch.float16,
-                bnb_4bit_use_double_quant=True,
-            )
-            model = AutoModelForCausalLM.from_pretrained(
-                MERGED_DIR,
-                trust_remote_code=True,
-                quantization_config=quant,
-                device_map="auto",
-            )
+        if dual_adapters_available():
+            _model, _tokenizer = _load_dual_adapters()
         else:
-            model = AutoModelForCausalLM.from_pretrained(
-                MERGED_DIR,
-                trust_remote_code=True,
-                torch_dtype=torch.float32,
-                device_map="cpu",
-            )
-
-        model.eval()
-        _model = model
-        _tokenizer = tokenizer
+            _model, _tokenizer = _load_merged()
         _load_error = None
         return _model, _tokenizer
     except Exception as exc:
@@ -204,10 +352,14 @@ def chat(
     *,
     temperature: float = 0.7,
     max_new_tokens: int = 384,
+    adapter: str | None = None,
 ) -> str:
     import torch
 
     model, tokenizer = _ensure_loaded()
+    if adapter:
+        _set_active_adapter(resolve_adapter(adapter))
+
     norm = normalize_messages(messages)
     prompt = tokenizer.apply_chat_template(norm, tokenize=False, add_generation_prompt=True)
     inputs = tokenizer(prompt, return_tensors="pt")
@@ -238,19 +390,21 @@ def chat(
 
 
 def reload_model() -> LocalModelInfo:
-    """Unload and reload merged weights after incremental training."""
-    global _model, _tokenizer, _load_error, _loading
+    """Unload and reload weights after incremental training."""
+    global _model, _tokenizer, _load_error, _loading, _backend, _active_adapter
     _model = None
     _tokenizer = None
     _load_error = None
     _loading = False
+    _backend = "none"
+    _active_adapter = "jekyll"
     return preload()
 
 
 def preload() -> LocalModelInfo:
     """Warm up GPU weights (call from background thread)."""
     global _loading, _load_error
-    if not merged_model_available():
+    if not model_weights_available():
         return get_local_model_info()
     if is_loaded():
         return get_local_model_info()

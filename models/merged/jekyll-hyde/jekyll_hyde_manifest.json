@@ -2,11 +2,16 @@
   "name": "jekyll-hyde",
   "display_name": "Jekyll & Hyde",
   "fine_tuned": true,
-  "method": "lora-merge",
+  "method": "dual-lora",
+  "adapters": {
+    "jekyll": "models/adapters/jekyll-lora",
+    "hyde": "models/adapters/hyde-lora"
+  },
+  "merge_persona": "jekyll",
   "base_key": "gemma2-2b",
   "base_huggingface": "google/gemma-2-2b-it",
   "params_b": 2,
-  "merged_at": "2026-06-15T15:45:11.635653+00:00",
+  "merged_at": "2026-06-27T17:49:26.389589+00:00",
   "identity": "Independent Gemma-derived model. LoRA weights merged into base weights. Not a prompt wrapper — this is the custom Jekyll & Hyde model.",
   "specialization": [
     "equity_market_analysis",

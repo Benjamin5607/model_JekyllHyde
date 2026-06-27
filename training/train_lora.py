@@ -4,11 +4,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 
 import yaml
 
 ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 CONFIG_PATH = Path(__file__).resolve().parent / "config.yaml"
 
 
@@ -58,6 +61,12 @@ def main() -> None:
     parser.add_argument("--dry-run", action="store_true", help="Validate dataset/config only")
     parser.add_argument("--4bit", action="store_true", help="Use 4-bit quantization (needs GPU)")
     parser.add_argument("--epochs", type=int, default=None, help="Override num_epochs from config")
+    parser.add_argument(
+        "--persona",
+        choices=("jekyll", "hyde", "both"),
+        default="both",
+        help="Train persona-specific LoRA adapter(s)",
+    )
     args = parser.parse_args()
 
     cfg = load_config()
@@ -69,6 +78,31 @@ def main() -> None:
 
     records = load_jsonl(args.dataset)
     print(f"Dataset: {len(records)} samples")
+
+    from training.bootstrap_adapters import bootstrap_dual_adapters
+
+    bootstrap_dual_adapters()
+
+    personas = ("jekyll", "hyde") if args.persona == "both" else (args.persona,)
+    for persona in personas:
+        _train_persona(
+            cfg=cfg,
+            args=args,
+            records=records,
+            persona=persona,
+        )
+
+
+def _train_persona(*, cfg: dict, args: argparse.Namespace, records: list[dict], persona: str) -> None:
+    from safety_eval.learning.persona_data import filter_records_for_persona
+
+    adapter_key = persona
+    adapter_dir = Path(cfg["adapters"][adapter_key])
+    filtered = filter_records_for_persona(records, persona)
+    if not filtered:
+        raise SystemExit(f"No training samples for persona={persona}")
+
+    print(f"\n=== LoRA train persona={persona} ({len(filtered)} samples) -> {adapter_dir} ===")
     print(f"Base: {args.base} -> {cfg['base_models'][args.base]['huggingface']}")
     print(f"VRAM estimate: {cfg['base_models'][args.base]['vram_gb']} GB")
 
@@ -116,15 +150,14 @@ def main() -> None:
     model = get_peft_model(model, peft_config)
     model.print_trainable_parameters()
 
-    dataset = Dataset.from_list([format_sample(r, tokenizer) for r in records])
+    dataset = Dataset.from_list([format_sample(r, tokenizer) for r in filtered])
 
-    out_dir = Path(train_cfg["output_dir"])
-    out_dir.mkdir(parents=True, exist_ok=True)
+    adapter_dir.mkdir(parents=True, exist_ok=True)
 
     num_epochs = args.epochs if args.epochs is not None else train_cfg["num_epochs"]
 
     training_args = TrainingArguments(
-        output_dir=str(out_dir),
+        output_dir=str(adapter_dir),
         per_device_train_batch_size=train_cfg["batch_size"],
         gradient_accumulation_steps=train_cfg["gradient_accumulation_steps"],
         learning_rate=train_cfg["learning_rate"],
@@ -155,9 +188,9 @@ def main() -> None:
 
     trainer = Trainer(model=model, args=training_args, train_dataset=tokenized)
     trainer.train()
-    model.save_pretrained(out_dir)
-    tokenizer.save_pretrained(out_dir)
-    print(f"LoRA adapter saved -> {out_dir}")
+    model.save_pretrained(adapter_dir)
+    tokenizer.save_pretrained(adapter_dir)
+    print(f"LoRA adapter saved -> {adapter_dir}")
     print("Next: python training/merge_and_export.py")
 
 

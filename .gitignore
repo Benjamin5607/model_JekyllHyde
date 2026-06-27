@@ -22,8 +22,13 @@ data/archive/
 
 # Large model weights (download via Releases)
 models/merged/jekyll-hyde/model.safetensors
+models/merged/jekyll-hyde/*.gguf
 models/adapters/**/checkpoint-*/
 models/adapters/**/*.safetensors
+
+# Local llama.cpp tooling (download separately)
+tools/llama.cpp/
+tools/llama-bin/
 
 # Release artifacts (local build)
 dist/*.zip
@@ -31,6 +36,7 @@ dist/*.part*
 dist/*.part*.gz
 dist/build.log
 dist/release.log
+dist/train_lora.log
 !dist/.gitkeep
 !dist/RELEASES.md
 

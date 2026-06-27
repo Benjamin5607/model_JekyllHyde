@@ -224,7 +224,7 @@ def main() -> None:
 
     if _load_cfg_diet_enabled():
         diet = DataDiet()
-        records, stats = diet.apply(records, rebuild_index=False)
+        records, stats = diet.apply(records, rebuild_index=True)
         print(f"Data diet: {stats.input_count} -> {stats.output_count} "
               f"(hash -{stats.hash_removed}, semantic -{stats.semantic_removed}, balance -{stats.balance_removed})")
 

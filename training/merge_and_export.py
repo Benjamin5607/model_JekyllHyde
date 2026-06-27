@@ -18,17 +18,29 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Merge LoRA and register Ollama model")
     parser.add_argument("--base", default="gemma2-2b")
     parser.add_argument("--adapter", type=Path, help="LoRA adapter dir")
+    parser.add_argument(
+        "--persona",
+        choices=("jekyll", "hyde"),
+        default=None,
+        help="Merge persona adapter from training/config.yaml adapters map",
+    )
     parser.add_argument("--ollama", action="store_true", help="Create Ollama model after merge")
     args = parser.parse_args()
 
     with CONFIG_PATH.open(encoding="utf-8") as f:
         cfg = yaml.safe_load(f)
 
-    adapter_dir = args.adapter or Path(cfg["training"]["output_dir"])
+    if args.adapter:
+        adapter_dir = args.adapter
+    elif args.persona:
+        adapter_dir = Path(cfg["adapters"][args.persona])
+    else:
+        merge_persona = cfg["training"].get("merge_persona", "jekyll")
+        adapter_dir = Path(cfg["adapters"].get(merge_persona) or cfg["training"]["output_dir"])
     merged_dir = Path(cfg["training"]["merged_dir"])
     base_id = cfg["base_models"][args.base]["huggingface"]
 
-    if not adapter_dir.exists():
+    if not adapter_dir.exists() or not (adapter_dir / "adapter_config.json").exists():
         raise SystemExit(f"Adapter not found: {adapter_dir}. Run train_lora.py first.")
 
     try:
@@ -52,7 +64,15 @@ def main() -> None:
         "name": "jekyll-hyde",
         "display_name": "Jekyll & Hyde",
         "fine_tuned": True,
-        "method": "lora-merge",
+        "method": "dual-lora"
+        if (adapter_dir.parent / "jekyll-lora" / "adapter_config.json").exists()
+        and (adapter_dir.parent / "hyde-lora" / "adapter_config.json").exists()
+        else "lora-merge",
+        "adapters": {
+            "jekyll": str(cfg["adapters"]["jekyll"]),
+            "hyde": str(cfg["adapters"]["hyde"]),
+        },
+        "merge_persona": args.persona or cfg["training"].get("merge_persona", "jekyll"),
         "base_key": args.base,
         "base_huggingface": base_id,
         "params_b": cfg["base_models"][args.base]["params_b"],
