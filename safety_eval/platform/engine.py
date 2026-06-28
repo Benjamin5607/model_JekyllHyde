@@ -16,6 +16,7 @@ from safety_eval.platform.persona import build_system_prompt
 from safety_eval.specialization.domains import build_specialization_block, primary_domain
 from safety_eval.quant.analyzer import build_quant_context, finance_query_with_history, is_finance_query, is_temporal_market_correction
 from safety_eval.quant.compact import compact_quant_digest
+from safety_eval.quant.pipeline import run_investment_memo_pipeline
 from safety_eval.store import GuidelinesStore, get_guidelines_store
 from safety_eval.learning.collector import get_collector
 
