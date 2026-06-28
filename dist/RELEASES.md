@@ -2,6 +2,7 @@
 
 | Version | Date | Assets | Notes |
 |---------|------|--------|-------|
+| **1.2.4** | 2026-06-13 | `app.zip` + `model.part00–02.gz` | Ultra-lightweight loop, English-default UI i18n |
 | **1.2.3** | 2026-06-28 | `app.zip` + `model.part00–02.gz` | Dual LoRA, auto GGUF, persona routing |
 | **1.2.2** | 2026-06-17 | `app.zip` + `model.part00–02.gz` | Data diet, semantic dedup, slim routing |
 | **1.2.1** | 2026-06-16 | `app.zip` + `model.part00–02.gz` | Structure cleanup, dist auto-prune |

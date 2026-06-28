@@ -13,7 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent.parent
 DIST = ROOT / "dist"
 
-RELEASE_VERSION = "1.2.3"
+RELEASE_VERSION = "1.2.4"
 RELEASE_NAME = f"JekyllHyde-{RELEASE_VERSION}-win64"
 APP_ZIP_NAME = f"JekyllHyde-{RELEASE_VERSION}-app.zip"
 MODEL_PART_PREFIX = f"JekyllHyde-{RELEASE_VERSION}-model.part"

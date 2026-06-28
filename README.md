@@ -26,12 +26,12 @@
 
 ![Install steps](docs/screenshots/07-install-steps.png)
 
-Download **all files** from [Release v1.2.3](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.3):
+Download **all files** from [Release v1.2.4](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.4):
 
 | File | Purpose |
 |------|---------|
-| [JekyllHyde-1.2.3-app.zip](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.2.3/JekyllHyde-1.2.3-app.zip) | Platform, scripts, configs |
-| [model.part00–02.gz](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.3) | Model weights (gzip L9, 3 parts) |
+| [JekyllHyde-1.2.4-app.zip](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.2.4/JekyllHyde-1.2.4-app.zip) | Platform, scripts, configs |
+| [model.part00–02.gz](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.4) | Model weights (gzip L9, 3 parts) |
 
 ```powershell
 # 1) Extract app.zip
@@ -62,7 +62,7 @@ General chat, investment memos, guideline Q&A. Sky-blue theme.
 
 ### 2) Jekyll / Hyde / Duel — persona switch
 
-Use the sidebar **Mode** segment. UI colors and the **LoRA adapter** switch together (v1.2.3+).
+Use the sidebar **Mode** segment. UI colors and the **LoRA adapter** switch together (v1.2.3+). Default UI language is **English**; change it in Settings → App language.
 
 | Mode | Screenshot | Purpose |
 |------|------------|---------|
@@ -176,6 +176,13 @@ model_JekyllHyde/
 - **Compact prompts:** slim Jekyll/Hyde routing + compact quant digest (fewer tokens)
 - **Run cleanup:** `python scripts\data_diet.py`
 
+### Ultra-lightweight loop (v1.2.4+)
+
+- **Background cycle:** storage prune + GGUF cleanup + re-quantize when merged weights are newer than the kept Q4_K_M file
+- **Goal:** stay smaller than full-size models via data diet, adapter-only training, and repeated quant pruning — not raw parameter count
+- **Config:** `config/storage.yaml` → `lightweight` section (interval via `schedule.optimize_interval_minutes`)
+- **Manual tick:** `python -m safety_eval.storage.lightweight`
+
 ### Dual LoRA + GGUF pipeline (v1.2.3+)
 
 - **Runtime:** 4-bit frozen Gemma base + `jekyll-lora` / `hyde-lora` hot-swap per request
@@ -191,7 +198,7 @@ model_JekyllHyde/
 scripts\build_release.ps1
 ```
 
-Output: `dist/JekyllHyde-1.2.3-app.zip` + `model.partXX.gz` + manifest.
+Output: `dist/JekyllHyde-1.2.4-app.zip` + `model.partXX.gz` + manifest.
 
 ---
 
@@ -199,7 +206,8 @@ Output: `dist/JekyllHyde-1.2.3-app.zip` + `model.partXX.gz` + manifest.
 
 | Tag | Notes |
 |-----|-------|
-| v1.2.3 | [Dual LoRA + auto GGUF](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.3) |
+| v1.2.4 | Ultra-lightweight quant loop, English-default UI i18n, output guard |
+| [v1.2.3](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.3) | Dual LoRA + auto GGUF |
 | [v1.2.2](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.2) | Data diet, semantic dedup, slim routing, compact quant |
 | [v1.2.1](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.1) | Structure cleanup, dist auto-prune |
 | [v1.2.0](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.0) | Duel middle-ground synthesis |

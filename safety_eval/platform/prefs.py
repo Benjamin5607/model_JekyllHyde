@@ -33,7 +33,7 @@ JEKYLL_HYDE_MCP_TOOLS: list[dict[str, str]] = [
 ]
 
 DEFAULT_PREFS: dict[str, Any] = {
-    "ui_language": "ko",
+    "ui_language": "en",
     "mcp": {
         "jekyll_hyde": True,
         "external": {},
@@ -69,13 +69,13 @@ def save_prefs(prefs: dict[str, Any]) -> dict[str, Any]:
 
 
 def get_ui_language() -> str:
-    lang = load_prefs().get("ui_language", "ko")
-    return lang if lang in UI_LANGUAGES else "ko"
+    lang = load_prefs().get("ui_language", "en")
+    return lang if lang in UI_LANGUAGES else "en"
 
 
 def set_ui_language(lang: str) -> str:
     if lang not in UI_LANGUAGES:
-        lang = "ko"
+        lang = "en"
     prefs = load_prefs()
     prefs["ui_language"] = lang
     save_prefs(prefs)

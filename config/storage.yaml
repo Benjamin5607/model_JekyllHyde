@@ -24,3 +24,11 @@ prune:
 
 schedule:
   optimize_interval_minutes: 60
+
+# Ultra-lightweight loop — prune + re-quantize until only the target GGUF remains
+lightweight:
+  enabled: true
+  keep_gguf_quant: q4_k_m
+  auto_requantize_after_train: true
+  prune_old_gguf: true
+  requantize_cooldown_minutes: 30

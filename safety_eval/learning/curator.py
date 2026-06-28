@@ -6,6 +6,7 @@ import re
 
 from safety_eval.learning.store import InteractionRecord, LearningStore, get_learning_store
 from safety_eval.platform.formats import build_format_block
+from safety_eval.platform.output_guard import is_simple_greeting, looks_like_template_leak
 from safety_eval.store import get_guidelines_store
 
 _CURATED_FORMATS = frozenset({
@@ -29,13 +30,23 @@ class LearningCurator:
             return False
         if rec.feedback == "down":
             return False
+        if looks_like_template_leak(rec.assistant):
+            return False
         if force or rec.feedback == "up":
             return True
         qcfg = self.cfg.get("quality", {})
+        for pat in qcfg.get("reject_leak_patterns", []):
+            if re.search(pat, rec.assistant, re.I):
+                return False
         if len(rec.assistant) < qcfg.get("min_assistant_chars", 80):
+            if not is_simple_greeting(rec.user):
+                return False
+        simple = is_simple_greeting(rec.user)
+        if simple and len(rec.assistant) > 320:
             return False
-        if qcfg.get("require_markdown", True) and not re.search(r"(^|\n)## |^\|", rec.assistant, re.M):
-            return False
+        if qcfg.get("require_markdown", True) and not simple:
+            if not re.search(r"(^|\n)## |^\|", rec.assistant, re.M):
+                return False
         return rec.quality_score >= self._min_score()
 
     def to_training_record(self, rec: InteractionRecord) -> dict:

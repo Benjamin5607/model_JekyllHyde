@@ -260,6 +260,57 @@ def check_dual_lora() -> None:
         ok(f"persona split jekyll={len(j_rows)} hyde={len(h_rows)}")
 
 
+def check_lightweight() -> None:
+    print("\n[11] Lightweight cycle + UI defaults")
+    from safety_eval.platform.prefs import DEFAULT_PREFS, get_ui_language
+    from safety_eval.quant.market import market_weather_text
+    from safety_eval.storage.lightweight import prune_gguf_artifacts, run_lightweight_cycle
+
+    if DEFAULT_PREFS.get("ui_language") != "en":
+        fail("ui default", f"expected en, got {DEFAULT_PREFS.get('ui_language')}")
+    else:
+        ok("default ui_language=en")
+
+    if get_ui_language() not in ("en", "ko", "ja", "zh"):
+        fail("get_ui_language", get_ui_language())
+    else:
+        ok(f"active ui_language={get_ui_language()}")
+
+    en_w = market_weather_text("en")
+    ko_w = market_weather_text("ko")
+    if "Market weather" not in en_w or "시장 날씨" not in ko_w:
+        fail("market_weather_text", "locale strings missing")
+    else:
+        ok("market weather localized")
+
+    prune = prune_gguf_artifacts()
+    if "removed" not in prune:
+        fail("prune_gguf", str(prune))
+    else:
+        ok(f"gguf prune tick ({len(prune.get('removed', []))} removed)")
+
+    cycle = run_lightweight_cycle()
+    if not cycle.get("enabled", True) or "storage" not in cycle:
+        fail("lightweight cycle", str(cycle)[:200])
+    else:
+        ok("lightweight cycle")
+
+
+def check_output_guard() -> None:
+    print("\n[12] Output guard (greeting / template leak)")
+    from safety_eval.platform.output_guard import sanitize_chat_output
+
+    clean = sanitize_chat_output(
+        "RESPONSE TEMPLATE\nKEY CONCEPT\nfoo",
+        user_text="hello",
+        lang="en",
+    )
+    if "Hello!" in clean and "Jekyll" in clean:
+        ok("template leak -> greeting reply")
+    else:
+        fail("sanitize_chat_output", clean[:120])
+
+
 def main() -> int:
     print("=== Jekyll & Hyde cross-verification ===")
     check_imports()
@@ -272,6 +323,8 @@ def main() -> int:
     check_duel_routing()
     check_data_diet()
     check_dual_lora()
+    check_lightweight()
+    check_output_guard()
     print("\n=== Summary ===")
     if FAILURES:
         for f in FAILURES:

@@ -180,10 +180,26 @@ _TURN_LEAK_MARKERS = (
 
 
 def clean_generation(text: str) -> str:
-    """Trim role leaks, turn markers, and repeated paragraphs from model output."""
+    """Trim role leaks, turn markers, repeated paragraphs, and template meta from model output."""
+    from safety_eval.platform.output_guard import looks_like_template_leak
+
     t = text.strip()
     if not t:
         return t
+
+    if looks_like_template_leak(t):
+        for marker in (
+            "Response Template",
+            "RESPONSE TEMPLATE",
+            "KEY CONCEPT",
+            "Example Response Template",
+            "SAMPLE ANSWER",
+            "USER QUERY:",
+        ):
+            idx = t.find(marker)
+            if idx >= 0:
+                t = t[:idx].strip()
+                break
 
     lower = t.lower()
     for marker in _TURN_LEAK_MARKERS:

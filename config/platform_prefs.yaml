@@ -1,5 +1,5 @@
-ui_language: ko
+ui_language: en
 mcp:
-  jekyll_hyde: true
+  jekyll_hyde: false
   external: {}
 verification: {}

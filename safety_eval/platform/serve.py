@@ -53,6 +53,7 @@ from safety_eval.verification.registry import list_mcp_servers, list_providers, 
 from safety_eval.quant import MARKET_SAMPLES, build_quant_context, market_weather_text, scan_market_universe
 from safety_eval.quant.market import get_market_indices
 from safety_eval.storage.optimizer import get_optimizer
+from safety_eval.storage.lightweight import run_lightweight_cycle
 from safety_eval.storage.packager import release_info
 
 STATIC = Path(__file__).resolve().parent / "static"
@@ -80,7 +81,7 @@ async def lifespan(app: FastAPI):
                 interval = int((yaml.safe_load(f) or {}).get("schedule", {}).get("optimize_interval_minutes", 60))
         while not _storage_stop.is_set():
             try:
-                get_optimizer().optimize()
+                run_lightweight_cycle()
             except Exception:
                 pass
             _storage_stop.wait(interval * 60)
@@ -154,6 +155,7 @@ class QuantAnalyzeBody(BaseModel):
 class QuantScanBody(BaseModel):
     market: str = "Korea"
     limit: int = 10
+    lang: str = "en"
 
 
 class SettingsBody(BaseModel):
@@ -252,8 +254,8 @@ def api_verification_run(body: VerifyBody) -> dict:
 
 
 @app.get("/api/quant/markets")
-def api_quant_markets() -> dict:
-    weather = market_weather_text()
+def api_quant_markets(lang: str = "en") -> dict:
+    weather = market_weather_text(lang)
     indices = {k: {"price": v[0], "change_pct": v[1]} for k, v in get_market_indices().items()}
     return {"markets": list(MARKET_SAMPLES.keys()), "weather": weather, "indices": indices}
 
@@ -262,7 +264,7 @@ def api_quant_markets() -> dict:
 def api_quant_analyze(body: QuantAnalyzeBody) -> dict:
     ctx = build_quant_context(body.query, mode=body.mode)
     if not ctx:
-        raise HTTPException(400, "Could not resolve finance query. Try: '삼성전자 vs SK하이닉스 분석'")
+        raise HTTPException(400, "Could not resolve finance query. Try: 'Samsung vs SK Hynix analysis'")
     return {
         "prompt_block": ctx.to_prompt_block(mode=body.mode),
         "tickers": [s.ticker for s in ctx.snapshots],
@@ -276,7 +278,7 @@ def api_quant_scan(body: QuantScanBody) -> dict:
     if body.market not in MARKET_SAMPLES:
         raise HTTPException(400, f"Unknown market. Options: {list(MARKET_SAMPLES)}")
     rows = scan_market_universe(body.market, limit=max(1, min(body.limit, 20)))
-    return {"market": body.market, "results": rows, "weather": market_weather_text()}
+    return {"market": body.market, "results": rows, "weather": market_weather_text(body.lang)}
 
 
 @app.get("/api/health")

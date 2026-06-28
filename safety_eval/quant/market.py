@@ -228,11 +228,33 @@ def get_stock_snapshot(ticker: str, name: str | None = None) -> StockSnapshot:
     )
 
 
-def market_weather_text() -> str:
+def market_weather_text(lang: str = "en") -> str:
     anchor = analysis_anchor()
     indices = get_market_indices()
-    header = f"Analysis as of {anchor['date']} ({anchor['quarter']}). Current quarter focus: {anchor['quarter_label_ko']}."
+    lang = lang if lang in ("en", "ko", "ja", "zh") else "en"
+    if lang == "ko":
+        header = (
+            f"분석 기준 {anchor['date']} ({anchor['quarter']}). "
+            f"현재 분기 초점: {anchor['quarter_label_ko']}."
+        )
+        unavailable = "시장 지수를 불러올 수 없습니다."
+        weather_label = "시장 날씨:"
+    elif lang == "ja":
+        header = f"分析基準 {anchor['date']} ({anchor['quarter']})。当期フォーカス: {anchor['quarter']}。"
+        unavailable = "市場指数を取得できません。"
+        weather_label = "市場天気:"
+    elif lang == "zh":
+        header = f"分析基准 {anchor['date']} ({anchor['quarter']})。本季焦点: {anchor['quarter']}。"
+        unavailable = "无法获取市场指数。"
+        weather_label = "市场概况:"
+    else:
+        header = (
+            f"Analysis as of {anchor['date']} ({anchor['quarter']}). "
+            f"Current quarter focus: {anchor['quarter']}."
+        )
+        unavailable = "Market indices unavailable."
+        weather_label = "Market weather:"
     if not indices:
-        return f"{header} Market indices unavailable."
+        return f"{header} {unavailable}"
     parts = [f"{k}: {v[0]:,.0f} ({v[1]:+.2f}%)" for k, v in indices.items()]
-    return f"{header}\nMarket weather: " + ", ".join(parts)
+    return f"{header}\n{weather_label} " + ", ".join(parts)

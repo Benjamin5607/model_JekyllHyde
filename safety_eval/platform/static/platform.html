@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -641,54 +641,54 @@
         <div class="logo">J·H</div>
         <div>
           <h1>Jekyll & Hyde</h1>
-          <p>Studio · 자체 LLM</p>
+          <p>Studio · Custom LLM</p>
         </div>
       </div>
 
       <div id="status" class="status-pill">
         <span class="status-dot"></span>
-        <span id="statusText">연결 중…</span>
+        <span id="statusText">Connecting…</span>
       </div>
 
       <div class="nav-section">
-        <div class="nav-label">모드</div>
+        <div class="nav-label">Mode</div>
         <div class="persona-seg" id="personaSeg">
-          <button type="button" class="seg-btn active" data-mode="chat">일반</button>
+          <button type="button" class="seg-btn active" data-mode="chat">Chat</button>
           <button type="button" class="seg-btn" data-mode="jekyll">Jekyll</button>
           <button type="button" class="seg-btn" data-mode="hyde">Hyde</button>
           <button type="button" class="seg-btn" data-mode="duel">Duel</button>
         </div>
-        <div id="modeHint" class="mode-tip">일반 채팅 — 옅은 하늘색 톤의 기본 대화 모드</div>
+        <div id="modeHint" class="mode-tip">General chat — light sky-blue theme</div>
         <select id="duelRounds" title="Duel rounds" style="display:none">
-          <option value="1">1라운드</option>
-          <option value="2" selected>2라운드</option>
-          <option value="3">3라운드</option>
+          <option value="1">1 round</option>
+          <option value="2" selected>2 rounds</option>
+          <option value="3">3 rounds</option>
         </select>
       </div>
 
       <div class="card">
-        <div class="card-head" data-i18n="mcpTitle">MCP 연동</div>
+        <div class="card-head" data-i18n="mcpTitle">MCP Integration</div>
         <div class="card-body">
-          <p class="mcp-blurb" data-i18n="mcpSidebarHint">가이드라인·검증·Quant는 MCP 도구로 제공됩니다 (Gemini Gemstone 방식)</p>
-          <button type="button" class="btn-secondary" id="openMcpSidebar" data-i18n="mcpConfigure">MCP 설정 열기</button>
+          <p class="mcp-blurb" data-i18n="mcpSidebarHint">Guidelines, verification &amp; Quant via MCP tools (Gemstone-style)</p>
+          <button type="button" class="btn-secondary" id="openMcpSidebar" data-i18n="mcpConfigure">Open MCP settings</button>
         </div>
       </div>
 
       <div class="card">
         <div class="card-head" data-i18n="quantTitle">Pocket Quant</div>
         <div class="card-body">
-          <div id="marketWeather" class="weather-line">시장 데이터 로딩…</div>
+          <div id="marketWeather" class="weather-line">Loading market data…</div>
           <select id="quantMarket">
-            <option value="Korea">한국</option>
-            <option value="USA">미국</option>
-            <option value="Vietnam">베트남</option>
-            <option value="Japan">일본</option>
+            <option value="Korea">Korea</option>
+            <option value="USA">USA</option>
+            <option value="Vietnam">Vietnam</option>
+            <option value="Japan">Japan</option>
           </select>
-          <button type="button" class="btn-secondary" id="btnQuantScan">시장 스캔</button>
+          <button type="button" class="btn-secondary" id="btnQuantScan">Scan market</button>
         </div>
       </div>
 
-      <button type="button" class="btn-secondary" id="newChat">새 대화</button>
+      <button type="button" class="btn-secondary" id="newChat">New chat</button>
       <div id="verifyInfo" class="meta"></div>
     </aside>
 
@@ -696,7 +696,7 @@
       <header class="topbar">
         <div class="topbar-left">
           <button type="button" class="menu-btn" id="menuBtn" aria-label="Menu">☰</button>
-          <span id="activeBadge" class="mode-chip"><span class="dot"></span> 일반</span>
+          <span id="activeBadge" class="mode-chip"><span class="dot"></span> Chat</span>
         </div>
         <div class="topbar-right">
           <span class="model-name" id="modelLabel">jekyll-hyde</span>
@@ -708,8 +708,8 @@
         <div class="chat" id="messages">
           <div class="chat-empty" id="emptyState">
             <div class="empty-logo">✦</div>
-            <h2>무엇을 도와드릴까요?</h2>
-            <p>일반 채팅은 하늘색 톤, Jekyll은 민트, Hyde는 붉은색으로 인터페이스가 바뀝니다.</p>
+            <h2>How can I help?</h2>
+            <p>Interface colors change with persona mode.</p>
             <div class="suggestions">
               <button type="button" class="suggestion" data-q="Samsung vs SK Hynix investment memo with risks">Stock analysis</button>
               <button type="button" class="suggestion" data-q="Audit our Gray Areas guideline section for loopholes">Guideline audit</button>
@@ -718,13 +718,13 @@
             </div>
           </div>
         </div>
-        <div class="typing" id="typing"><i></i><i></i><i></i> 응답 생성 중</div>
+        <div class="typing" id="typing"><i></i><i></i><i></i> Generating…</div>
       </div>
 
       <div class="composer">
         <div class="composer-box">
-          <input id="input" placeholder="메시지를 입력하세요…" autocomplete="off" />
-          <button type="button" class="btn-primary" id="send">전송</button>
+          <input id="input" placeholder="Type a message…" autocomplete="off" />
+          <button type="button" class="btn-primary" id="send">Send</button>
         </div>
       </div>
     </div>
@@ -732,14 +732,14 @@
 
   <div class="drawer" id="settingsDrawer">
     <div class="drawer-head">
-      <h2 data-i18n="settingsTitle">설정</h2>
+      <h2 data-i18n="settingsTitle">Settings</h2>
       <button type="button" class="drawer-close" id="closeSettings">×</button>
     </div>
     <div class="drawer-body">
       <div class="drawer-section">
-        <div class="drawer-label" data-i18n="langTitle">앱 언어</div>
+        <div class="drawer-label" data-i18n="langTitle">App language</div>
         <select id="uiLang"></select>
-        <p class="drawer-note" data-i18n="langNote">UI 표시 언어입니다. 모델 응답은 사용자 입력 언어를 따릅니다.</p>
+        <p class="drawer-note" data-i18n="langNote">UI display language. Model replies follow your input language.</p>
       </div>
 
       <div class="drawer-section">
@@ -750,26 +750,26 @@
       </div>
 
       <div class="drawer-section">
-        <div class="drawer-label" data-i18n="mcpTitle">MCP 연동</div>
-        <p class="drawer-note" data-i18n="mcpGuidelinesNote">커뮤니티 가이드라인은 화면에서 편집하지 않습니다. Cursor/Claude 등 MCP 클라이언트에서 <code>set_guidelines</code>, <code>get_guidelines</code> 도구를 사용하세요.</p>
+        <div class="drawer-label" data-i18n="mcpTitle">MCP Integration</div>
+        <p class="drawer-note" data-i18n="mcpGuidelinesNote">Manage guidelines via MCP tools set_guidelines / get_guidelines — not in this UI.</p>
         <div id="guidelinesMcpStatus" class="drawer-note"></div>
 
         <div class="toggle-item">
-          <label><span data-i18n="mcpJekyllHyde">jekyll-hyde MCP 서버</span><small data-i18n="mcpJekyllHydeDesc">채팅·가이드라인·검증·Quant 도구</small></label>
+          <label><span data-i18n="mcpJekyllHyde">jekyll-hyde MCP server</span><small data-i18n="mcpJekyllHydeDesc">Chat, guidelines, verify, quant</small></label>
           <div id="swJekyllMcp" class="mini-switch on" role="switch"></div>
         </div>
 
         <div class="tool-list" id="mcpToolList"></div>
 
-        <div class="drawer-label" style="margin-top:8px" data-i18n="mcpExternal">외부 MCP (무료)</div>
+        <div class="drawer-label" style="margin-top:8px" data-i18n="mcpExternal">External MCP (free)</div>
         <div class="toggle-list" id="externalMcpList"></div>
 
-        <div class="drawer-label" style="margin-top:8px" data-i18n="mcpVerify">검증 API</div>
+        <div class="drawer-label" style="margin-top:8px" data-i18n="mcpVerify">Verification APIs</div>
         <div class="toggle-list" id="providerList"></div>
 
-        <div class="drawer-label" style="margin-top:8px">Cursor <code>mcp.json</code></div>
+        <div class="drawer-label" style="margin-top:8px" data-i18n="mcpCursorLabel">Cursor mcp.json</div>
         <pre class="code-box" id="cursorConfig"></pre>
-        <button type="button" class="btn-secondary" id="copyMcp" data-i18n="mcpCopy">설정 복사</button>
+        <button type="button" class="btn-secondary" id="copyMcp" data-i18n="mcpCopy">Copy Cursor config</button>
       </div>
     </div>
   </div>
@@ -797,6 +797,9 @@
         mcpGuidelinesNote: '가이드라인은 MCP 도구 set_guidelines / get_guidelines 로 관리합니다.',
         mcpJekyllHyde: 'jekyll-hyde MCP 서버', mcpJekyllHydeDesc: '채팅·가이드라인·검증·Quant',
         mcpExternal: '외부 MCP (무료)', mcpVerify: '검증 API', mcpCopy: 'Cursor 설정 복사',
+        mcpCursorLabel: 'Cursor mcp.json',
+        marketLoading: '시장 데이터 로딩…', marketKorea: '한국', marketUSA: '미국', marketVietnam: '베트남', marketJapan: '일본',
+        duelRound1: '1라운드', duelRound2: '2라운드', duelRound3: '3라운드',
         glStatus: '활성 가이드라인', glChars: '자', verifyMeta: '개 검증 API · Quant',
         badgeChat: '일반', badgeJekyll: 'Jekyll', badgeHyde: 'Hyde', badgeDuel: 'Duel',
         copied: '클립보드에 복사했습니다',
@@ -825,6 +828,9 @@
         mcpGuidelinesNote: 'Manage guidelines via MCP tools set_guidelines / get_guidelines — not in this UI.',
         mcpJekyllHyde: 'jekyll-hyde MCP server', mcpJekyllHydeDesc: 'Chat, guidelines, verify, quant',
         mcpExternal: 'External MCP (free)', mcpVerify: 'Verification APIs', mcpCopy: 'Copy Cursor config',
+        mcpCursorLabel: 'Cursor mcp.json',
+        marketLoading: 'Loading market data…', marketKorea: 'Korea', marketUSA: 'USA', marketVietnam: 'Vietnam', marketJapan: 'Japan',
+        duelRound1: '1 round', duelRound2: '2 rounds', duelRound3: '3 rounds',
         glStatus: 'Active guidelines', glChars: 'chars', verifyMeta: ' verification APIs · Quant',
         badgeChat: 'Chat', badgeJekyll: 'Jekyll', badgeHyde: 'Hyde', badgeDuel: 'Duel',
         copied: 'Copied to clipboard',
@@ -849,6 +855,13 @@
         mcpGuidelinesNote: 'ガイドラインは MCP set_guidelines / get_guidelines で管理。',
         mcpJekyllHyde: 'jekyll-hyde MCP', mcpJekyllHydeDesc: 'チャット・ガイドライン・検証',
         mcpExternal: '外部MCP', mcpVerify: '検証API', mcpCopy: 'Cursor設定をコピー',
+        mcpCursorLabel: 'Cursor mcp.json',
+        marketLoading: '市場データ読込中…', marketKorea: '韓国', marketUSA: '米国', marketVietnam: 'ベトナム', marketJapan: '日本',
+        duelRound1: '1ラウンド', duelRound2: '2ラウンド', duelRound3: '3ラウンド',
+        learnTitle: '継続学習', learnCurate: 'フィードバック整理', learnTrain: 'フィードバックで再学習',
+        learnGen: '世代', learnCurated: '学習サンプル', learnPending: '再学習待ち', learnTraining: '学習中…',
+        fbThanks: 'フィードバックを記録しました',
+        hintDuelEquity: 'Duel — 投資・市場 · ライブデータ議論',
         glStatus: '有効なガイドライン', glChars: '文字', verifyMeta: '件の検証API · Quant',
         badgeChat: '一般', badgeJekyll: 'Jekyll', badgeHyde: 'Hyde', badgeDuel: 'Duel',
         copied: 'コピーしました'
@@ -870,13 +883,22 @@
         mcpGuidelinesNote: '准则通过 MCP set_guidelines / get_guidelines 管理。',
         mcpJekyllHyde: 'jekyll-hyde MCP', mcpJekyllHydeDesc: '聊天·准则·验证',
         mcpExternal: '外部 MCP', mcpVerify: '验证 API', mcpCopy: '复制 Cursor 配置',
+        mcpCursorLabel: 'Cursor mcp.json',
+        marketLoading: '正在加载市场数据…', marketKorea: '韩国', marketUSA: '美国', marketVietnam: '越南', marketJapan: '日本',
+        duelRound1: '1 轮', duelRound2: '2 轮', duelRound3: '3 轮',
+        learnTitle: '持续学习', learnCurate: '整理反馈', learnTrain: '从反馈训练',
+        learnGen: '代', learnCurated: '训练样本', learnPending: '待重训', learnTraining: '训练中…',
+        fbThanks: '反馈已记录',
+        hintDuelEquity: 'Duel — 投资/市场 · 实时数据辩论',
         glStatus: '活跃准则', glChars: '字', verifyMeta: '个验证 API · Quant',
         badgeChat: '一般', badgeJekyll: 'Jekyll', badgeHyde: 'Hyde', badgeDuel: 'Duel',
         copied: '已复制'
       }
     };
 
-    let uiLang = localStorage.getItem('jh_ui_lang') || 'ko';
+    const MARKET_KEYS = { Korea: 'marketKorea', USA: 'marketUSA', Vietnam: 'marketVietnam', Japan: 'marketJapan' };
+
+    let uiLang = localStorage.getItem('jh_ui_lang') || 'en';
     let personaMode = 'chat';
     let jekyllOn = false, hydeOn = false;
     let mcpData = null;
@@ -892,13 +914,44 @@
     const backdrop = document.getElementById('backdrop');
     const settingsDrawer = document.getElementById('settingsDrawer');
 
-    function t(key) { return (I18N[uiLang] || I18N.ko)[key] || I18N.ko[key] || key; }
+    function t(key) { return (I18N[uiLang] || I18N.en)[key] || I18N.en[key] || key; }
+
+    function applyQuantMarkets() {
+      const sel = document.getElementById('quantMarket');
+      const cur = sel.value || 'Korea';
+      sel.innerHTML = Object.entries(MARKET_KEYS)
+        .map(([value, key]) => `<option value="${value}">${t(key)}</option>`)
+        .join('');
+      sel.value = cur;
+    }
+
+    function applyDuelRounds() {
+      const sel = document.getElementById('duelRounds');
+      ['1', '2', '3'].forEach(n => {
+        const opt = sel.querySelector(`option[value="${n}"]`);
+        if (opt) opt.textContent = t('duelRound' + n);
+      });
+    }
+
+    async function loadMarketWeather() {
+      const el = document.getElementById('marketWeather');
+      if (!el) return;
+      el.textContent = t('marketLoading');
+      try {
+        const qw = await fetch(`/api/quant/markets?lang=${encodeURIComponent(uiLang)}`)
+          .then(r => r.ok ? r.json() : null);
+        if (qw) el.textContent = qw.weather || '—';
+      } catch (e) {
+        el.textContent = '—';
+      }
+    }
 
     function applyI18n() {
       document.documentElement.lang = uiLang;
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const k = el.getAttribute('data-i18n');
-        if (I18N[uiLang]?.[k]) el.textContent = I18N[uiLang][k];
+        const text = (I18N[uiLang] || I18N.en)[k] || I18N.en[k];
+        if (text) el.textContent = text;
       });
       document.getElementById('input').placeholder = t('inputPh');
       document.getElementById('send').textContent = t('send');
@@ -913,11 +966,11 @@
       document.getElementById('newChat').textContent = t('newChat');
       document.querySelector('.chat-empty h2').textContent = t('emptyTitle');
       document.querySelector('.chat-empty p').textContent = t('emptyDesc');
-      const sugs = document.querySelectorAll('.suggestion');
-      if (sugs[0]) sugs[0].textContent = t('sug1');
-      if (sugs[1]) sugs[1].textContent = t('sug2');
-      if (sugs[2]) sugs[2].textContent = t('sug3');
+      applyQuantMarkets();
+      applyDuelRounds();
+      typing.innerHTML = '<i></i><i></i><i></i> ' + t('typing');
       applyTheme();
+      loadMarketWeather();
     }
 
     function esc(s) {
@@ -1109,7 +1162,10 @@
       try {
         const sel = document.getElementById('uiLang');
         const settings = await fetch('/api/settings').then(r => r.ok ? r.json() : null).catch(() => null);
-        if (settings?.ui_language) uiLang = settings.ui_language;
+        if (settings?.ui_language) {
+          uiLang = settings.ui_language;
+          localStorage.setItem('jh_ui_lang', uiLang);
+        }
         const langs = settings?.ui_languages?.length ? settings.ui_languages : FALLBACK_LANGS;
         sel.innerHTML = langs.map(l => `<option value="${l.code}">${l.label}</option>`).join('');
         sel.value = uiLang;
@@ -1191,7 +1247,11 @@
       try {
         const h = await fetch('/api/health').then(r => r.json());
         document.getElementById('modelLabel').textContent = h.display_name || h.model || 'jekyll-hyde';
-        if (h.ui_language && h.ui_language !== uiLang) { uiLang = h.ui_language; applyI18n(); }
+        if (h.ui_language && h.ui_language !== uiLang) {
+          uiLang = h.ui_language;
+          localStorage.setItem('jh_ui_lang', uiLang);
+          applyI18n();
+        }
         if (h.model_error) {
           statusEl.className = 'status-pill';
           statusText.textContent = t('statusError');
@@ -1213,8 +1273,7 @@
             || await fetch('/api/verification/providers').then(r => r.ok ? r.json() : { providers: [] }).catch(() => ({ providers: [] }));
           const n = (vp.providers || []).filter(p => p.enabled).length;
           document.getElementById('verifyInfo').textContent = n + t('verifyMeta');
-          const qw = await fetch('/api/quant/markets').then(r => r.ok ? r.json() : null).catch(() => null);
-          if (qw) document.getElementById('marketWeather').textContent = qw.weather || '—';
+          await loadMarketWeather();
         }
       } catch (e) {
         statusEl.className = 'status-pill';
@@ -1271,7 +1330,7 @@
     document.getElementById('btnQuantScan').onclick = async () => {
       const m = document.getElementById('quantMarket').value;
       const d = await fetch('/api/quant/scan', { method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ market: m, limit: 10 }) }).then(r=>r.json());
+        body: JSON.stringify({ market: m, limit: 10, lang: uiLang }) }).then(r=>r.json());
       const top = (d.results||[]).slice(0,5).map(x=>`${x.name} ${x.change_pct.toFixed(2)}%`).join(', ');
       document.getElementById('input').value = `${m}: ${top}`;
       document.getElementById('input').focus();

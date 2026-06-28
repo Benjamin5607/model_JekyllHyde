@@ -8,6 +8,7 @@ from typing import Any, Literal
 from safety_eval.blue_team import build_blue_team
 from safety_eval.i18n.apac import detect_user_language, language_generation_reminder, reply_language_name
 from safety_eval.platform.ollama_client import MODEL_NAME
+from safety_eval.platform.output_guard import sanitize_chat_output
 from safety_eval.platform.router import resolve_persona_focus
 from safety_eval.platform.runtime import describe_runtime, generate, runtime_ready
 from safety_eval.platform.duel import run_duel
@@ -360,6 +361,8 @@ class JekyllHydeEngine:
                 language=lang,
                 meta={"error": str(exc)},
             )
+
+        content = sanitize_chat_output(content, user_text=user_message, lang=lang)
 
         blocked_out, verdict_out = self._jekyll_check(content)
         if blocked_out and mode == "chat":

@@ -8,6 +8,6 @@ if errorlevel 1 (
   python -m safety_eval.storage.packager
 )
 echo.
-echo Output: dist\JekyllHyde-1.2.3-win64.zip
+echo Output: dist\JekyllHyde-1.2.4-win64.zip
 dir dist\*.zip
 pause

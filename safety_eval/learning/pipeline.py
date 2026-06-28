@@ -144,6 +144,13 @@ class LearningPipeline:
                     state.last_error = f"gguf: {note}"[:500]
                     self.store.save_state(state)
 
+            try:
+                from safety_eval.storage.lightweight import run_lightweight_cycle
+
+                run_lightweight_cycle(force_requantize=False)
+            except Exception:
+                pass
+
             from safety_eval.platform.local_model import reload_model
 
             reload_model()

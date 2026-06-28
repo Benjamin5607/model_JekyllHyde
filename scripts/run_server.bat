@@ -26,6 +26,10 @@ if exist "%ROOT%\secrets\hf_token.txt" (
   for /f "usebackq delims=" %%T in ("%ROOT%\secrets\hf_token.txt") do set "HF_TOKEN=%%T"
 )
 
+REM Free port if a previous background instance is still running
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0stop.ps1" >nul 2>&1
+timeout /t 2 /nobreak >nul
+
 echo ========================================
 echo  Jekyll ^& Hyde Server
 echo  http://127.0.0.1:%PORT%

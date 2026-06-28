@@ -757,6 +757,16 @@ def build_format_block(
     lang = detect_user_language(user_text)
     template = LOCALIZED_TEMPLATES.get(fmt.id, {}).get(lang, fmt.template)
     lang_name = reply_language_name(lang)
+
+    from safety_eval.platform.output_guard import is_simple_greeting
+
+    if fmt.id == "conversational" and is_simple_greeting(user_text):
+        block = (
+            f"CONVERSATIONAL ({lang_name}): Reply naturally in 1–3 short sentences. "
+            "No template headings, no meta-instructions, no sample Q&A blocks, no policy worksheets."
+        )
+        return block, fmt
+
     block = (
         f"=== RESPONSE TEMPLATE ({fmt.label}) ===\n"
         f"OUTPUT LANGUAGE: {lang_name} — all headings, tables, and body text.\n"
