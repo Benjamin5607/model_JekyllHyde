@@ -91,7 +91,7 @@ Click ⚙ → **Continuous learning** + **MCP integration** (copy Cursor `mcp.js
 
 ![Chat response](docs/screenshots/06-chat-response.png)
 
-Re-capture screenshots: `python scripts\capture_readme_screenshots.py` (server on `:8080` required)
+
 
 ---
 
