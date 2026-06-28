@@ -20,6 +20,7 @@ from safety_eval.quant.compact import compact_quant_digest
 from safety_eval.quant.pipeline import run_investment_memo_pipeline
 from safety_eval.store import GuidelinesStore, get_guidelines_store
 from safety_eval.learning.collector import get_collector
+from safety_eval.learning.gray_reinforce import GrayReinforcer
 
 Mode = Literal["chat", "jekyll", "hyde", "duel"]
 
@@ -137,6 +138,15 @@ class JekyllHydeEngine:
                 guideline_enforcement=mcp_gl,
                 user_message=user_message,
             )
+            gray_report = None
+            reinforcer = GrayReinforcer()
+            if reinforcer.enabled():
+                gray_report = reinforcer.reinforce_from_duel(
+                    result,
+                    topic=user_message.strip() or topic.split("\n")[0],
+                    guidelines_text=snap.text if mcp_gl else "",
+                    generate_fn=generate,
+                )
             runtime = describe_runtime()
             transcript = "\n\n".join(
                 f"{'HYDE' if t.speaker == 'hyde' else 'JEKYLL'} (R{t.round_num}): {t.content}"
@@ -151,23 +161,38 @@ class JekyllHydeEngine:
                 mode="duel",
                 format_id="duel_transcript",
                 language=lang,
-                meta={"duel": True, "verdict": result.verdict},
+                meta={
+                    "duel": True,
+                    "verdict": result.verdict,
+                    "duel_kind": result.mode,
+                    "gray_zones": len(gray_report.zones) if gray_report else 0,
+                    "gray_reinforce_records": gray_report.training_records_written if gray_report else 0,
+                },
             )
+
+            meta = {
+                "model": runtime.name,
+                "backend": runtime.backend,
+                "fine_tuned": runtime.fine_tuned,
+                "duel": result.to_dict(),
+                "verdict": result.verdict,
+                "summary": result.summary,
+                "verification": result.verification,
+                "interaction_id": rec.id if rec else None,
+            }
+            if gray_report and gray_report.zones:
+                meta["gray_reinforce"] = gray_report.to_dict()
+                meta["summary"] = (
+                    f"{result.summary} · {len(gray_report.zones)} gray zone(s) · "
+                    f"{len(gray_report.solutions)} patch(es) · "
+                    f"{gray_report.training_records_written} training record(s)"
+                )
 
             return EngineResponse(
                 content=transcript,
                 mode="duel",
                 language=lang,
-                meta={
-                    "model": runtime.name,
-                    "backend": runtime.backend,
-                    "fine_tuned": runtime.fine_tuned,
-                    "duel": result.to_dict(),
-                    "verdict": result.verdict,
-                    "summary": result.summary,
-                    "verification": result.verification,
-                    "interaction_id": rec.id if rec else None,
-                },
+                meta=meta,
             )
         except Exception as exc:
             return EngineResponse(

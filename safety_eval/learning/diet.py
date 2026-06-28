@@ -98,6 +98,11 @@ def persona_bucket(rec: dict[str, Any]) -> str:
     meta = rec.get("meta") or {}
     typ = (meta.get("type") or "").lower()
     mode = (meta.get("mode") or "").lower()
+    if meta.get("source") == "gray_reinforce":
+        if "hyde" in typ:
+            return "hyde"
+        if "jekyll" in typ:
+            return "jekyll"
     _, assistant = record_user_assistant(rec)
     al = assistant.lower()
     if mode == "hyde" or "hyde" in typ or "hyde test probe" in al[:80]:
@@ -115,6 +120,8 @@ def category_bucket(rec: dict[str, Any]) -> str:
     blob = f"{typ} {fmt} {user}".lower()
     if any(k in blob for k in ("quant", "market", "investment", "equity", "stock")):
         return "quant"
+    if meta.get("source") == "gray_reinforce":
+        return "policy"
     if any(k in blob for k in ("guideline", "policy", "gray", "hardening", "moderation", "refusal")):
         return "policy"
     if "duel" in typ or "duel" in blob:

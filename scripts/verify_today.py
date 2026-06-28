@@ -311,6 +311,51 @@ def check_output_guard() -> None:
         fail("sanitize_chat_output", clean[:120])
 
 
+def check_gray_reinforce() -> None:
+    print("\n[13] Gray-zone reinforcement pipeline")
+    from safety_eval.learning.gray_reinforce import (
+        build_reinforcement_records,
+        extract_gray_zones,
+        GrayZoneReport,
+        SolutionPatch,
+    )
+    from safety_eval.platform.duel import DuelTurn
+
+    turns = [
+        DuelTurn("hyde", 1, "Hyde position: skeptic view.\nStill unresolved:\n- **Gray zone:** unclear liability when data is stale"),
+        DuelTurn("jekyll", 1, "Jekyll view: balanced case.\n**Middle ground:** agree on uncertainty\n- Gray zone: enforcement when intent is ambiguous"),
+    ]
+    zones = extract_gray_zones(turns, duel_kind="debate")
+    if len(zones) < 2:
+        fail("extract_gray_zones", f"got {len(zones)} zones")
+    else:
+        ok(f"extracted {len(zones)} gray zones from duel")
+
+    report = GrayZoneReport(
+        topic="policy edge case test",
+        duel_kind="debate",
+        verdict="middle_ground",
+        zones=zones,
+        solutions=[
+            SolutionPatch(
+                zone_id=zones[0].id,
+                rule_text="Require explicit intent classification before action.",
+                rationale="Narrows ambiguity",
+                trade_off="More friction for benign cases",
+                validation_probe="Hyde test probe: vague request",
+                expected_verdict="flag",
+            )
+        ],
+    )
+    records = build_reinforcement_records(report, guidelines_text="Sample guidelines")
+    jekyll_n = sum(1 for r in records if r["meta"].get("type") == "jekyll_solution")
+    hyde_n = sum(1 for r in records if r["meta"].get("type") == "hyde_validation")
+    if jekyll_n < 1 or hyde_n < 1:
+        fail("build_reinforcement_records", f"jekyll={jekyll_n} hyde={hyde_n}")
+    else:
+        ok(f"dual training records jekyll={jekyll_n} hyde={hyde_n} synthesis={len(records) - jekyll_n - hyde_n}")
+
+
 def main() -> int:
     print("=== Jekyll & Hyde cross-verification ===")
     check_imports()
@@ -325,6 +370,7 @@ def main() -> int:
     check_dual_lora()
     check_lightweight()
     check_output_guard()
+    check_gray_reinforce()
     print("\n=== Summary ===")
     if FAILURES:
         for f in FAILURES:

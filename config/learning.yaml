@@ -54,3 +54,12 @@ quantize:
   export_gguf_after_train: true
   gguf_quant: q4_k_m
   prune_old_gguf: true
+
+# Gray-zone reinforcement: duel → extract zones → dual synthesis → curated training
+gray_reinforce:
+  enabled: true
+  synthesize_solutions: true
+  use_llm_synthesis: true
+  auto_curate: true
+  min_zones: 1
+  max_zones_per_duel: 8

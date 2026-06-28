@@ -49,7 +49,9 @@ class LearningCollector:
             "market_analysis", "guideline_audit", "gray_zone_map",
             "policy_hardening", "investment_memo", "moderation_verdict",
         }
-        if meta.get("format") in specialist_formats:
+        if meta.get("source") == "gray_reinforce":
+            score += 0.25
+        if meta.get("gray_zones", 0) > 0:
             score += 0.1
         if _LEAK.search(assistant):
             score -= 0.5

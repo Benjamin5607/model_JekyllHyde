@@ -1307,6 +1307,16 @@
               (turn.speaker === 'hyde' ? 'Hyde' : 'Jekyll') + ' · R' + turn.round);
           }
           addMsg('assistant', `${d.meta.verdict}\n${d.meta.summary||''}`, 'duel', 'Duel');
+          const gr = d.meta?.gray_reinforce;
+          if (gr?.zones?.length) {
+            const zoneLines = gr.zones.map(z => `- ${z.description}`).join('\n');
+            const solLines = (gr.solutions||[]).map(s => `- ${s.rule_text}`).join('\n');
+            addMsg('assistant',
+              `**Gray zones discovered (${gr.zones.length})**\n${zoneLines}\n\n` +
+              (solLines ? `**Solutions to narrow ambiguity**\n${solLines}\n\n` : '') +
+              (gr.training_records_written ? `→ ${gr.training_records_written} self-learning record(s) curated` : ''),
+              'jekyll', 'Gray reinforce');
+          }
           const duelMode = d.meta.duel?.mode || 'debate';
           if (duelMode === 'guideline') {
             for (const vr of (d.meta.verification||[])) {

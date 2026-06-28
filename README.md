@@ -26,12 +26,12 @@
 
 ![Install steps](docs/screenshots/07-install-steps.png)
 
-Download **all files** from [Release v1.2.4](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.4):
+Download **all files** from [Release v1.2.5](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.5):
 
 | File | Purpose |
 |------|---------|
-| [JekyllHyde-1.2.4-app.zip](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.2.4/JekyllHyde-1.2.4-app.zip) | Platform, scripts, configs |
-| [model.part00–02.gz](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.4) | Model weights (gzip L9, 3 parts) |
+| [JekyllHyde-1.2.5-app.zip](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.2.5/JekyllHyde-1.2.5-app.zip) | Platform, scripts, configs |
+| [model.part00–02.gz](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.5) | Model weights (gzip L9, 3 parts) |
 
 ```powershell
 # 1) Extract app.zip
@@ -183,6 +183,16 @@ model_JekyllHyde/
 - **Config:** `config/storage.yaml` → `lightweight` section (interval via `schedule.optimize_interval_minutes`)
 - **Manual tick:** `python -m safety_eval.storage.lightweight`
 
+### Gray-zone reinforcement (v1.2.5+)
+
+Duel mode now runs a **three-stage self-learning loop**:
+
+1. **Discover** — Hyde↔Jekyll debate surfaces gray zones (`Still unresolved`, `Gray zone`, middle-ground bullets)
+2. **Synthesize** — Jekyll proposes optimal rule/logic patches; Hyde validates residual risk
+3. **Learn** — Dual-persona rows auto-curated into `curated_train.jsonl` → incremental LoRA retrain
+
+Config: `config/learning.yaml` → `gray_reinforce` · MCP tool: `run_gray_zone_duel`
+
 ### Dual LoRA + GGUF pipeline (v1.2.3+)
 
 - **Runtime:** 4-bit frozen Gemma base + `jekyll-lora` / `hyde-lora` hot-swap per request
@@ -198,7 +208,7 @@ model_JekyllHyde/
 scripts\build_release.ps1
 ```
 
-Output: `dist/JekyllHyde-1.2.4-app.zip` + `model.partXX.gz` + manifest.
+Output: `dist/JekyllHyde-1.2.5-app.zip` + `model.partXX.gz` + manifest.
 
 ---
 
@@ -206,7 +216,8 @@ Output: `dist/JekyllHyde-1.2.4-app.zip` + `model.partXX.gz` + manifest.
 
 | Tag | Notes |
 |-----|-------|
-| v1.2.4 | Ultra-lightweight quant loop, English-default UI i18n, output guard |
+| v1.2.5 | Gray-zone duel reinforcement — discover → dual synthesis → self-learning |
+| [v1.2.4](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.4) | Ultra-lightweight quant loop, English-default UI i18n, output guard |
 | [v1.2.3](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.3) | Dual LoRA + auto GGUF |
 | [v1.2.2](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.2) | Data diet, semantic dedup, slim routing, compact quant |
 | [v1.2.1](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.1) | Structure cleanup, dist auto-prune |

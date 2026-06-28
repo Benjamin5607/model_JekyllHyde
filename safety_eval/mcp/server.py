@@ -217,6 +217,23 @@ def learning_status() -> str:
 
 
 @mcp.tool()
+def run_gray_zone_duel(topic: str, rounds: int = 2) -> str:
+    """Run Hyde↔Jekyll duel, extract gray zones, synthesize patches, and auto-curate training records."""
+    engine = JekyllHydeEngine()
+    resp = engine.complete_toggled(topic, jekyll=True, hyde=True, duel_rounds=max(1, min(rounds, 4)))
+    gr = resp.meta.get("gray_reinforce")
+    if not gr:
+        return f"Duel complete. Verdict: {resp.meta.get('verdict')}. No gray zones extracted."
+    return (
+        f"Verdict: {resp.meta.get('verdict')}\n"
+        f"Gray zones: {len(gr.get('zones', []))}\n"
+        f"Solutions: {len(gr.get('solutions', []))}\n"
+        f"Training records: {gr.get('training_records_written', 0)}\n\n"
+        f"{gr.get('synthesis_markdown', '')[:4000]}"
+    )
+
+
+@mcp.tool()
 def run_continuous_learning(train: bool = False) -> str:
     """Curate chat feedback into LoRA dataset; optionally run incremental retrain."""
     from safety_eval.learning.pipeline import get_pipeline
