@@ -6,27 +6,27 @@
 
 ---
 
-## 어디에 쓰면 좋을까? (Recommended use)
+## Where to use it
 
-| 사용처 | 이렇게 쓰세요 | 모드 |
-|--------|----------------|------|
-| **로컬 PC / 미니 PC** | 설치 후 `http://127.0.0.1:8080` — GPU 8GB면 4-bit dual LoRA로 동작 | Chat · Duel |
-| **주식·투자 리서치** | 실시간 Yahoo/FDR 데이터 + 5단계 투자 메모 파이프라인 | Chat (`investment_memo`) |
-| **커뮤니티 가이드라인 감사** | Cursor MCP로 가이드라인 주입 → Duel 또는 Jekyll 분석 | Duel · Jekyll |
-| **정책 레드팀 / 회색지대** | Hyde 프로브 ↔ Jekyll verdict, 약점·하드닝 제안 | Hyde · Duel |
-| **Cursor / Claude Desktop** | `jekyll-hyde` MCP 서버 — 채팅·Quant·검증 API 도구 | MCP |
-| **오프라인·에어갭** | Releases 모델 part + app.zip, Ollama 없이 로컬 가중치 | Self-host |
+| Use case | How | Mode |
+|----------|-----|------|
+| **Local PC / mini PC** | Install → open `http://127.0.0.1:8080` — runs on 8 GB GPU with 4-bit dual LoRA | Chat · Duel |
+| **Equity / investment research** | Live Yahoo/FDR data + 5-stage investment memo pipeline | Chat (`investment_memo`) |
+| **Community guideline audit** | Inject guidelines via Cursor MCP → Duel or Jekyll analysis | Duel · Jekyll |
+| **Policy red-team / gray zones** | Hyde probes ↔ Jekyll verdict, weakness & hardening suggestions | Hyde · Duel |
+| **Cursor / Claude Desktop** | `jekyll-hyde` MCP server — chat, Quant, verification API tools | MCP |
+| **Offline / air-gapped** | Release model parts + app.zip, local weights without Ollama | Self-host |
 
-> **적합:** 금융/보안/정책 특화 보조, 가이드라인 스트레스 테스트, 소형 GPU 워크스테이션.  
-> **부적합:** 범용 ChatGPT 대체, 실시간 트레이딩 실행, 법률/투자 최종 판단 (항상 human-in-the-loop).
+> **Good fit:** finance/security/policy copilot, guideline stress testing, small-GPU workstations.  
+> **Not a fit:** general ChatGPT replacement, live trade execution, final legal/investment decisions (always human-in-the-loop).
 
 ---
 
-## 빠른 설치 (Windows)
+## Quick install (Windows)
 
 ![Install steps](docs/screenshots/07-install-steps.png)
 
-[Release v1.2.3](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.3)에서 **전체 파일** 다운로드:
+Download **all files** from [Release v1.2.3](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.3):
 
 | File | Purpose |
 |------|---------|
@@ -34,72 +34,72 @@
 | [model.part00–02.gz](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.3) | Model weights (gzip L9, 3 parts) |
 
 ```powershell
-# 1) app.zip 압축 해제
-# 2) model.part00.gz ~ part02.gz 를 같은 폴더에 복사
-# 3) install.bat 실행
-# 4) 브라우저 → http://127.0.0.1:8080
-scripts\start.bat          # 이후 실행 (백그라운드)
-scripts\stop.bat           # 종료
+# 1) Extract app.zip
+# 2) Copy model.part00.gz through part02.gz into the same folder
+# 3) Run install.bat
+# 4) Open browser → http://127.0.0.1:8080
+scripts\start.bat          # start later (background)
+scripts\stop.bat           # stop
 ```
 
 **Requirements:** Windows 10/11 · Python 3.10+ · NVIDIA GPU 8 GB+ VRAM recommended
 
 ---
 
-## 웹 UI 사용법
+## Web UI guide
 
-서버 실행 후 브라우저에서 **http://127.0.0.1:8080** 을 엽니다.
+After starting the server, open **http://127.0.0.1:8080** in your browser.
 
-### 1) 메인 화면 — Chat 모드 (기본)
+### 1) Main screen — Chat mode (default)
 
-일반 대화, 투자 메모, 가이드라인 Q&A. 하늘색 테마.
+General chat, investment memos, guideline Q&A. Sky-blue theme.
 
 ![Platform — Chat mode](docs/screenshots/01-platform-chat.png)
 
-- 왼쪽 **Pocket Quant**: 시장 스캔 (한국/미국 등)
-- 상단 제안 칩: Stock analysis · Guideline audit · Gray-zone · Policy hardening
-- 메시지 입력 후 **전송** — 응답 언어는 입력 언어를 따릅니다
+- **Pocket Quant** (sidebar): market scan (Korea, US, etc.)
+- Suggestion chips: Stock analysis · Guideline audit · Gray-zone · Policy hardening
+- Type a message and click **Send** — replies follow your input language
 
-### 2) Jekyll / Hyde / Duel — 페르소나 전환
+### 2) Jekyll / Hyde / Duel — persona switch
 
-사이드바 **모드** 세그먼트로 전환. UI 색상 + **LoRA adapter**가 함께 바뀝니다 (v1.2.3+).
+Use the sidebar **Mode** segment. UI colors and the **LoRA adapter** switch together (v1.2.3+).
 
-| 모드 | 스크린샷 | 용도 |
-|------|-----------|------|
-| **Jekyll** (민트) | ![Jekyll mode](docs/screenshots/02-mode-jekyll.png) | 가이드라인 방어, 거절, 정책·시장 분석 |
-| **Hyde** (붉은색) | ![Hyde mode](docs/screenshots/03-mode-hyde.png) | 레드팀 프로브, 회색지대 테스트 |
-| **Duel** (양분) | ![Duel mode](docs/screenshots/04-mode-duel.png) | 투자 토론 / 가이드라인 검증 / 일반 주제 중간지점 합의 |
+| Mode | Screenshot | Purpose |
+|------|------------|---------|
+| **Jekyll** (mint) | ![Jekyll mode](docs/screenshots/02-mode-jekyll.png) | Guideline defense, refusals, policy & market analysis |
+| **Hyde** (red) | ![Hyde mode](docs/screenshots/03-mode-hyde.png) | Red-team probes, gray-zone testing |
+| **Duel** (split) | ![Duel mode](docs/screenshots/04-mode-duel.png) | Equity debate / guideline audit / general middle-ground synthesis |
 
-**Duel 자동 라우팅**
+**Duel auto-routing**
 
-| 종류 | 트리거 | 결과 |
-|------|--------|------|
-| Equity | 금융 질의 + live data | Bear ↔ Defense → gray zones + middle ground |
-| Guideline | MCP 가이드라인 + 정책 주제 | Hyde probe ↔ Jekyll verdict |
-| Debate | 그 외 | 반박 후 **Middle ground** 합의 |
+| Kind | Trigger | Outcome |
+|------|---------|---------|
+| Equity | Finance query + live data | Bear ↔ Defense → gray zones + middle ground |
+| Guideline | MCP guidelines + policy topic | Hyde probe ↔ Jekyll verdict |
+| Debate | Everything else | Rebuttal → **Middle ground** synthesis |
 
-### 3) 설정 — MCP · 지속 학습
+### 3) Settings — MCP & continuous learning
 
-⚙ 버튼 → **Continuous learning** + **MCP 연동** (Cursor `mcp.json` 스니펫 복사).
+Click ⚙ → **Continuous learning** + **MCP integration** (copy Cursor `mcp.json` snippet).
 
 ![Settings — MCP & learning](docs/screenshots/05-settings-mcp-learning.png)
 
-- **Curate / Train from feedback**: 피드백 → LoRA 재학습 파이프라인 (20샘플·6h 간격)
-- **가이드라인**: UI 편집 없음 — MCP `set_guidelines` / `get_guidelines` 사용
+- **Curate / Train from feedback:** feedback → LoRA retrain pipeline (20 samples · 6 h interval)
+- **Guidelines:** not edited in UI — use MCP `set_guidelines` / `get_guidelines`
 
-### 4) 대화 예시
+### 4) Example conversation
 
 ![Chat response](docs/screenshots/06-chat-response.png)
 
-스크린샷 재촬영: `python scripts\capture_readme_screenshots.py` (서버 `:8080` 필요)
+Re-capture screenshots: `python scripts\capture_readme_screenshots.py` (server on `:8080` required)
 
 ---
 
-## Cursor MCP 연동
+## Cursor MCP integration
 
-1. 플랫폼 **설정 → MCP** 에서 `mcp.json` 스니펫 복사  
-2. Cursor **Settings → MCP** 에 서버 추가  
-3. 채팅에서 `@jekyll-hyde` 도구로 가이드라인·Quant·검증 호출  
+1. Copy the `mcp.json` snippet from platform **Settings → MCP**
+2. Add the server in Cursor **Settings → MCP**
+3. In chat, call `@jekyll-hyde` tools for guidelines, Quant, and verification
 
 ```json
 {
@@ -115,7 +115,7 @@ scripts\stop.bat           # 종료
 
 ---
 
-## 소스에서 실행 (개발자)
+## Run from source (developers)
 
 ```powershell
 git clone https://github.com/Benjamin5607/model_JekyllHyde.git
@@ -124,12 +124,12 @@ pip install -e ".[train,quant,mcp]"
 scripts\start.bat
 ```
 
-| 명령 | 설명 |
-|------|------|
-| `python scripts\verify_today.py` | 전체 검증 |
-| `python scripts\data_diet.py` | 데이터셋 시맨틱 디듀프 |
-| `scripts\train_lora.bat` | Dual LoRA 학습 + merge + GGUF |
-| `python -m safety_eval.storage.optimizer` | 로그·dist·체크포인트 정리 |
+| Command | Description |
+|---------|-------------|
+| `python scripts\verify_today.py` | Full verification suite |
+| `python scripts\data_diet.py` | Semantic dataset dedup |
+| `scripts\train_lora.bat` | Dual LoRA train + merge + GGUF |
+| `python -m safety_eval.storage.optimizer` | Prune logs, dist, checkpoints |
 
 ---
 
