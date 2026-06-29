@@ -177,6 +177,10 @@ class LearningRunBody(BaseModel):
     train: bool = False
 
 
+class WorkforceBody(BaseModel):
+    brief: str
+
+
 @app.get("/api/settings")
 def api_settings() -> dict:
     return {
@@ -394,6 +398,46 @@ def api_moe_stats() -> dict:
         "stats": load_mix_stats(),
         "buckets": [b.to_dict() for b in list_bucket_snaps()],
     }
+
+
+@app.get("/api/workforce/workers")
+def api_workforce_workers() -> dict:
+    from safety_eval.mcp.workforce import list_workers
+
+    return {"workers": list_workers()}
+
+
+@app.get("/api/workforce/jobs")
+def api_workforce_jobs() -> dict:
+    from safety_eval.mcp.workforce import list_jobs
+
+    return {"jobs": list_jobs()}
+
+
+@app.get("/api/workforce/status/{job_id}")
+def api_workforce_status(job_id: str) -> dict:
+    from safety_eval.mcp.workforce import get_job
+
+    job = get_job(job_id)
+    if not job:
+        raise HTTPException(404, f"job not found: {job_id}")
+    return job.to_dict()
+
+
+@app.post("/api/workforce/delegate")
+async def api_workforce_delegate(body: WorkforceBody) -> dict:
+    from safety_eval.mcp.workforce import delegate_brief
+
+    loop = asyncio.get_running_loop()
+    return await loop.run_in_executor(_chat_pool, lambda: delegate_brief(body.brief).to_dict())
+
+
+@app.post("/api/workforce/approve/{job_id}")
+async def api_workforce_approve(job_id: str) -> dict:
+    from safety_eval.mcp.workforce import manager_approve
+
+    loop = asyncio.get_running_loop()
+    return await loop.run_in_executor(_chat_pool, lambda: manager_approve(job_id).to_dict())
 
 
 @app.post("/api/learning/run")

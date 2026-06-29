@@ -111,6 +111,7 @@ def list_verification_providers() -> str:
     for s in list_mcp_servers():
         lines.append(f"- {s['name']}: {s.get('description', '')}")
     lines.append("\nQuant: analyze_stocks, scan_market_region, get_market_weather")
+    lines.append("Workforce: delegate_workforce_brief, workforce_status, manager_approve_workforce")
     lines.append("Run: python scripts/setup_free_mcp.py to add MCP servers to Cursor.")
     return "\n".join(lines)
 
@@ -243,6 +244,91 @@ def run_continuous_learning(train: bool = False) -> str:
 
 
 @mcp.tool()
+def delegate_workforce_brief(brief: str) -> str:
+    """Manager-Worker: enqueue data-only workers for a one-sentence brief (returns job id immediately)."""
+    from safety_eval.mcp.workforce import delegate_brief, plan_from_brief
+
+    job = delegate_brief(brief)
+    plan = " → ".join(s.worker for s in plan_from_brief(brief))
+    return (
+        f"Job {job.id} queued.\n"
+        f"Brief: {brief[:200]}\n"
+        f"Worker chain: {plan}\n"
+        f"Poll: workforce_status(job_id='{job.id}')\n"
+        f"Approve: manager_approve_workforce(job_id='{job.id}') when status=workers_complete"
+    )
+
+
+@mcp.tool()
+def workforce_status(job_id: str) -> str:
+    """Poll Manager-Worker job status and partial worker outputs."""
+    from safety_eval.mcp.workforce import get_job
+
+    job = get_job(job_id)
+    if not job:
+        return f"Job not found: {job_id}"
+    lines = [
+        f"Job: {job.id}",
+        f"Status: {job.status.value}",
+        f"Brief: {job.brief[:160]}",
+        f"Workers: {len(job.results)}/{len(job.plan)}",
+    ]
+    for r in job.results:
+        flag = "OK" if r.ok else "FAIL"
+        lines.append(f"  [{flag}] {r.worker} ({r.elapsed_ms}ms)")
+        if r.error:
+            lines.append(f"    error: {r.error[:120]}")
+    if job.manager_verdict:
+        lines.append(f"\n--- Manager verdict ---\n{job.manager_verdict[:3000]}")
+    if job.error:
+        lines.append(f"\nError: {job.error}")
+    return "\n".join(lines)
+
+
+@mcp.tool()
+def manager_approve_workforce(job_id: str) -> str:
+    """Manager (JekyllHyde LLM) synthesizes worker bundle and RLAIF-scores the final report."""
+    from safety_eval.mcp.workforce import manager_approve
+
+    job = manager_approve(job_id)
+    meta = job.manager_meta or {}
+    rlaif = meta.get("rlaif", {})
+    header = (
+        f"Status: {job.status.value}\n"
+        f"RLAIF score: {rlaif.get('score', '?')} — {'PASS' if meta.get('approved') else 'REVIEW'}\n\n"
+    )
+    return header + (job.manager_verdict or job.error or "No verdict")
+
+
+@mcp.tool()
+def run_workforce_brief(brief: str, wait_seconds: int = 120) -> str:
+    """Blocking: delegate workers, wait, then manager approve — full Manager-Worker pipeline."""
+    from safety_eval.mcp.workforce import run_brief_sync
+
+    job = run_brief_sync(brief, wait_seconds=float(max(30, min(wait_seconds, 300))))
+    meta = job.manager_meta or {}
+    rlaif = meta.get("rlaif", {})
+    header = (
+        f"Job: {job.id}\n"
+        f"Status: {job.status.value}\n"
+        f"RLAIF score: {rlaif.get('score', '?')} — {'PASS' if meta.get('approved') else 'REVIEW'}\n\n"
+    )
+    return header + (job.manager_verdict or job.error or "Workers finished; no manager verdict")
+
+
+@mcp.tool()
+def list_workforce_workers() -> str:
+    """List data-only MCP workers (no LLM — manager approves final output)."""
+    from safety_eval.mcp.workforce import list_workers
+
+    lines = ["Manager-Worker data workers (JekyllHyde manager approves final report):"]
+    for w in list_workers():
+        lines.append(f"- {w['name']}: {w['desc']}")
+    lines.append("\nOne-liner: delegate_workforce_brief('IT sector gray zone report this quarter')")
+    return "\n".join(lines)
+
+
+@mcp.tool()
 def lora_pipeline_help() -> str:
     """Instructions for LoRA fine-tuning pipeline."""
     return """
@@ -257,6 +343,8 @@ Continuous learning (from platform chat):
 - python training/continuous.py --curate-only
 - python training/continuous.py --train   (or scripts\\evolve_train.bat)
 - Auto-train when 20+ curated samples (config/learning.yaml)
+
+Manager-Worker (v1.4): delegate_workforce_brief → workforce_status → manager_approve_workforce
 
 Bases: gemma2-2b, gemma2-9b, gemma3-4b, gemma3-12b
 """

@@ -100,4 +100,18 @@ def mcp_tool_training_records(system: str) -> list[dict]:
         chain="run_gray_zone_duel",
     ))
 
+    records.append(_rec(
+        "Pull this quarter IT sector gray zone report — delegate to workers then manager approve.",
+        """```json
+{
+  "tool_calls": [
+    {"name": "delegate_workforce_brief", "arguments": {"brief": "IT sector gray zone report this quarter"}},
+    {"name": "workforce_status", "arguments": {"job_id": "JOB_ID"}},
+    {"name": "manager_approve_workforce", "arguments": {"job_id": "JOB_ID"}}
+  ]
+}
+```""",
+        chain="delegate_workforce_brief→workforce_status→manager_approve_workforce",
+    ))
+
     return records

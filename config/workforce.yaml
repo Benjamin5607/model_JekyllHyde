@@ -1,0 +1,28 @@
+# Manager-Worker MCP workforce — JekyllHyde delegates data workers, approves final output
+
+workforce:
+  enabled: true
+  max_parallel_workers: 4
+  auto_manager_approve: false
+  job_timeout_seconds: 300
+  persist_jobs: true
+  paths:
+    jobs: data/learning/workforce_jobs.jsonl
+
+manager:
+  mode: jekyll
+  rlaif_min_score: 85
+
+workers:
+  market_weather:
+    desc: Global index snapshot (no LLM)
+  market_scan:
+    desc: Regional top movers with fundamentals (no LLM)
+  quant_context:
+    desc: Ticker dossiers and quant facts block (no LLM)
+  guidelines_snapshot:
+    desc: Active MCP guidelines text (no LLM)
+  memory_retrieve:
+    desc: Distilled gray-zone rules RAG (no LLM)
+  verification_scan:
+    desc: Free API verification bundle (no LLM)

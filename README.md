@@ -26,12 +26,12 @@
 
 ![Install steps](docs/screenshots/07-install-steps.png)
 
-Download **all files** from [Release v1.3.1](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.3.1):
+Download **all files** from [Release v1.4.0](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.4.0):
 
 | File | Purpose |
 |------|---------|
-| [JekyllHyde-1.3.1-app.zip](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.3.1/JekyllHyde-1.3.1-app.zip) | Platform, scripts, configs |
-| [model.part00–02.gz](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.3.1) | Model weights (gzip L9, 3 parts) |
+| [JekyllHyde-1.4.0-app.zip](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.4.0/JekyllHyde-1.4.0-app.zip) | Platform, scripts, configs |
+| [model.part00–02.gz](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.4.0) | Model weights (gzip L9, 3 parts) |
 
 ```powershell
 # 1) Extract app.zip
@@ -214,6 +214,25 @@ Config: `config/learning.yaml` → `lora_moe`, `rlaif`, `memory`, `mcp_training`
 
 The lightweight storage loop tracks the most-used MoE bucket in `models/merged/jekyll-hyde/moe_serving.json` for serving hints.
 
+### v1.4 — Manager-Worker architecture (MCP Workforce)
+
+JekyllHyde acts as an **AI manager**, not a laborer: data collection runs in background **workers** (no LLM / no VRAM hold); the 2B model only **synthesizes and approves** the final report.
+
+| Piece | Role |
+|-------|------|
+| **Planner** | One-sentence brief → worker chain (`plan_from_brief`) |
+| **Workers** | `market_weather`, `market_scan`, `quant_context`, `guidelines_snapshot`, `memory_retrieve`, `verification_scan` |
+| **Async queue** | `ThreadPoolExecutor` — parallel data tasks |
+| **Manager** | `manager_approve` — single LLM pass + RLAIF gate |
+
+**MCP tools:** `delegate_workforce_brief` → `workforce_status` → `manager_approve_workforce` (or blocking `run_workforce_brief`)
+
+**Platform UI:** Settings → Manager-Worker — delegate, poll, approve.
+
+Config: `config/workforce.yaml`
+
+Example brief: *"IT sector gray zone report this quarter"*
+
 ### Dual LoRA + GGUF pipeline (v1.2.3+)
 
 - **Runtime:** 4-bit frozen Gemma base + `jekyll-lora` / `hyde-lora` hot-swap per request
@@ -229,7 +248,7 @@ The lightweight storage loop tracks the most-used MoE bucket in `models/merged/j
 scripts\build_release.ps1
 ```
 
-Output: `dist/JekyllHyde-1.3.1-app.zip` + `model.partXX.gz` + manifest.
+Output: `dist/JekyllHyde-1.4.0-app.zip` + `model.partXX.gz` + manifest.
 
 Benchmark MoE vs static switching:
 
@@ -243,6 +262,7 @@ Benchmark MoE vs static switching:
 
 | Tag | Notes |
 |-----|-------|
+| v1.4.0 | Manager-Worker MCP workforce — async data workers, manager approval |
 | v1.3.1 | MoE bucket cache, blend UI, RLAIF dashboard, memory consolidation, Elo benchmark |
 | v1.3.0 | LoRA MoE router, RLAIF gate, rule memory RAG, MCP tool alignment |
 | [v1.2.5](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.5) | Gray-zone duel reinforcement — discover → dual synthesis → self-learning |

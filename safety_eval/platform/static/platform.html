@@ -778,6 +778,15 @@
       </div>
 
       <div class="drawer-section">
+        <div class="drawer-label" data-i18n="workforceTitle">Manager-Worker</div>
+        <p class="drawer-note" data-i18n="workforceNote">Delegate data collection to background workers; manager approves the final report.</p>
+        <input id="workforceBrief" placeholder="IT sector gray zone report this quarter" style="padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-soft);color:var(--text);font-size:0.8rem" />
+        <button type="button" class="btn-secondary" id="btnWorkforceDelegate" data-i18n="workforceDelegate">Delegate workers</button>
+        <button type="button" class="btn-secondary" id="btnWorkforceApprove" data-i18n="workforceApprove" disabled>Manager approve</button>
+        <div id="workforceStatus" class="drawer-note">—</div>
+      </div>
+
+      <div class="drawer-section">
         <div class="drawer-label" data-i18n="rlaifTitle">RLAIF gate</div>
         <div id="rlaifStatus" class="drawer-note">—</div>
         <div class="rlaif-list" id="rlaifRejected"></div>
@@ -848,7 +857,9 @@
         learnGen: '세대', learnCurated: '학습 샘플', learnPending: '재학습 대기', learnTraining: '학습 중…',
         fbThanks: '피드백 반영됨',
         blendLabel: 'LoRA 믹스', rlaifTitle: 'RLAIF 게이트', rlaifPass: '통과', rlaifFail: '차단',
-        rlaifThreshold: '임계값', rlaifRejected: '최근 차단', rlaifNone: '차단 내역 없음'
+        rlaifThreshold: '임계값', rlaifRejected: '최근 차단', rlaifNone: '차단 내역 없음',
+        workforceTitle: '매니저-워커', workforceNote: '워커가 백그라운드에서 데이터 수집, 매니저가 최종 승인.',
+        workforceDelegate: '워커 위임', workforceApprove: '매니저 승인', workforceRunning: '워커 실행 중…'
       },
       en: {
         brandSub: 'Studio · Custom LLM', modeLabel: 'Mode', modeChat: 'Chat', modeJekyll: 'Jekyll', modeHyde: 'Hyde', modeDuel: 'Duel',
@@ -881,7 +892,9 @@
         learnGen: 'Gen', learnCurated: 'Curated samples', learnPending: 'Pending retrain', learnTraining: 'Training…',
         fbThanks: 'Feedback recorded',
         blendLabel: 'LoRA mix', rlaifTitle: 'RLAIF gate', rlaifPass: 'Pass', rlaifFail: 'Rejected',
-        rlaifThreshold: 'Threshold', rlaifRejected: 'Recent rejections', rlaifNone: 'No rejections yet'
+        rlaifThreshold: 'Threshold', rlaifRejected: 'Recent rejections', rlaifNone: 'No rejections yet',
+        workforceTitle: 'Manager-Worker', workforceNote: 'Workers collect data in background; manager approves final report.',
+        workforceDelegate: 'Delegate workers', workforceApprove: 'Manager approve', workforceRunning: 'Workers running…'
       },
       ja: {
         brandSub: 'Studio · 独自LLM', modeLabel: 'モード', modeChat: '一般', modeJekyll: 'Jekyll', modeHyde: 'Hyde', modeDuel: 'Duel',
@@ -1444,6 +1457,50 @@
         body: JSON.stringify({ train: false }) });
       loadLearningStatus();
     };
+    let workforceJobId = null;
+    let workforcePollTimer = null;
+
+    async function pollWorkforceStatus() {
+      if (!workforceJobId) return;
+      try {
+        const d = await fetch('/api/workforce/status/' + workforceJobId).then(r => r.json());
+        const el = document.getElementById('workforceStatus');
+        const approveBtn = document.getElementById('btnWorkforceApprove');
+        if (!el) return;
+        const workers = (d.results || []).map(r => `${r.worker}:${r.ok ? 'ok' : 'fail'}`).join(' · ');
+        el.textContent = `Job ${d.id} · ${d.status}${workers ? ' · ' + workers : ''}`;
+        const ready = d.status === 'workers_complete';
+        if (approveBtn) approveBtn.disabled = !ready;
+        if (d.status === 'approved' || d.status === 'needs_review' || d.status === 'failed') {
+          if (workforcePollTimer) { clearInterval(workforcePollTimer); workforcePollTimer = null; }
+          if (d.manager_verdict) el.textContent += '\n\n' + d.manager_verdict.slice(0, 600);
+        }
+      } catch (e) { /* ignore */ }
+    }
+
+    document.getElementById('btnWorkforceDelegate').onclick = async () => {
+      const brief = (document.getElementById('workforceBrief').value || '').trim();
+      if (!brief) return;
+      document.getElementById('workforceStatus').textContent = t('workforceRunning');
+      const d = await fetch('/api/workforce/delegate', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ brief })
+      }).then(r => r.json());
+      workforceJobId = d.id;
+      if (workforcePollTimer) clearInterval(workforcePollTimer);
+      workforcePollTimer = setInterval(pollWorkforceStatus, 2000);
+      pollWorkforceStatus();
+    };
+
+    document.getElementById('btnWorkforceApprove').onclick = async () => {
+      if (!workforceJobId) return;
+      document.getElementById('workforceStatus').textContent = 'Manager synthesizing…';
+      const d = await fetch('/api/workforce/approve/' + workforceJobId, { method: 'POST' }).then(r => r.json());
+      document.getElementById('workforceStatus').textContent =
+        `Job ${d.id} · ${d.status} · RLAIF ${d.manager_meta?.rlaif?.score || '?'}\n\n` + (d.manager_verdict || '').slice(0, 800);
+      if (workforcePollTimer) { clearInterval(workforcePollTimer); workforcePollTimer = null; }
+    };
+
     document.getElementById('btnLearnTrain').onclick = async () => {
       document.getElementById('learningStatus').textContent = t('learnTraining');
       await fetch('/api/learning/run', { method:'POST', headers:{'Content-Type':'application/json'},

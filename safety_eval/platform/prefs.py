@@ -30,6 +30,11 @@ JEKYLL_HYDE_MCP_TOOLS: list[dict[str, str]] = [
     {"name": "list_verification_providers", "desc": "List enabled verification APIs"},
     {"name": "learning_status", "desc": "Continuous learning stats"},
     {"name": "run_continuous_learning", "desc": "Curate feedback + optional retrain"},
+    {"name": "delegate_workforce_brief", "desc": "Manager-Worker: enqueue data workers"},
+    {"name": "workforce_status", "desc": "Poll workforce job status"},
+    {"name": "manager_approve_workforce", "desc": "Manager LLM verdict on worker bundle"},
+    {"name": "run_workforce_brief", "desc": "Full delegate → workers → manager pipeline"},
+    {"name": "list_workforce_workers", "desc": "List data-only worker types"},
 ]
 
 DEFAULT_PREFS: dict[str, Any] = {

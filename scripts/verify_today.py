@@ -437,6 +437,55 @@ def check_v131() -> None:
         ok(f"benchmark Elo static={report['elo']['static_v125']} moe={report['elo']['moe_v13']}")
 
 
+def check_v140() -> None:
+    print("\n[16] v1.4 Manager-Worker MCP workforce")
+    import time
+
+    from safety_eval.mcp.workforce import (
+        JobStatus,
+        delegate_brief,
+        get_job,
+        list_workers,
+        plan_from_brief,
+    )
+
+    workers = list_workers()
+    if len(workers) < 4:
+        fail("workforce_workers", f"only {len(workers)}")
+    else:
+        ok(f"{len(workers)} data-only workers registered")
+
+    brief = "IT sector gray zone report this quarter with market scan"
+    plan = plan_from_brief(brief)
+    names = {s.worker for s in plan}
+    if "guidelines_snapshot" not in names and "memory_retrieve" not in names:
+        fail("workforce_plan", f"unexpected plan: {names}")
+    else:
+        ok(f"planner chain: {' → '.join(s.worker for s in plan)}")
+
+    job = delegate_brief(brief)
+    deadline = time.time() + 90.0
+    final = job
+    while time.time() < deadline:
+        current = get_job(job.id)
+        if not current:
+            break
+        final = current
+        if current.status in (
+            JobStatus.WORKERS_COMPLETE,
+            JobStatus.FAILED,
+            JobStatus.APPROVED,
+            JobStatus.NEEDS_REVIEW,
+        ):
+            break
+        time.sleep(0.5)
+
+    if final.status != JobStatus.WORKERS_COMPLETE:
+        fail("workforce_delegate", f"status={final.status.value} error={final.error}")
+    else:
+        ok(f"workers complete {len(final.results)}/{len(final.plan)} tasks")
+
+
 def main() -> int:
     print("=== Jekyll & Hyde cross-verification ===")
     check_imports()
@@ -454,6 +503,7 @@ def main() -> int:
     check_gray_reinforce()
     check_next_gen()
     check_v131()
+    check_v140()
     print("\n=== Summary ===")
     if FAILURES:
         for f in FAILURES:
