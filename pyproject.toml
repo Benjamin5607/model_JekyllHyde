@@ -23,6 +23,7 @@ train = [
     "accelerate>=0.28",
     "bitsandbytes>=0.43",
     "sentence-transformers>=3.0",
+    "trl>=0.9",
 ]
 quant = [
     "yfinance>=0.2",

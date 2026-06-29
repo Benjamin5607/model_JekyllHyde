@@ -442,14 +442,23 @@ def chat(
     max_new_tokens: int = 384,
     adapter: str | None = None,
     lora_mix: tuple[float, float] | None = None,
+    grammar: str | None = None,
 ) -> str:
     import torch
 
+    from safety_eval.platform.decoding_entropy import apply_to_generation_kwargs, decoding_for_lora_mix
+
     model, tokenizer = _ensure_loaded()
+    mix_j, mix_h = 1.0, 0.0
     if lora_mix is not None:
         set_lora_mix(lora_mix[0], lora_mix[1])
+        mix_j, mix_h = lora_mix[0], lora_mix[1]
     elif adapter:
         _set_active_adapter(resolve_adapter(adapter))
+        mix_j = 1.0 if resolve_adapter(adapter) == "jekyll" else 0.0
+        mix_h = 1.0 - mix_j
+
+    decode = decoding_for_lora_mix(mix_j, mix_h, base_temperature=temperature)
 
     norm = normalize_messages(messages)
     prompt = tokenizer.apply_chat_template(norm, tokenize=False, add_generation_prompt=True)
@@ -461,17 +470,15 @@ def chat(
         "max_new_tokens": max_new_tokens,
         "pad_token_id": tokenizer.pad_token_id or tokenizer.eos_token_id,
         "eos_token_id": tokenizer.eos_token_id,
+        "repetition_penalty": 1.12,
+        "no_repeat_ngram_size": 4,
     }
-    if temperature > 0:
-        gen_kwargs.update(
-            do_sample=True,
-            temperature=temperature,
-            top_p=0.9,
-            repetition_penalty=1.12,
-            no_repeat_ngram_size=4,
-        )
-    else:
-        gen_kwargs["do_sample"] = False
+    gen_kwargs = apply_to_generation_kwargs(decode, gen_kwargs)
+
+    if grammar == "mcp_tool_json":
+        from safety_eval.platform.grammar_constraint import build_mcp_tool_prefix_fn
+
+        gen_kwargs["prefix_allowed_tokens_fn"] = build_mcp_tool_prefix_fn(tokenizer)
 
     with torch.no_grad():
         output = model.generate(**inputs, **gen_kwargs)

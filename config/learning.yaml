@@ -100,3 +100,31 @@ lora_moe:
 mcp_training:
   enabled: true
   priority_boost: 0.35
+
+# Dynamic decoding — MoE blend ratio → temperature / top-p / min-p
+decoding:
+  dynamic_entropy: true
+  link_to_moe: true
+  jekyll_temperature: 0.15
+  jekyll_top_p: 0.85
+  jekyll_min_p: 0.08
+  hyde_temperature: 0.35
+  hyde_top_p: 0.92
+  hyde_min_p: 0.05
+  blend_temp_min: 0.2
+  blend_temp_max: 0.78
+  blend_top_p_min: 0.88
+  blend_min_p_min: 0.06
+
+# Grammar-constrained MCP JSON tool output at decode time
+grammar:
+  mcp_tool_json: true
+
+# DPO preference alignment from curated vs rejected (RLAIF pairs)
+dpo:
+  enabled: true
+  prefer_over_sft: true
+  min_pairs: 2
+  beta: 0.1
+  epochs: 1
+  dataset_path: data/learning/dpo_pairs.jsonl

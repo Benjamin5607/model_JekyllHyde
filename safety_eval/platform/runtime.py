@@ -136,6 +136,7 @@ def generate(
     max_new_tokens: int = 384,
     adapter: str | None = None,
     lora_mix: tuple[float, float] | None = None,
+    grammar: str | None = None,
 ) -> tuple[str, RuntimeModelInfo]:
     if model_weights_available():
         try:
@@ -145,6 +146,7 @@ def generate(
                 max_new_tokens=max_new_tokens,
                 adapter=adapter,
                 lora_mix=lora_mix,
+                grammar=grammar,
             )
             return content, describe_runtime()
         except Exception:

@@ -117,24 +117,59 @@ class LearningPipeline:
         try:
             get_optimizer().optimize()
             self.maybe_merge_dataset()
-            train_cmds = [
-                [
-                    str(PYTHON),
-                    str(ROOT / "training" / "train_lora.py"),
-                    "--base",
-                    base,
-                    "--4bit",
-                    "--epochs",
-                    str(epochs),
-                    "--persona",
-                    "both",
-                ],
+
+            dpo_cfg = self.cfg.get("dpo", {})
+            use_dpo = bool(dpo_cfg.get("enabled", False)) and bool(dpo_cfg.get("prefer_over_sft", True))
+            dpo_ok = False
+            if use_dpo:
+                from safety_eval.learning.dpo_pairs import pair_count
+
+                if pair_count() >= int(dpo_cfg.get("min_pairs", 4)):
+                    dpo_proc = subprocess.run(
+                        [
+                            str(PYTHON),
+                            str(ROOT / "training" / "train_dpo.py"),
+                            "--base",
+                            base,
+                            "--4bit",
+                            "--persona",
+                            "both",
+                        ],
+                        cwd=str(ROOT),
+                        capture_output=True,
+                        text=True,
+                        timeout=7200,
+                    )
+                    dpo_ok = dpo_proc.returncode == 0
+
+            if not dpo_ok:
+                train_cmds = [
+                    [
+                        str(PYTHON),
+                        str(ROOT / "training" / "train_lora.py"),
+                        "--base",
+                        base,
+                        "--4bit",
+                        "--epochs",
+                        str(epochs),
+                        "--persona",
+                        "both",
+                    ],
+                ]
+                for cmd in train_cmds:
+                    proc = subprocess.run(cmd, cwd=str(ROOT), capture_output=True, text=True, timeout=7200)
+                    if proc.returncode != 0:
+                        raise RuntimeError(proc.stderr[-800:] or proc.stdout[-800:] or "train failed")
+
+            merge_proc = subprocess.run(
                 [str(PYTHON), str(ROOT / "training" / "merge_and_export.py"), "--base", base],
-            ]
-            for cmd in train_cmds:
-                proc = subprocess.run(cmd, cwd=str(ROOT), capture_output=True, text=True, timeout=7200)
-                if proc.returncode != 0:
-                    raise RuntimeError(proc.stderr[-800:] or proc.stdout[-800:] or "train failed")
+                cwd=str(ROOT),
+                capture_output=True,
+                text=True,
+                timeout=7200,
+            )
+            if merge_proc.returncode != 0:
+                raise RuntimeError(merge_proc.stderr[-800:] or merge_proc.stdout[-800:] or "merge failed")
 
             gguf_result = self._run_gguf_export(qcfg)
             if not gguf_result.get("ok") and not gguf_result.get("skipped"):

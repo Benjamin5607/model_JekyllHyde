@@ -26,12 +26,12 @@
 
 ![Install steps](docs/screenshots/07-install-steps.png)
 
-Download **all files** from [Release v1.4.0](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.4.0):
+Download **all files** from [Release v1.5.0](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.5.0):
 
 | File | Purpose |
 |------|---------|
-| [JekyllHyde-1.4.0-app.zip](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.4.0/JekyllHyde-1.4.0-app.zip) | Platform, scripts, configs |
-| [model.part00–02.gz](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.4.0) | Model weights (gzip L9, 3 parts) |
+| [JekyllHyde-1.5.0-app.zip](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.5.0/JekyllHyde-1.5.0-app.zip) | Platform, scripts, configs |
+| [model.part00–02.gz](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.5.0) | Model weights (gzip L9, 3 parts) |
 
 ```powershell
 # 1) Extract app.zip
@@ -233,6 +233,20 @@ Config: `config/workforce.yaml`
 
 Example brief: *"IT sector gray zone report this quarter"*
 
+### v1.5 — Decoding control, DPO alignment, grammar-constrained tools
+
+Builds on MoE tensor blending with **token-level control** of how outputs are sampled and aligned.
+
+| Feature | What it does |
+|---------|----------------|
+| **Dynamic decoding entropy** | MoE Jekyll/Hyde ratio → `temperature`, `top_p`, `min_p` (strict Jekyll ≈ 0.15 temp; 50:50 blend ≈ 0.78) |
+| **DPO training loop** | `curated_train.jsonl` vs `rejected.jsonl` preference pairs → `training/train_dpo.py` (TRL) |
+| **Grammar-constrained MCP JSON** | `prefix_allowed_tokens_fn` masks invalid tokens during `tool_calls` JSON generation |
+
+Config: `config/learning.yaml` → `decoding`, `dpo`, `grammar`
+
+`meta.decoding` in chat responses shows the active profile (e.g. `strict_jekyll`, `blend_j50_h50`).
+
 ### Dual LoRA + GGUF pipeline (v1.2.3+)
 
 - **Runtime:** 4-bit frozen Gemma base + `jekyll-lora` / `hyde-lora` hot-swap per request
@@ -248,7 +262,7 @@ Example brief: *"IT sector gray zone report this quarter"*
 scripts\build_release.ps1
 ```
 
-Output: `dist/JekyllHyde-1.4.0-app.zip` + `model.partXX.gz` + manifest.
+Output: `dist/JekyllHyde-1.5.0-app.zip` + `model.partXX.gz` + manifest.
 
 Benchmark MoE vs static switching:
 
@@ -262,6 +276,7 @@ Benchmark MoE vs static switching:
 
 | Tag | Notes |
 |-----|-------|
+| v1.5.0 | Dynamic decoding entropy, DPO preference alignment, grammar-constrained MCP JSON |
 | v1.4.0 | Manager-Worker MCP workforce — async data workers, manager approval |
 | v1.3.1 | MoE bucket cache, blend UI, RLAIF dashboard, memory consolidation, Elo benchmark |
 | v1.3.0 | LoRA MoE router, RLAIF gate, rule memory RAG, MCP tool alignment |

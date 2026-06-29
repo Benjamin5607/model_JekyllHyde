@@ -346,6 +346,16 @@ class JekyllHydeEngine:
         pipeline_stages: list[dict[str, str]] = []
         adapter_focus = resolve_persona_focus(mode=mode, user_text=user_message, domains=domains)
         lora_mix = compute_lora_mix(mode=mode, user_text=user_message, domains=domains)
+        from safety_eval.platform.decoding_entropy import decoding_for_lora_mix
+
+        decode_params = decoding_for_lora_mix(
+            lora_mix.jekyll,
+            lora_mix.hyde,
+            base_temperature=temperature_for_format(
+                response_format.id if response_format else "conversational",
+                self.config.temperature,
+            ),
+        )
 
         try:
             if analyst_harness and quant_ctx:
@@ -378,14 +388,23 @@ class JekyllHydeEngine:
                 max_tokens = max_tokens_for_format(response_format.id)
                 mix_tuple = lora_mix.as_tuple()
                 pure = mix_tuple in ((1.0, 0.0), (0.0, 1.0))
+                from safety_eval.platform.decoding_entropy import decoding_for_lora_mix
+
+                decode_params = decoding_for_lora_mix(
+                    mix_tuple[0], mix_tuple[1], base_temperature=gen_temp
+                )
+                grammar = None
+                if response_format.id == "mcp_tool_call" or "mcp_tool" in domains:
+                    grammar = "mcp_tool_json"
                 content, runtime = generate(
                     messages,
                     ollama_url=self.config.ollama_url,
                     model_name=self.config.model,
-                    temperature=gen_temp,
+                    temperature=decode_params.temperature,
                     max_new_tokens=max_tokens,
                     adapter=adapter_focus if pure else None,
                     lora_mix=None if pure else mix_tuple,
+                    grammar=grammar,
                 )
 
             active_model = runtime.name
@@ -450,6 +469,7 @@ class JekyllHydeEngine:
                 "domains": domains,
                 "primary_domain": primary_domain(domains, has_quant=bool(quant_ctx)),
                 "lora_mix": lora_mix.to_dict(),
+                "decoding": decode_params.to_dict(),
                 "interaction_id": rec.id if rec else None,
                 "learning_generation": get_collector().store.load_state().generation,
             },
