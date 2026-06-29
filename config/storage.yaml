@@ -32,3 +32,6 @@ lightweight:
   auto_requantize_after_train: true
   prune_old_gguf: true
   requantize_cooldown_minutes: 30
+  track_top_moe_bucket: true
+  consolidate_memory: true
+  precompile_top_moe_gguf: true

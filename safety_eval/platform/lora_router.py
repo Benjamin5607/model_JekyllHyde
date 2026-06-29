@@ -5,6 +5,8 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
+from safety_eval.platform.lora_mix_cache import snap_to_bucket
+
 _GRAY = re.compile(r"\b(gray\s*zone|grey\s*zone|회색|borderline|middle\s*ground|미들|애매)\b", re.I)
 _ATTACK = re.compile(
     r"\b(hyde|red[\s-]?team|probe|evasion|loophole|exploit|stress[\s-]?test|우회|허점)\b",
@@ -23,6 +25,11 @@ class LoraMix:
 
     jekyll: float
     hyde: float
+    bucket: str = ""
+
+    @classmethod
+    def from_snap(cls, snap) -> LoraMix:
+        return cls(snap.jekyll, snap.hyde, snap.bucket_id)
 
     def normalized(self) -> LoraMix:
         total = self.jekyll + self.hyde
@@ -45,9 +52,14 @@ class LoraMix:
         j, h = self.as_tuple()
         return f"Jekyll {j:.0%} · Hyde {h:.0%}"
 
-    def to_dict(self) -> dict[str, float]:
+    def to_dict(self) -> dict[str, float | str]:
         j, h = self.as_tuple()
-        return {"jekyll": j, "hyde": h}
+        return {"jekyll": j, "hyde": h, "bucket": self.bucket or snap_to_bucket(j, h).bucket_id}
+
+
+def _finalize_mix(mix: LoraMix) -> LoraMix:
+    snap = snap_to_bucket(mix.jekyll, mix.hyde)
+    return LoraMix.from_snap(snap)
 
 
 def compute_lora_mix(
@@ -62,32 +74,30 @@ def compute_lora_mix(
     text = user_text or ""
 
     if mode == "jekyll" or mode == "duel_jekyll":
-        return LoraMix(1.0, 0.0)
+        return _finalize_mix(LoraMix(1.0, 0.0))
     if mode == "hyde" or mode == "duel_hyde":
-        return LoraMix(0.0, 1.0)
+        return _finalize_mix(LoraMix(0.0, 1.0))
     if mode == "duel":
-        return LoraMix(0.5, 0.5).quantize()
+        return _finalize_mix(LoraMix(0.5, 0.5))
 
     attack = len(_ATTACK.findall(text))
     defend = len(_DEFEND.findall(text))
     gray = bool(_GRAY.search(text)) or "gray_zone" in domains
 
     if "hardening" in domains:
-        return LoraMix(0.35, 0.65).quantize()
+        return _finalize_mix(LoraMix(0.35, 0.65))
     if gray:
-        # Middle-ground default: mostly Jekyll with Hyde tint
-        return LoraMix(0.55, 0.45).quantize()
+        return _finalize_mix(LoraMix(0.55, 0.45))
     if "policy" in domains:
-        base = LoraMix(0.72, 0.28)
         if attack > defend:
-            return LoraMix(0.55, 0.45).quantize()
-        return base.quantize()
+            return _finalize_mix(LoraMix(0.55, 0.45))
+        return _finalize_mix(LoraMix(0.72, 0.28))
     if "quant" in domains or _QUANT.search(text):
-        return LoraMix(0.62, 0.38).quantize()
+        return _finalize_mix(LoraMix(0.62, 0.38))
 
     if attack or defend:
         total = attack + defend + 1e-6
         hyde_w = 0.25 + 0.5 * (attack / total)
-        return LoraMix(1.0 - hyde_w, hyde_w).quantize()
+        return _finalize_mix(LoraMix(1.0 - hyde_w, hyde_w))
 
-    return LoraMix(0.7, 0.3).quantize()
+    return _finalize_mix(LoraMix(0.7, 0.3))

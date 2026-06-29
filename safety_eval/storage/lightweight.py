@@ -92,6 +92,22 @@ def maybe_requantize(*, force: bool = False) -> dict[str, Any]:
     return result
 
 
+def register_top_moe_bucket() -> dict[str, Any]:
+    """Surface the most-used MoE bucket for serving-layer hints."""
+    from safety_eval.platform.lora_mix_cache import load_mix_stats, top_bucket_snap
+
+    stats = load_mix_stats()
+    snap = top_bucket_snap()
+    if not snap:
+        return {"skipped": True, "reason": "no_usage_stats"}
+    return {
+        "top_bucket": stats.get("top_bucket"),
+        "total_requests": stats.get("total", 0),
+        "recommended_mix": snap.to_dict(),
+        "counts": stats.get("counts", {}),
+    }
+
+
 def run_lightweight_cycle(*, force_requantize: bool = False) -> dict[str, Any]:
     """Storage optimize + GGUF prune + optional re-quantize loop tick."""
     from safety_eval.storage.optimizer import get_optimizer
@@ -109,6 +125,12 @@ def run_lightweight_cycle(*, force_requantize: bool = False) -> dict[str, Any]:
     report["gguf_prune"] = prune_gguf_artifacts(keep_quant=keep_quant)
     if cfg.get("auto_requantize_after_train", True) or force_requantize:
         report["requantize"] = maybe_requantize(force=force_requantize)
+    if cfg.get("track_top_moe_bucket", True):
+        report["moe_serving"] = register_top_moe_bucket()
+    if cfg.get("consolidate_memory", True):
+        from safety_eval.learning.memory_store import consolidate_memory_if_needed
+
+        report["memory_consolidation"] = consolidate_memory_if_needed()
     report["disk"] = get_optimizer().disk_summary()
     return report
 

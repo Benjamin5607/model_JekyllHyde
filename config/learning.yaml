@@ -78,6 +78,9 @@ memory:
   max_entries: 500
   retrieve_k: 3
   min_similarity: 0.55
+  consolidate_after: 40
+  consolidate_similarity: 0.88
+  consolidation_enabled: true
   paths:
     rules: data/learning/memory_rules.jsonl
 
@@ -85,6 +88,13 @@ memory:
 lora_moe:
   enabled: true
   quantize_step: 0.05
+  bucket_cache: true
+  buckets:
+    - { jekyll: 0.9, hyde: 0.1 }
+    - { jekyll: 0.7, hyde: 0.3 }
+    - { jekyll: 0.5, hyde: 0.5 }
+    - { jekyll: 0.3, hyde: 0.7 }
+    - { jekyll: 0.1, hyde: 0.9 }
 
 # MCP structured tool-calling training bucket (high priority in data diet)
 mcp_training:

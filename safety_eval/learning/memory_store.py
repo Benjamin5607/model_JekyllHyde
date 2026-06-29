@@ -109,6 +109,8 @@ class RuleMemory:
                 return None
             entries.append(entry)
             self._save_entries(entries)
+            if len(entries) >= int(self.cfg.get("consolidate_after", 40)):
+                self.consolidate_if_needed()
         return entry
 
     def store_from_training(self, record: dict[str, Any], *, topic: str = "") -> MemoryEntry | None:
@@ -174,6 +176,78 @@ class RuleMemory:
                     stored += 1
         return stored
 
+    def consolidate_if_needed(self) -> dict[str, Any]:
+        """Merge similar gray-zone rules when the store grows past the threshold."""
+        if not self.cfg.get("consolidation_enabled", True):
+            return {"consolidated": False, "reason": "disabled"}
+
+        threshold = int(self.cfg.get("consolidate_after", 40))
+        entries = self._load_entries()
+        if len(entries) < threshold:
+            return {"consolidated": False, "count": len(entries), "reason": "below_threshold"}
+
+        sim_thresh = float(self.cfg.get("consolidate_similarity", 0.88))
+        merged_entries: list[MemoryEntry] = []
+        used: set[int] = set()
+        clusters_merged = 0
+
+        for i, entry in enumerate(entries):
+            if i in used:
+                continue
+            cluster = [entry]
+            used.add(i)
+            for j in range(i + 1, len(entries)):
+                if j in used:
+                    continue
+                other = entries[j]
+                if not entry.vector or not other.vector:
+                    continue
+                if cosine(entry.vector, other.vector) >= sim_thresh:
+                    cluster.append(other)
+                    used.add(j)
+            if len(cluster) == 1:
+                merged_entries.append(cluster[0])
+            else:
+                merged_entries.append(self._merge_cluster(cluster))
+                clusters_merged += 1
+
+        self._save_entries(merged_entries)
+        return {
+            "consolidated": True,
+            "before": len(entries),
+            "after": len(merged_entries),
+            "clusters_merged": clusters_merged,
+        }
+
+    def _merge_cluster(self, cluster: list[MemoryEntry]) -> MemoryEntry:
+        """Generalize a cluster of similar rules into one distilled entry."""
+        topics = sorted({c.topic for c in cluster if c.topic})
+        rules = [c.rule_text for c in cluster]
+        primary = max(rules, key=len)
+        extras: list[str] = []
+        primary_norm = normalize_text(primary)
+        for rule in rules:
+            norm = normalize_text(rule)
+            if norm != primary_norm and norm not in primary_norm:
+                extras.append(rule[:120])
+        rule_text = primary
+        if extras:
+            rule_text = f"{primary} Also covers: {'; '.join(extras[:3])}"
+        zones = [c.zone_description for c in cluster if c.zone_description]
+        zone = zones[0] if zones else ""
+        topic = (topics[0] if topics else cluster[0].topic)[:200]
+        combined = f"{topic}\n{zone}\n{rule_text}"
+        return MemoryEntry(
+            id=uuid.uuid4().hex[:12],
+            rule_text=rule_text[:1200],
+            zone_description=zone[:400],
+            topic=topic,
+            source="consolidated",
+            ts=datetime.now(UTC).isoformat(),
+            vector=embed_text(combined),
+            meta={"merged_from": len(cluster), "sources": [c.source for c in cluster]},
+        )
+
 
 def get_rule_memory() -> RuleMemory:
     global _memory
@@ -184,3 +258,7 @@ def get_rule_memory() -> RuleMemory:
 
 def distill_evicted_records(records: list[dict[str, Any]]) -> int:
     return get_rule_memory().distill_evicted_records(records)
+
+
+def consolidate_memory_if_needed() -> dict[str, Any]:
+    return get_rule_memory().consolidate_if_needed()

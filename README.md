@@ -26,12 +26,12 @@
 
 ![Install steps](docs/screenshots/07-install-steps.png)
 
-Download **all files** from [Release v1.3.0](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.3.0):
+Download **all files** from [Release v1.3.1](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.3.1):
 
 | File | Purpose |
 |------|---------|
-| [JekyllHyde-1.3.0-app.zip](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.3.0/JekyllHyde-1.3.0-app.zip) | Platform, scripts, configs |
-| [model.part00–02.gz](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.3.0) | Model weights (gzip L9, 3 parts) |
+| [JekyllHyde-1.3.1-app.zip](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.3.1/JekyllHyde-1.3.1-app.zip) | Platform, scripts, configs |
+| [model.part00–02.gz](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.3.1) | Model weights (gzip L9, 3 parts) |
 
 ```powershell
 # 1) Extract app.zip
@@ -202,6 +202,18 @@ Duel mode runs a **three-stage self-learning loop**:
 
 Config: `config/learning.yaml` → `lora_moe`, `rlaif`, `memory`, `mcp_training`
 
+### v1.3.1 — Runtime polish & visibility
+
+| Feature | What it does |
+|---------|----------------|
+| **MoE bucket cache** | Five canonical blends (J90:H10 … J10:H90) pre-warmed at load — no per-request `add_weighted_adapter` overhead |
+| **Blend indicator** | Mint→red gradient bar in the chat UI shows `meta.lora_mix` after each reply |
+| **RLAIF dashboard** | Settings → score threshold, top MoE bucket, recent `rejected.jsonl` entries |
+| **Memory consolidation** | When rules exceed 40, similar entries merge into generalized long-term rules |
+| **Elo benchmark** | `scripts/benchmark_moe.py` — cross-verify static switch (v1.2.5) vs MoE+memory (v1.3) |
+
+The lightweight storage loop tracks the most-used MoE bucket in `models/merged/jekyll-hyde/moe_serving.json` for serving hints.
+
 ### Dual LoRA + GGUF pipeline (v1.2.3+)
 
 - **Runtime:** 4-bit frozen Gemma base + `jekyll-lora` / `hyde-lora` hot-swap per request
@@ -217,7 +229,13 @@ Config: `config/learning.yaml` → `lora_moe`, `rlaif`, `memory`, `mcp_training`
 scripts\build_release.ps1
 ```
 
-Output: `dist/JekyllHyde-1.3.0-app.zip` + `model.partXX.gz` + manifest.
+Output: `dist/JekyllHyde-1.3.1-app.zip` + `model.partXX.gz` + manifest.
+
+Benchmark MoE vs static switching:
+
+```powershell
+.venv-train\Scripts\python.exe scripts\benchmark_moe.py
+```
 
 ---
 
@@ -225,6 +243,7 @@ Output: `dist/JekyllHyde-1.3.0-app.zip` + `model.partXX.gz` + manifest.
 
 | Tag | Notes |
 |-----|-------|
+| v1.3.1 | MoE bucket cache, blend UI, RLAIF dashboard, memory consolidation, Elo benchmark |
 | v1.3.0 | LoRA MoE router, RLAIF gate, rule memory RAG, MCP tool alignment |
 | [v1.2.5](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.5) | Gray-zone duel reinforcement — discover → dual synthesis → self-learning |
 | [v1.2.4](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.4) | Ultra-lightweight quant loop, English-default UI i18n, output guard |

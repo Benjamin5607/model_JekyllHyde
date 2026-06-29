@@ -399,6 +399,44 @@ def check_next_gen() -> None:
         ok(f"{len(mcp_recs)} MCP tool-chain training examples")
 
 
+def check_v131() -> None:
+    print("\n[15] v1.3.1: MoE bucket cache, RLAIF UI, memory consolidation, benchmark")
+    from safety_eval.platform.lora_mix_cache import MOE_BUCKETS, snap_to_bucket, record_mix_usage, load_mix_stats
+    from safety_eval.learning.memory_store import get_rule_memory
+    from scripts.benchmark_moe import run_benchmark
+
+    snap = snap_to_bucket(0.73, 0.27)
+    if snap.bucket_id != "moe_j70_h30":
+        fail("moe_bucket", f"expected moe_j70_h30 got {snap.bucket_id}")
+    else:
+        ok(f"bucket snap {snap.label()}")
+
+    if len(MOE_BUCKETS) != 5:
+        fail("moe_buckets", f"expected 5 buckets got {len(MOE_BUCKETS)}")
+    else:
+        ok("5 MoE blend buckets defined")
+
+    record_mix_usage(snap)
+    stats = load_mix_stats()
+    if stats.get("total", 0) < 1:
+        fail("moe_stats", "usage not recorded")
+    else:
+        ok(f"MoE stats total={stats.get('total')}")
+
+    mem = get_rule_memory()
+    result = mem.consolidate_if_needed()
+    if "consolidated" not in result:
+        fail("memory_consolidate", "missing consolidated key")
+    else:
+        ok(f"memory consolidation consolidated={result.get('consolidated')}")
+
+    report = run_benchmark(prompts=["Gray zone policy audit test prompt."])
+    if "elo" not in report or "winner" not in report:
+        fail("benchmark_moe", "invalid report")
+    else:
+        ok(f"benchmark Elo static={report['elo']['static_v125']} moe={report['elo']['moe_v13']}")
+
+
 def main() -> int:
     print("=== Jekyll & Hyde cross-verification ===")
     check_imports()
@@ -415,6 +453,7 @@ def main() -> int:
     check_output_guard()
     check_gray_reinforce()
     check_next_gen()
+    check_v131()
     print("\n=== Summary ===")
     if FAILURES:
         for f in FAILURES:

@@ -546,6 +546,35 @@
     .settings-btn:hover { color: var(--text); border-color: var(--accent); background: var(--accent-soft); }
     .topbar-right { display: flex; align-items: center; gap: 10px; }
 
+    .blend-bar {
+      display: none; align-items: center; gap: 10px;
+      padding: 6px 16px; border-bottom: 1px solid var(--border-soft);
+      background: var(--bg-soft); font-size: 0.72rem;
+    }
+    .blend-bar.show { display: flex; }
+    .blend-label { font-weight: 600; color: var(--text-secondary); white-space: nowrap; }
+    .blend-track {
+      flex: 1; max-width: 280px; height: 10px; border-radius: 999px;
+      background: linear-gradient(90deg, #10b981 0%, #f59e0b 50%, #ef4444 100%);
+      position: relative; overflow: visible;
+    }
+    .blend-marker {
+      position: absolute; top: -3px; width: 4px; height: 16px;
+      background: #fff; border: 1px solid rgba(0,0,0,0.25);
+      border-radius: 2px; transform: translateX(-50%);
+      transition: left 0.25s ease; box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+    .blend-text { font-family: var(--mono); font-size: 0.68rem; color: var(--text-secondary); white-space: nowrap; }
+
+    .rlaif-list { display: flex; flex-direction: column; gap: 6px; max-height: 160px; overflow-y: auto; }
+    .rlaif-item {
+      padding: 8px 10px; border-radius: 8px; font-size: 0.72rem;
+      border: 1px solid var(--border-soft); background: var(--bg-soft);
+      color: var(--text-secondary); line-height: 1.4;
+    }
+    .rlaif-item.fail { border-color: rgba(239,68,68,0.35); background: rgba(239,68,68,0.06); }
+    .rlaif-pass { font-weight: 700; color: #10b981; }
+
     .drawer {
       position: fixed; top: 0; right: 0; bottom: 0; width: min(420px, 92vw);
       z-index: 120; background: var(--surface);
@@ -704,6 +733,12 @@
         </div>
       </header>
 
+      <div class="blend-bar" id="blendBar">
+        <span class="blend-label" data-i18n="blendLabel">LoRA mix</span>
+        <div class="blend-track"><div class="blend-marker" id="blendMarker"></div></div>
+        <span class="blend-text" id="blendText">Jekyll 70% · Hyde 30%</span>
+      </div>
+
       <div class="chat-wrap">
         <div class="chat" id="messages">
           <div class="chat-empty" id="emptyState">
@@ -740,6 +775,12 @@
         <div class="drawer-label" data-i18n="langTitle">App language</div>
         <select id="uiLang"></select>
         <p class="drawer-note" data-i18n="langNote">UI display language. Model replies follow your input language.</p>
+      </div>
+
+      <div class="drawer-section">
+        <div class="drawer-label" data-i18n="rlaifTitle">RLAIF gate</div>
+        <div id="rlaifStatus" class="drawer-note">—</div>
+        <div class="rlaif-list" id="rlaifRejected"></div>
       </div>
 
       <div class="drawer-section">
@@ -805,7 +846,9 @@
         copied: '클립보드에 복사했습니다',
         learnTitle: '지속 학습', learnCurate: '피드백 정제', learnTrain: '피드백으로 재학습',
         learnGen: '세대', learnCurated: '학습 샘플', learnPending: '재학습 대기', learnTraining: '학습 중…',
-        fbThanks: '피드백 반영됨'
+        fbThanks: '피드백 반영됨',
+        blendLabel: 'LoRA 믹스', rlaifTitle: 'RLAIF 게이트', rlaifPass: '통과', rlaifFail: '차단',
+        rlaifThreshold: '임계값', rlaifRejected: '최근 차단', rlaifNone: '차단 내역 없음'
       },
       en: {
         brandSub: 'Studio · Custom LLM', modeLabel: 'Mode', modeChat: 'Chat', modeJekyll: 'Jekyll', modeHyde: 'Hyde', modeDuel: 'Duel',
@@ -836,7 +879,9 @@
         copied: 'Copied to clipboard',
         learnTitle: 'Continuous learning', learnCurate: 'Curate feedback', learnTrain: 'Train from feedback',
         learnGen: 'Gen', learnCurated: 'Curated samples', learnPending: 'Pending retrain', learnTraining: 'Training…',
-        fbThanks: 'Feedback recorded'
+        fbThanks: 'Feedback recorded',
+        blendLabel: 'LoRA mix', rlaifTitle: 'RLAIF gate', rlaifPass: 'Pass', rlaifFail: 'Rejected',
+        rlaifThreshold: 'Threshold', rlaifRejected: 'Recent rejections', rlaifNone: 'No rejections yet'
       },
       ja: {
         brandSub: 'Studio · 独自LLM', modeLabel: 'モード', modeChat: '一般', modeJekyll: 'Jekyll', modeHyde: 'Hyde', modeDuel: 'Duel',
@@ -1075,6 +1120,7 @@
       backdrop.classList.add('show');
       loadMcpSettings();
       loadLearningStatus();
+      loadRlaifStatus();
     }
     function closeSettingsPanel() {
       settingsDrawer.classList.remove('open');
@@ -1226,6 +1272,45 @@
       } catch (e) { /* ignore */ }
     }
 
+    async function loadRlaifStatus() {
+      try {
+        const d = await fetch('/api/learning/rlaif').then(r => r.json());
+        const statusEl = document.getElementById('rlaifStatus');
+        const listEl = document.getElementById('rlaifRejected');
+        if (!statusEl || !listEl) return;
+        const on = d.enabled !== false;
+        const thr = d.threshold || 85;
+        const top = d.moe_stats?.top_bucket || '—';
+        statusEl.innerHTML = on
+          ? `<span class="rlaif-pass">${t('rlaifPass')}</span> · ${t('rlaifThreshold')}: ${thr} · Top MoE: <code>${esc(top)}</code>`
+          : 'RLAIF disabled';
+        const items = d.rejected_recent || [];
+        if (!items.length) {
+          listEl.innerHTML = `<div class="rlaif-item">${t('rlaifNone')}</div>`;
+          return;
+        }
+        listEl.innerHTML = items.slice().reverse().map(rec => {
+          const score = rec.rlaif?.score ?? rec.meta?.rlaif_score ?? '?';
+          const reason = (rec.rlaif?.reasons || rec.reason || []).join(', ') || t('rlaifFail');
+          const preview = (rec.assistant || rec.messages?.[1]?.content || '').slice(0, 80);
+          return `<div class="rlaif-item fail">Score: ${esc(String(score))} — ${esc(reason)}<br><small>${esc(preview)}…</small></div>`;
+        }).join('');
+      } catch (e) { /* ignore */ }
+    }
+
+    function updateBlendBar(mix) {
+      const bar = document.getElementById('blendBar');
+      const marker = document.getElementById('blendMarker');
+      const text = document.getElementById('blendText');
+      if (!bar || !mix) { if (bar) bar.classList.remove('show'); return; }
+      const j = typeof mix.jekyll === 'number' ? mix.jekyll : 0.5;
+      const h = typeof mix.hyde === 'number' ? mix.hyde : (1 - j);
+      bar.classList.add('show');
+      marker.style.left = (j * 100) + '%';
+      text.textContent = `Jekyll ${Math.round(j * 100)}% · Hyde ${Math.round(h * 100)}%` +
+        (mix.bucket ? ` · ${mix.bucket}` : '');
+    }
+
     document.getElementById('menuBtn').onclick = () => {
       sidebar.classList.toggle('open');
       backdrop.classList.toggle('show');
@@ -1301,6 +1386,7 @@
           })
         });
         const d = await r.json();
+        if (d.meta?.lora_mix) updateBlendBar(d.meta.lora_mix);
         if (d.meta?.duel?.turns) {
           for (const turn of d.meta.duel.turns) {
             addMsg('assistant', turn.content, turn.speaker === 'hyde' ? 'hyde' : 'jekyll',

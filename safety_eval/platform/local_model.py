@@ -24,8 +24,8 @@ _loading = False
 _backend: str = "none"
 _active_adapter: str = "jekyll"
 _base_model_id: str = "google/gemma-2-2b-it"
-_MIX_ADAPTER = "moe_blend"
-_last_mix: tuple[float, float] | None = None
+_last_bucket: str | None = None
+_warmed_buckets: set[str] = set()
 
 
 def _adapter_dirs() -> dict[AdapterName, Path]:
@@ -328,50 +328,73 @@ def _load_merged() -> tuple[Any, Any]:
 
 
 def set_lora_mix(jekyll_w: float, hyde_w: float) -> None:
-    """Blend jekyll + hyde LoRA adapters (MoE-style linear combination)."""
-    global _active_adapter, _last_mix
+    """Blend jekyll + hyde LoRA adapters using pre-warmed MoE bucket pool."""
+    global _active_adapter, _last_bucket
 
     if _model is None or _backend != "dual-lora":
         _set_active_adapter(resolve_adapter("hyde" if hyde_w > jekyll_w else "jekyll"))
         return
 
-    jw, hw = max(0.0, jekyll_w), max(0.0, hyde_w)
-    if jw + hw <= 0:
-        jw, hw = 1.0, 0.0
-    else:
-        s = jw + hw
-        jw, hw = jw / s, hw / s
+    from safety_eval.platform.lora_mix_cache import MOE_BUCKETS, record_mix_usage, snap_to_bucket
 
-    key = (round(jw, 2), round(hw, 2))
-    if _last_mix == key:
+    snap = snap_to_bucket(jekyll_w, hyde_w)
+    record_mix_usage(snap)
+
+    if _last_bucket == snap.bucket_id:
         return
 
-    if jw >= 0.98:
-        _model.set_adapter("jekyll")
-        _active_adapter = "jekyll"
-        _last_mix = key
-        return
-    if hw >= 0.98:
-        _model.set_adapter("hyde")
-        _active_adapter = "hyde"
-        _last_mix = key
+    if snap.adapter_name in ("jekyll", "hyde"):
+        _model.set_adapter(snap.adapter_name)
+        _active_adapter = snap.adapter_name  # type: ignore[assignment]
+        _last_bucket = snap.bucket_id
         return
 
     try:
-        if _MIX_ADAPTER in getattr(_model, "peft_config", {}):
-            _model.delete_adapter(_MIX_ADAPTER)
-        _model.add_weighted_adapter(
-            adapters=["jekyll", "hyde"],
-            weights=[jw, hw],
-            adapter_name=_MIX_ADAPTER,
-            combination_type="linear",
-        )
-        _model.set_adapter(_MIX_ADAPTER)
-        _active_adapter = _MIX_ADAPTER
-        _last_mix = key
+        if not _adapter_exists(snap.adapter_name):
+            _model.add_weighted_adapter(
+                adapters=["jekyll", "hyde"],
+                weights=[snap.jekyll, snap.hyde],
+                adapter_name=snap.adapter_name,
+                combination_type="linear",
+            )
+            _warmed_buckets.add(snap.adapter_name)
+        _model.set_adapter(snap.adapter_name)
+        _active_adapter = snap.adapter_name  # type: ignore[assignment]
+        _last_bucket = snap.bucket_id
     except Exception:
-        _set_active_adapter("jekyll" if jw >= hw else "hyde")
-        _last_mix = key
+        _set_active_adapter("jekyll" if snap.jekyll >= snap.hyde else "hyde")
+        _last_bucket = snap.bucket_id
+
+
+def _adapter_exists(name: str) -> bool:
+    if _model is None:
+        return False
+    return name in getattr(_model, "peft_config", {})
+
+
+def prewarm_moe_buckets() -> int:
+    """Pre-create all five MoE bucket adapters to avoid per-request overhead."""
+    if _model is None or _backend != "dual-lora":
+        return 0
+    warmed = 0
+    for name, jw, hw in MOE_BUCKETS:
+        if _adapter_exists(name):
+            _warmed_buckets.add(name)
+            continue
+        try:
+            _model.add_weighted_adapter(
+                adapters=["jekyll", "hyde"],
+                weights=[jw, hw],
+                adapter_name=name,
+                combination_type="linear",
+            )
+            _warmed_buckets.add(name)
+            warmed += 1
+        except Exception:
+            continue
+    _model.set_adapter("jekyll")
+    _active_adapter = "jekyll"
+    return warmed
 
 
 def _set_active_adapter(name: AdapterName) -> None:
@@ -459,13 +482,15 @@ def chat(
 
 def reload_model() -> LocalModelInfo:
     """Unload and reload weights after incremental training."""
-    global _model, _tokenizer, _load_error, _loading, _backend, _active_adapter
+    global _model, _tokenizer, _load_error, _loading, _backend, _active_adapter, _last_bucket, _warmed_buckets
     _model = None
     _tokenizer = None
     _load_error = None
     _loading = False
     _backend = "none"
     _active_adapter = "jekyll"
+    _last_bucket = None
+    _warmed_buckets = set()
     return preload()
 
 
@@ -480,6 +505,10 @@ def preload() -> LocalModelInfo:
     _load_error = None
     try:
         _ensure_loaded()
+        if _backend == "dual-lora":
+            import threading
+
+            threading.Thread(target=prewarm_moe_buckets, daemon=True).start()
     except Exception as exc:
         _load_error = str(exc)
         raise

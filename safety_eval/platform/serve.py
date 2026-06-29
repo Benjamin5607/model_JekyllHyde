@@ -357,6 +357,45 @@ def api_learning_status() -> dict:
     return get_learning_store().status()
 
 
+@app.get("/api/learning/rlaif")
+def api_learning_rlaif() -> dict:
+    import json
+
+    from safety_eval.learning.rlaif_gate import RlaifGate
+    from safety_eval.platform.lora_mix_cache import load_mix_stats
+
+    root = Path(__file__).resolve().parent.parent.parent
+    rejected_path = root / "data" / "learning" / "rejected.jsonl"
+    rejected: list[dict] = []
+    if rejected_path.exists():
+        for line in rejected_path.read_text(encoding="utf-8").splitlines()[-40:]:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                rejected.append(json.loads(line))
+            except json.JSONDecodeError:
+                continue
+    gate = RlaifGate()
+    return {
+        "enabled": gate.enabled(),
+        "threshold": gate.threshold(),
+        "rejected_recent": rejected[-12:],
+        "rejected_count": len(rejected),
+        "moe_stats": load_mix_stats(),
+    }
+
+
+@app.get("/api/moe/stats")
+def api_moe_stats() -> dict:
+    from safety_eval.platform.lora_mix_cache import list_bucket_snaps, load_mix_stats
+
+    return {
+        "stats": load_mix_stats(),
+        "buckets": [b.to_dict() for b in list_bucket_snaps()],
+    }
+
+
 @app.post("/api/learning/run")
 async def api_learning_run(body: LearningRunBody) -> dict:
     loop = asyncio.get_running_loop()
