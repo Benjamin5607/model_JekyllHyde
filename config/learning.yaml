@@ -45,6 +45,7 @@ diet:
     policy: 500
     duel: 300
     chat: 800
+    mcp_tools: 250
   persona_caps:
     jekyll: 800
     hyde: 600
@@ -63,3 +64,29 @@ gray_reinforce:
   auto_curate: true
   min_zones: 1
   max_zones_per_duel: 8
+
+# RLAIF gate — verification API score before auto-curation (prevents hallucination loops)
+rlaif:
+  enabled: true
+  min_score: 85
+
+# Distilled gray-zone rule memory (RAG injection + eviction preservation)
+memory:
+  enabled: true
+  inject_on_query: true
+  distill_on_evict: true
+  max_entries: 500
+  retrieve_k: 3
+  min_similarity: 0.55
+  paths:
+    rules: data/learning/memory_rules.jsonl
+
+# LoRA MoE — dynamic jekyll/hyde adapter blend
+lora_moe:
+  enabled: true
+  quantize_step: 0.05
+
+# MCP structured tool-calling training bucket (high priority in data diet)
+mcp_training:
+  enabled: true
+  priority_boost: 0.35

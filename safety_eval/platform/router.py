@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import Literal
 
+from safety_eval.platform.lora_router import LoraMix, compute_lora_mix
+
 PersonaFocus = Literal["jekyll", "hyde", "balanced"]
 
 
@@ -13,22 +15,12 @@ def resolve_persona_focus(
     user_text: str = "",
     domains: list[str] | None = None,
 ) -> PersonaFocus:
-    mode = (mode or "chat").lower()
-    domains = domains or []
-    if mode == "jekyll":
+    mix = compute_lora_mix(mode=mode, user_text=user_text, domains=domains)
+    j, h = mix.as_tuple()
+    if j >= 0.85:
         return "jekyll"
-    if mode == "hyde":
+    if h >= 0.85:
         return "hyde"
-    if mode.startswith("duel_jekyll"):
-        return "jekyll"
-    if mode.startswith("duel_hyde"):
-        return "hyde"
-    if "hardening" in domains or "gray_zone" in domains:
-        return "hyde" if mode == "hyde" else "balanced"
-    if "policy" in domains:
-        return "jekyll"
-    if "quant" in domains:
-        return "balanced"
     return "balanced"
 
 
@@ -49,3 +41,6 @@ def slim_core_identity(focus: PersonaFocus) -> str:
         "You are Jekyll & Hyde — independent dual-nature model. NOT Gemma/ChatGPT. "
         "Jekyll defends; Hyde stress-tests. Reply in the user's language."
     )
+
+
+__all__ = ["PersonaFocus", "LoraMix", "compute_lora_mix", "resolve_persona_focus", "slim_core_identity"]

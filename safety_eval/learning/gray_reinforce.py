@@ -509,20 +509,17 @@ class GrayReinforcer:
 
         if self.cfg.get("auto_curate", True) and report.solutions:
             report.training_records_written = self._curate_records(
-                build_reinforcement_records(report, guidelines_text=guidelines_text)
+                build_reinforcement_records(report, guidelines_text=guidelines_text),
+                topic=topic,
+                guidelines_text=guidelines_text,
             )
         return report
 
-    def _curate_records(self, records: list[dict[str, Any]]) -> int:
-        written = 0
-        for rec in records:
-            if self.store.append_curated_training(rec):
-                written += 1
-        if written:
-            from safety_eval.learning.pipeline import get_pipeline
+    def _curate_records(self, records: list[dict[str, Any]], *, topic: str = "", guidelines_text: str = "") -> int:
+        from safety_eval.learning.rlaif_gate import curate_with_rlaif
 
-            get_pipeline().maybe_start_training()
-        return written
+        result = curate_with_rlaif(records, guidelines_text=guidelines_text, topic=topic)
+        return int(result.get("written", 0))
 
 
 def reinforce_from_duel(

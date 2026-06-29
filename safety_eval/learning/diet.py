@@ -120,6 +120,8 @@ def category_bucket(rec: dict[str, Any]) -> str:
     blob = f"{typ} {fmt} {user}".lower()
     if any(k in blob for k in ("quant", "market", "investment", "equity", "stock")):
         return "quant"
+    if meta.get("format") == "mcp_tool_call" or meta.get("category") == "mcp_tools":
+        return "mcp_tools"
     if meta.get("source") == "gray_reinforce":
         return "policy"
     if any(k in blob for k in ("guideline", "policy", "gray", "hardening", "moderation", "refusal")):
@@ -132,6 +134,8 @@ def category_bucket(rec: dict[str, Any]) -> str:
 def record_sort_key(rec: dict[str, Any]) -> tuple[float, str]:
     meta = rec.get("meta") or {}
     score = float(meta.get("quality_score", 0.5))
+    if meta.get("format") == "mcp_tool_call" or meta.get("category") == "mcp_tools":
+        score += 0.35
     ts = str(meta.get("ts") or meta.get("interaction_id") or "")
     return (score, ts)
 
@@ -223,9 +227,11 @@ class DataDiet:
 
         default_cat_cap = self.max_total // max(len(self.category_caps), 1)
         default_persona_cap = self.max_total // max(len(self.persona_caps), 1)
+        evicted: list[dict[str, Any]] = []
 
         for rec in stage1:
             if len(kept) >= self.max_total:
+                evicted.append(rec)
                 stats.balance_removed += 1
                 continue
             cat = category_bucket(rec)
@@ -233,12 +239,21 @@ class DataDiet:
             cat_cap = self.category_caps.get(cat, default_cat_cap)
             per_cap = self.persona_caps.get(persona, default_persona_cap)
             if cat_counts[cat] >= cat_cap or persona_counts[persona] >= per_cap:
+                evicted.append(rec)
                 stats.balance_removed += 1
                 continue
             kept.append(rec)
             cat_counts[cat] += 1
             persona_counts[persona] += 1
             stats.buckets[f"{cat}/{persona}"] = stats.buckets.get(f"{cat}/{persona}", 0) + 1
+
+        if evicted:
+            try:
+                from safety_eval.learning.memory_store import distill_evicted_records
+
+                distill_evicted_records(evicted)
+            except Exception:
+                pass
 
         stats.output_count = len(kept)
 

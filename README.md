@@ -26,12 +26,12 @@
 
 ![Install steps](docs/screenshots/07-install-steps.png)
 
-Download **all files** from [Release v1.2.5](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.5):
+Download **all files** from [Release v1.3.0](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.3.0):
 
 | File | Purpose |
 |------|---------|
-| [JekyllHyde-1.2.5-app.zip](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.2.5/JekyllHyde-1.2.5-app.zip) | Platform, scripts, configs |
-| [model.part00–02.gz](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.5) | Model weights (gzip L9, 3 parts) |
+| [JekyllHyde-1.3.0-app.zip](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.3.0/JekyllHyde-1.3.0-app.zip) | Platform, scripts, configs |
+| [model.part00–02.gz](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.3.0) | Model weights (gzip L9, 3 parts) |
 
 ```powershell
 # 1) Extract app.zip
@@ -185,13 +185,22 @@ model_JekyllHyde/
 
 ### Gray-zone reinforcement (v1.2.5+)
 
-Duel mode now runs a **three-stage self-learning loop**:
+Duel mode runs a **three-stage self-learning loop**:
 
-1. **Discover** — Hyde↔Jekyll debate surfaces gray zones (`Still unresolved`, `Gray zone`, middle-ground bullets)
-2. **Synthesize** — Jekyll proposes optimal rule/logic patches; Hyde validates residual risk
-3. **Learn** — Dual-persona rows auto-curated into `curated_train.jsonl` → incremental LoRA retrain
+1. **Discover** — Hyde↔Jekyll debate surfaces gray zones
+2. **Synthesize** — Jekyll proposes patches; Hyde validates residual risk
+3. **Learn** — Dual-persona rows auto-curated → incremental LoRA retrain (gated by **RLAIF** verification score ≥ 85)
 
-Config: `config/learning.yaml` → `gray_reinforce` · MCP tool: `run_gray_zone_duel`
+### Next-gen architecture (v1.3+)
+
+| Pillar | What it does |
+|--------|----------------|
+| **LoRA MoE Router** | Blend `jekyll-lora` + `hyde-lora` by prompt (e.g. 70/30 gray-zone) — single inference, middle-ground depth |
+| **RLAIF gate** | Free verification APIs score patches before `curated_train.jsonl` — blocks hallucination self-amplification |
+| **Rule memory (RAG)** | Distilled gray-zone patches in local embedding store; injected on similar queries; preserved on FIFO eviction |
+| **MCP tool alignment** | `mcp_tool_call` training bucket with diet priority — reliable sequential tool JSON chains |
+
+Config: `config/learning.yaml` → `lora_moe`, `rlaif`, `memory`, `mcp_training`
 
 ### Dual LoRA + GGUF pipeline (v1.2.3+)
 
@@ -208,7 +217,7 @@ Config: `config/learning.yaml` → `gray_reinforce` · MCP tool: `run_gray_zone_
 scripts\build_release.ps1
 ```
 
-Output: `dist/JekyllHyde-1.2.5-app.zip` + `model.partXX.gz` + manifest.
+Output: `dist/JekyllHyde-1.3.0-app.zip` + `model.partXX.gz` + manifest.
 
 ---
 
@@ -216,7 +225,8 @@ Output: `dist/JekyllHyde-1.2.5-app.zip` + `model.partXX.gz` + manifest.
 
 | Tag | Notes |
 |-----|-------|
-| v1.2.5 | Gray-zone duel reinforcement — discover → dual synthesis → self-learning |
+| v1.3.0 | LoRA MoE router, RLAIF gate, rule memory RAG, MCP tool alignment |
+| [v1.2.5](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.5) | Gray-zone duel reinforcement — discover → dual synthesis → self-learning |
 | [v1.2.4](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.4) | Ultra-lightweight quant loop, English-default UI i18n, output guard |
 | [v1.2.3](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.3) | Dual LoRA + auto GGUF |
 | [v1.2.2](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.2.2) | Data diet, semantic dedup, slim routing, compact quant |

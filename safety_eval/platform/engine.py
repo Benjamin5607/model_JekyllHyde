@@ -9,7 +9,7 @@ from safety_eval.blue_team import build_blue_team
 from safety_eval.i18n.apac import detect_user_language, language_generation_reminder, reply_language_name
 from safety_eval.platform.ollama_client import MODEL_NAME
 from safety_eval.platform.output_guard import sanitize_chat_output
-from safety_eval.platform.router import resolve_persona_focus
+from safety_eval.platform.router import compute_lora_mix, resolve_persona_focus
 from safety_eval.platform.runtime import describe_runtime, generate, runtime_ready
 from safety_eval.platform.duel import run_duel
 from safety_eval.platform.formats import build_format_block, format_refusal, max_tokens_for_format, temperature_for_format
@@ -238,6 +238,15 @@ class JekyllHydeEngine:
             has_guidelines=has_gl,
         )
 
+        try:
+            from safety_eval.learning.memory_store import get_rule_memory
+
+            mem_block = get_rule_memory().format_block(user_message)
+            if mem_block:
+                spec_block = f"{spec_block}\n\n{mem_block}" if spec_block else mem_block
+        except Exception:
+            pass
+
         format_block, response_format = build_format_block(
             user_message,
             mode=mode,
@@ -336,6 +345,7 @@ class JekyllHydeEngine:
 
         pipeline_stages: list[dict[str, str]] = []
         adapter_focus = resolve_persona_focus(mode=mode, user_text=user_message, domains=domains)
+        lora_mix = compute_lora_mix(mode=mode, user_text=user_message, domains=domains)
 
         try:
             if analyst_harness and quant_ctx:
@@ -366,13 +376,16 @@ class JekyllHydeEngine:
             else:
                 gen_temp = temperature_for_format(response_format.id, self.config.temperature)
                 max_tokens = max_tokens_for_format(response_format.id)
+                mix_tuple = lora_mix.as_tuple()
+                pure = mix_tuple in ((1.0, 0.0), (0.0, 1.0))
                 content, runtime = generate(
                     messages,
                     ollama_url=self.config.ollama_url,
                     model_name=self.config.model,
                     temperature=gen_temp,
                     max_new_tokens=max_tokens,
-                    adapter=adapter_focus,
+                    adapter=adapter_focus if pure else None,
+                    lora_mix=None if pure else mix_tuple,
                 )
 
             active_model = runtime.name
@@ -436,6 +449,7 @@ class JekyllHydeEngine:
                 "format_label": response_format.label,
                 "domains": domains,
                 "primary_domain": primary_domain(domains, has_quant=bool(quant_ctx)),
+                "lora_mix": lora_mix.to_dict(),
                 "interaction_id": rec.id if rec else None,
                 "learning_generation": get_collector().store.load_state().generation,
             },

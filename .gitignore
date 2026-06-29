@@ -18,6 +18,7 @@ logs/*.log
 data/learning/interactions.jsonl
 data/learning/rejected.jsonl
 data/learning/embedding_index.json
+data/learning/memory_rules.jsonl
 data/archive/
 
 # Large model weights (download via Releases)

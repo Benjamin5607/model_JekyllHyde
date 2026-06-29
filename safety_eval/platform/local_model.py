@@ -22,8 +22,10 @@ _tokenizer = None
 _load_error: str | None = None
 _loading = False
 _backend: str = "none"
-_active_adapter: AdapterName = "jekyll"
+_active_adapter: str = "jekyll"
 _base_model_id: str = "google/gemma-2-2b-it"
+_MIX_ADAPTER = "moe_blend"
+_last_mix: tuple[float, float] | None = None
 
 
 def _adapter_dirs() -> dict[AdapterName, Path]:
@@ -325,6 +327,53 @@ def _load_merged() -> tuple[Any, Any]:
     return model, tokenizer
 
 
+def set_lora_mix(jekyll_w: float, hyde_w: float) -> None:
+    """Blend jekyll + hyde LoRA adapters (MoE-style linear combination)."""
+    global _active_adapter, _last_mix
+
+    if _model is None or _backend != "dual-lora":
+        _set_active_adapter(resolve_adapter("hyde" if hyde_w > jekyll_w else "jekyll"))
+        return
+
+    jw, hw = max(0.0, jekyll_w), max(0.0, hyde_w)
+    if jw + hw <= 0:
+        jw, hw = 1.0, 0.0
+    else:
+        s = jw + hw
+        jw, hw = jw / s, hw / s
+
+    key = (round(jw, 2), round(hw, 2))
+    if _last_mix == key:
+        return
+
+    if jw >= 0.98:
+        _model.set_adapter("jekyll")
+        _active_adapter = "jekyll"
+        _last_mix = key
+        return
+    if hw >= 0.98:
+        _model.set_adapter("hyde")
+        _active_adapter = "hyde"
+        _last_mix = key
+        return
+
+    try:
+        if _MIX_ADAPTER in getattr(_model, "peft_config", {}):
+            _model.delete_adapter(_MIX_ADAPTER)
+        _model.add_weighted_adapter(
+            adapters=["jekyll", "hyde"],
+            weights=[jw, hw],
+            adapter_name=_MIX_ADAPTER,
+            combination_type="linear",
+        )
+        _model.set_adapter(_MIX_ADAPTER)
+        _active_adapter = _MIX_ADAPTER
+        _last_mix = key
+    except Exception:
+        _set_active_adapter("jekyll" if jw >= hw else "hyde")
+        _last_mix = key
+
+
 def _set_active_adapter(name: AdapterName) -> None:
     global _active_adapter
     if _model is None or _backend != "dual-lora":
@@ -369,11 +418,14 @@ def chat(
     temperature: float = 0.7,
     max_new_tokens: int = 384,
     adapter: str | None = None,
+    lora_mix: tuple[float, float] | None = None,
 ) -> str:
     import torch
 
     model, tokenizer = _ensure_loaded()
-    if adapter:
+    if lora_mix is not None:
+        set_lora_mix(lora_mix[0], lora_mix[1])
+    elif adapter:
         _set_active_adapter(resolve_adapter(adapter))
 
     norm = normalize_messages(messages)

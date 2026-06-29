@@ -356,6 +356,49 @@ def check_gray_reinforce() -> None:
         ok(f"dual training records jekyll={jekyll_n} hyde={hyde_n} synthesis={len(records) - jekyll_n - hyde_n}")
 
 
+def check_next_gen() -> None:
+    print("\n[14] v1.3 next-gen: LoRA MoE, RLAIF, memory, MCP training")
+    from safety_eval.platform.lora_router import compute_lora_mix
+    from safety_eval.learning.rlaif_gate import RlaifGate
+    from safety_eval.learning.memory_store import get_rule_memory
+    from training.mcp_tool_examples import mcp_tool_training_records
+
+    mix = compute_lora_mix(mode="chat", user_text="gray zone policy loophole audit", domains=["gray_zone", "policy"])
+    j, h = mix.as_tuple()
+    if not (0.2 < j < 0.9 and 0.1 < h < 0.8):
+        fail("lora_moe", f"gray zone mix j={j} h={h}")
+    else:
+        ok(f"LoRA MoE mix {mix.label()}")
+
+    gate = RlaifGate()
+    good_rec = {
+        "messages": [
+            {"role": "user", "content": "test"},
+            {"role": "assistant", "content": "## Patch\n**Suggested rule text:** Require human review for ambiguous satire.\n" + "x" * 80},
+        ],
+        "meta": {"quality_score": 0.9, "source": "gray_reinforce"},
+    }
+    score = gate.score_record(good_rec, guidelines_text="Spam policy guidelines sample text.")
+    if score.score < 40:
+        fail("rlaif_gate", f"score={score.score}")
+    else:
+        ok(f"RLAIF score={score.score:.0f} providers_ok={score.providers_ok}")
+
+    mem = get_rule_memory()
+    mem.store(rule_text="Always flag ambiguous harassment satire for human review.", zone_description="satire vs insult", topic="harassment")
+    hits = mem.retrieve("harassment satire gray zone")
+    if not hits:
+        fail("memory_store", "no retrieval hits")
+    else:
+        ok(f"memory retrieve {len(hits)} hit(s)")
+
+    mcp_recs = mcp_tool_training_records("SYSTEM")
+    if len(mcp_recs) < 4:
+        fail("mcp_tool_examples", f"only {len(mcp_recs)}")
+    else:
+        ok(f"{len(mcp_recs)} MCP tool-chain training examples")
+
+
 def main() -> int:
     print("=== Jekyll & Hyde cross-verification ===")
     check_imports()
@@ -371,6 +414,7 @@ def main() -> int:
     check_lightweight()
     check_output_guard()
     check_gray_reinforce()
+    check_next_gen()
     print("\n=== Summary ===")
     if FAILURES:
         for f in FAILURES:

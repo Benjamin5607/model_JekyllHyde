@@ -135,6 +135,13 @@ def build_records(guidelines_path: Path) -> list[dict]:
     except ImportError:
         pass
 
+    try:
+        from training.mcp_tool_examples import mcp_tool_training_records
+
+        records.extend(mcp_tool_training_records(system))
+    except ImportError:
+        pass
+
     curated_path = DATA / "learning" / "curated_train.jsonl"
     if curated_path.exists():
         with curated_path.open(encoding="utf-8") as f:

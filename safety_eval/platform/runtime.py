@@ -135,6 +135,7 @@ def generate(
     temperature: float = 0.7,
     max_new_tokens: int = 384,
     adapter: str | None = None,
+    lora_mix: tuple[float, float] | None = None,
 ) -> tuple[str, RuntimeModelInfo]:
     if model_weights_available():
         try:
@@ -143,6 +144,7 @@ def generate(
                 temperature=temperature,
                 max_new_tokens=max_new_tokens,
                 adapter=adapter,
+                lora_mix=lora_mix,
             )
             return content, describe_runtime()
         except Exception:

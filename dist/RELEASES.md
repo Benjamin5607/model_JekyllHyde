@@ -2,6 +2,7 @@
 
 | Version | Date | Assets | Notes |
 |---------|------|--------|-------|
+| **1.3.0** | 2026-06-28 | `app.zip` + `model.part00–02.gz` | LoRA MoE, RLAIF gate, rule memory RAG, MCP tools |
 | **1.2.5** | 2026-06-28 | `app.zip` + `model.part00–02.gz` | Gray-zone duel reinforcement loop |
 | **1.2.4** | 2026-06-13 | `app.zip` + `model.part00–02.gz` | Ultra-lightweight loop, English-default UI i18n |
 | **1.2.3** | 2026-06-28 | `app.zip` + `model.part00–02.gz` | Dual LoRA, auto GGUF, persona routing |
