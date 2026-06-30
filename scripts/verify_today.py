@@ -542,6 +542,38 @@ def check_v150() -> None:
         ok("train_dpo --dry-run")
 
 
+def check_hf_hub() -> None:
+    print("\n[18] Hugging Face Hub + Gradio Space")
+    import ast
+
+    app_path = ROOT / "hf_space" / "app.py"
+    if not app_path.exists():
+        fail("hf_space", "app.py missing")
+    else:
+        ast.parse(app_path.read_text(encoding="utf-8"))
+        ok("hf_space/app.py parses")
+
+    for name in ("requirements.txt", "README.md"):
+        if not (ROOT / "hf_space" / name).exists():
+            fail("hf_space", f"missing {name}")
+        else:
+            ok(f"hf_space/{name}")
+
+    from scripts.upload_hf_hub import upload_adapter
+
+    jekyll = ROOT / "models" / "adapters" / "jekyll-lora"
+    info = upload_adapter(
+        local_dir=jekyll,
+        repo_id="Benjamin5607/jekyll-hyde-jekyll-lora",
+        readme_src=ROOT / "hf_hub" / "jekyll-lora-README.md",
+        dry_run=True,
+    )
+    if info.get("size_mb", 0) < 1:
+        fail("hf_upload", "adapter too small or missing")
+    else:
+        ok(f"HF upload dry-run jekyll ~{info['size_mb']} MB")
+
+
 def main() -> int:
     print("=== Jekyll & Hyde cross-verification ===")
     check_imports()
@@ -561,6 +593,7 @@ def main() -> int:
     check_v131()
     check_v140()
     check_v150()
+    check_hf_hub()
     print("\n=== Summary ===")
     if FAILURES:
         for f in FAILURES:

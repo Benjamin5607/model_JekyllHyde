@@ -272,6 +272,50 @@ Benchmark MoE vs static switching:
 
 ---
 
+## Hugging Face Hub + Gradio Space (free demo)
+
+Host adapters on the Hub and run a browser demo on [Spaces](https://huggingface.co/spaces).
+
+| Asset | URL (after upload) |
+|-------|----------------------|
+| Jekyll LoRA | `https://huggingface.co/Benjamin5607/jekyll-hyde-jekyll-lora` |
+| Hyde LoRA | `https://huggingface.co/Benjamin5607/jekyll-hyde-hyde-lora` |
+| Gradio demo | `https://huggingface.co/spaces/Benjamin5607/jekyll-hyde-demo` |
+
+### 1) Accept Gemma license
+
+Open [google/gemma-2-2b-it](https://huggingface.co/google/gemma-2-2b-it) → agree to terms (required for base model download).
+
+### 2) Login & upload
+
+```powershell
+huggingface-cli login
+# or set HF_TOKEN
+
+.venv-train\Scripts\python.exe scripts\upload_hf_hub.py
+# dry-run first:
+.venv-train\Scripts\python.exe scripts\upload_hf_hub.py --dry-run
+```
+
+Uploads both LoRA adapters (~80 MB each) and creates/updates the Gradio Space (`hf_space/app.py`).
+
+### 3) Space hardware
+
+In Space **Settings → Hardware**, pick **T4 small** or enable **ZeroGPU**. CPU-only is too slow for 4-bit Gemma.
+
+### 4) Local Space smoke test
+
+```powershell
+pip install -r hf_space\requirements.txt
+python hf_space\app.py
+```
+
+Modes: Chat (auto MoE), Jekyll, Hyde, Duel (synthesis). Blend slider + decoding profile shown per reply.
+
+**Alternative:** link Space to this GitHub repo with **App file** = `hf_space/app.py` (sync on push).
+
+---
+
 ## Release history
 
 | Tag | Notes |
