@@ -18,8 +18,8 @@ if str(ROOT) not in sys.path:
 import gradio as gr
 
 BASE_MODEL = os.environ.get("HF_BASE_MODEL", "google/gemma-2-2b-it")
-JEKYLL_ADAPTER = os.environ.get("HF_JEKYLL_ADAPTER", "Benjamin5607/jekyll-hyde-jekyll-lora")
-HYDE_ADAPTER = os.environ.get("HF_HYDE_ADAPTER", "Benjamin5607/jekyll-hyde-hyde-lora")
+JEKYLL_ADAPTER = os.environ.get("HF_JEKYLL_ADAPTER", "benjamin5607/jekyll-hyde-jekyll-lora")
+HYDE_ADAPTER = os.environ.get("HF_HYDE_ADAPTER", "benjamin5607/jekyll-hyde-hyde-lora")
 
 _model = None
 _tokenizer = None

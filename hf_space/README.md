@@ -8,11 +8,11 @@ sdk_version: 4.44.0
 app_file: app.py
 pinned: false
 license: mit
-short_description: Dual-persona Gemma 2 2B + LoRA MoE — Jekyll defense & Hyde red-team
+short_description: Dual-persona Gemma 2B LoRA — Jekyll & Hyde MoE demo
 models:
   - google/gemma-2-2b-it
-  - Benjamin5607/jekyll-hyde-jekyll-lora
-  - Benjamin5607/jekyll-hyde-hyde-lora
+  - benjamin5607/jekyll-hyde-jekyll-lora
+  - benjamin5607/jekyll-hyde-hyde-lora
 ---
 
 # Jekyll & Hyde — Hugging Face Demo
@@ -38,8 +38,8 @@ Browser demo of **Jekyll & Hyde** (Gemma 2 2B + dual LoRA, MoE blend, dynamic de
 
 ```bash
 pip install -r hf_space/requirements.txt
-set HF_JEKYLL_ADAPTER=Benjamin5607/jekyll-hyde-jekyll-lora
-set HF_HYDE_ADAPTER=Benjamin5607/jekyll-hyde-hyde-lora
+set HF_JEKYLL_ADAPTER=benjamin5607/jekyll-hyde-jekyll-lora
+set HF_HYDE_ADAPTER=benjamin5607/jekyll-hyde-hyde-lora
 python hf_space/app.py
 ```
 

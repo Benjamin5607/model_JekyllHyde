@@ -17,7 +17,7 @@ ADAPTER_FILES = (
     "adapter_model.safetensors",
 )
 
-DEFAULT_USER = "Benjamin5607"
+DEFAULT_USER = "benjamin5607"
 
 
 def _token() -> str | None:
@@ -131,6 +131,14 @@ def main() -> int:
     args = parser.parse_args()
 
     user = args.user
+    if user == DEFAULT_USER:
+        try:
+            from huggingface_hub import HfApi
+
+            who = HfApi(token=_token()).whoami()
+            user = who.get("name") or user
+        except Exception:
+            pass
     jekyll_repo = args.jekyll_repo or f"{user}/jekyll-hyde-jekyll-lora"
     hyde_repo = args.hyde_repo or f"{user}/jekyll-hyde-hyde-lora"
     space_id = args.space or f"{user}/jekyll-hyde-demo"

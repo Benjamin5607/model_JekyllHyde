@@ -564,7 +564,7 @@ def check_hf_hub() -> None:
     jekyll = ROOT / "models" / "adapters" / "jekyll-lora"
     info = upload_adapter(
         local_dir=jekyll,
-        repo_id="Benjamin5607/jekyll-hyde-jekyll-lora",
+        repo_id="benjamin5607/jekyll-hyde-jekyll-lora",
         readme_src=ROOT / "hf_hub" / "jekyll-lora-README.md",
         dry_run=True,
     )

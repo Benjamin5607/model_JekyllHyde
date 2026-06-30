@@ -278,9 +278,9 @@ Host adapters on the Hub and run a browser demo on [Spaces](https://huggingface.
 
 | Asset | URL (after upload) |
 |-------|----------------------|
-| Jekyll LoRA | `https://huggingface.co/Benjamin5607/jekyll-hyde-jekyll-lora` |
-| Hyde LoRA | `https://huggingface.co/Benjamin5607/jekyll-hyde-hyde-lora` |
-| Gradio demo | `https://huggingface.co/spaces/Benjamin5607/jekyll-hyde-demo` |
+| Jekyll LoRA | `https://huggingface.co/benjamin5607/jekyll-hyde-jekyll-lora` |
+| Hyde LoRA | `https://huggingface.co/benjamin5607/jekyll-hyde-hyde-lora` |
+| Gradio demo | `https://huggingface.co/spaces/benjamin5607/jekyll-hyde-demo` |
 
 ### 1) Accept Gemma license
 
