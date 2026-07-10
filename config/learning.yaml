@@ -26,7 +26,7 @@ auto:
   train_when_curated_reaches: 20
   train_min_interval_hours: 6
   train_epochs_incremental: 2
-  train_base: gemma2-2b
+  train_base: gemma3-4b
   auto_train_enabled: true
   adapter_only: true
 
@@ -128,3 +128,27 @@ dpo:
   beta: 0.1
   epochs: 1
   dataset_path: data/learning/dpo_pairs.jsonl
+
+# Online iterative DPO — RLAIF-weighted background loop (v1.6)
+iterative_dpo:
+  enabled: true
+  interval_hours: 12
+  min_pairs: 4
+  min_reward_margin: 0.05
+  train_base: gemma3-4b
+  use_dp_sgd: true
+  weighted_dataset: data/learning/dpo_pairs_weighted.jsonl
+
+# Privacy — PII masking + optional DP-SGD (v1.6)
+privacy:
+  enabled: true
+  mask_pii: true
+  mask_secret_keywords: true
+  keywords_file: config/privacy_keywords.txt
+  extra_keywords: []
+  dp_sgd:
+    enabled: false
+    noise_multiplier: 1.1
+    max_grad_norm: 1.0
+    target_epsilon: 8.0
+    target_delta: 1.0e-5

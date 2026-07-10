@@ -33,5 +33,7 @@ def compact_quant_digest(ctx: QuantContext, *, max_headlines: int = 3) -> str:
                 break
             lines.append(f"H{n + 1}: [{h.date}] {h.title[:120]}")
             n += 1
+    if not lines or len(lines) <= 2:
+        lines.append("LIVE PRICE FETCH FAILED — write 'data unavailable', never bracket placeholders.")
     lines.append("Use exact prices above. Not financial advice.")
     return "\n".join(lines)

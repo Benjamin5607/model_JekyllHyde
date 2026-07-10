@@ -110,6 +110,33 @@ def chat(
     return data.get("message", {}).get("content", "")
 
 
+def resolve_ollama_model(
+    persona: str | None = None,
+    lora_mix: tuple[float, float] | None = None,
+) -> str:
+    """Map persona / mix to Ollama model name (jekyll-hyde-jekyll | hyde | merged)."""
+    from safety_eval.platform.inference_config import ollama_settings
+
+    models = ollama_settings()["models"]
+    base_url = ollama_settings()["base_url"]
+    p = (persona or "chat").lower()
+    if p == "jekyll":
+        candidate = models["jekyll"]
+    elif p == "hyde":
+        candidate = models["hyde"]
+    elif lora_mix:
+        jw, hw = lora_mix
+        candidate = models["hyde"] if hw > jw else models["jekyll"]
+    else:
+        candidate = models.get("default", models["jekyll"])
+    # Fallback if persona model not created yet (e.g. hyde import failed on Windows)
+    if not model_exists(candidate, base_url):
+        for alt in (models["jekyll"], models.get("merged"), models.get("chat", "jekyll-hyde")):
+            if model_exists(alt, base_url):
+                return alt
+    return candidate
+
+
 def ensure_model(
     base_url: str = "http://localhost:11434",
     base_key: str | None = None,

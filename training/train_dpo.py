@@ -22,11 +22,12 @@ def load_config() -> dict:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="DPO align Jekyll & Hyde LoRA from preference pairs")
-    parser.add_argument("--base", default="gemma2-2b")
+    parser.add_argument("--base", default="gemma3-4b")
     parser.add_argument("--persona", choices=("jekyll", "hyde", "both"), default="both")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--4bit", action="store_true")
     parser.add_argument("--beta", type=float, default=None)
+    parser.add_argument("--dp", action="store_true", help="Enable DP-SGD noise (privacy_dp)")
     args = parser.parse_args()
 
     from safety_eval.learning.dpo_pairs import export_dpo_dataset, pair_count
@@ -150,6 +151,11 @@ def main() -> None:
             train_dataset=dataset,
             processing_class=tokenizer,
         )
+        if args.dp:
+            from training.privacy_dp import apply_dp_to_trainer
+
+            note = apply_dp_to_trainer(trainer)
+            print(f"DP-SGD: {note}")
         trainer.train()
         model.save_pretrained(adapter_dir)
         tokenizer.save_pretrained(adapter_dir)

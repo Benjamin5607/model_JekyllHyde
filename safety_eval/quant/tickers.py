@@ -3,6 +3,7 @@
 TICKER_NAMES: dict[str, str] = {
     "VIC.VN": "Vingroup", "VHM.VN": "Vinhomes", "VCB.VN": "Vietcombank", "VNM.VN": "Vinamilk",
     "005930.KS": "Samsung Elec", "000660.KS": "SK Hynix", "035420.KS": "NAVER", "035720.KS": "Kakao",
+    "066570.KS": "LG Electronics", "6752.T": "Panasonic",
     "AAPL": "Apple", "MSFT": "Microsoft", "GOOGL": "Alphabet", "AMZN": "Amazon", "NVDA": "NVIDIA",
     "META": "Meta", "TSLA": "Tesla", "AMD": "AMD",
     "APU.MN": "APU JSC", "GP.BD": "Grameenphone",
@@ -17,6 +18,8 @@ NAME_TO_TICKER: dict[str, str] = {
     "apple": "AAPL", "nvidia": "NVDA", "테슬라": "TSLA", "tesla": "TSLA",
     "vinamilk": "VNM.VN", "vingroup": "VIC.VN", "tencent": "0700.HK", "tsmc": "2330.TW",
     "naver": "035420.KS", "kakao": "035720.KS", "reliance": "RELIANCE.NS",
+    "lg전자": "066570.KS", "lg electronics": "066570.KS", "lg elec": "066570.KS",
+    "panasonic": "6752.T", "파나소닉": "6752.T",
 }
 
 MARKET_SAMPLES: dict[str, list[str]] = {
@@ -37,5 +40,5 @@ MARKET_INDICES: dict[str, str] = {
     "S&P 500": "^GSPC",
     "NASDAQ": "^IXIC",
     "KOSPI": "^KS11",
-    "VN-INDEX": "^VNINDEX",
+    "VN-INDEX": "^VNINDEX.VN",
 }

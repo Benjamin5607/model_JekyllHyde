@@ -266,6 +266,20 @@ def _run_worker(step: WorkerStep) -> WorkerResult:
     if not fn:
         return WorkerResult(worker=step.worker, ok=False, error=f"unknown worker: {step.worker}")
     try:
+        try:
+            from safety_eval.mcp.mesh import dispatch_remote, mesh_enabled, pick_node
+
+            if mesh_enabled() and pick_node(step.worker):
+                out = dispatch_remote(step.worker, step.args)
+                elapsed = int((time.perf_counter() - start) * 1000)
+                return WorkerResult(
+                    worker=step.worker,
+                    ok=True,
+                    output=out.get("output", out),
+                    elapsed_ms=elapsed,
+                )
+        except RuntimeError:
+            pass
         out = fn(**step.args)
         elapsed = int((time.perf_counter() - start) * 1000)
         return WorkerResult(worker=step.worker, ok=True, output=out, elapsed_ms=elapsed)

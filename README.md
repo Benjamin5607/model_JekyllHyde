@@ -1,6 +1,6 @@
 # Jekyll & Hyde — `model_JekyllHyde`
 
-**Independent dual-persona LLM** (Gemma 2 2B + **dual LoRA adapters**) with a self-hosted chat platform, MCP guidelines, structured responses, domain specialization, and continuous learning.
+**Independent dual-persona LLM** (Gemma 3 4B + **dual LoRA adapters**) with a self-hosted chat platform, MCP guidelines, structured responses, domain specialization, and continuous learning.
 
 ![Recommended use cases](docs/screenshots/00-use-cases-overview.png)
 
@@ -15,6 +15,9 @@
 | **Community guideline audit** | Inject guidelines via Cursor MCP → Duel or Jekyll analysis | Duel · Jekyll |
 | **Policy red-team / gray zones** | Hyde probes ↔ Jekyll verdict, weakness & hardening suggestions | Hyde · Duel |
 | **Cursor / Claude Desktop** | `jekyll-hyde` MCP server — chat, Quant, verification API tools | MCP |
+| **24/7 API (Oracle)** | Ollama GGUF `jekyll-hyde-jekyll` / `hyde` — no GPU quota | `JH_API_BACKEND=ollama` |
+| **Fast agent (Groq)** | MCP / workforce via Groq LPU + persona prompts | `GROQ_API_KEY` + `JH_AGENT_BACKEND=groq` |
+| **Public demo** | [HF ZeroGPU Space](https://benjamin5607-jekyll-hyde-demo.hf.space) — occasional demos only | Browser |
 | **Offline / air-gapped** | Release model parts + app.zip, local weights without Ollama | Self-host |
 
 > **Good fit:** finance/security/policy copilot, guideline stress testing, small-GPU workstations.  
@@ -233,6 +236,28 @@ Config: `config/workforce.yaml`
 
 Example brief: *"IT sector gray zone report this quarter"*
 
+### v1.6 — Gemma 3 upgrade, privacy, MCP mesh, vision, iterative DPO
+
+| Feature | What it does |
+|---------|----------------|
+| **Gemma 3 4B/8B base** | `default_base: gemma3-4b` — 128K context; upgrade via `scripts/upgrade_base_model.py` |
+| **Privacy filter** | PII + secret keyword masking in `data_diet` / `safety_eval/learning/privacy.py` |
+| **DP-SGD (optional)** | `training/train_dpo.py --dp` + `config/learning.yaml` → `privacy.dp_sgd` |
+| **MCP mesh** | Remote workers on other PCs — `python -m safety_eval.mcp.mesh_worker`; config `config/mesh.yaml` |
+| **SigLIP vision** | Chart/PDF screenshot captions — `POST /api/vision/describe`; `config/vision.yaml` |
+| **Iterative DPO** | RLAIF-weighted online loop — `safety_eval/learning/iterative_dpo.py`; auto after training cycles |
+
+```powershell
+# Upgrade base (dual LoRA + MoE preserved)
+python scripts/upgrade_base_model.py --base gemma3-4b
+
+# Start mesh worker on a second mini-PC
+python -m safety_eval.mcp.mesh_worker --port 8092 --node-id mini-pc-1
+
+# Run iterative DPO manually
+curl -X POST http://127.0.0.1:8080/api/learning/iterative-dpo/run
+```
+
 ### v1.5 — Decoding control, DPO alignment, grammar-constrained tools
 
 Builds on MoE tensor blending with **token-level control** of how outputs are sampled and aligned.
@@ -262,13 +287,35 @@ Config: `config/learning.yaml` → `decoding`, `dpo`, `grammar`
 scripts\build_release.ps1
 ```
 
-Output: `dist/JekyllHyde-1.5.0-app.zip` + `model.partXX.gz` + manifest.
+Output: `dist/JekyllHyde-1.6.0-app.zip` + `model.partXX.gz` + manifest.
 
 Benchmark MoE vs static switching:
 
 ```powershell
 .venv-train\Scripts\python.exe scripts\benchmark_moe.py
 ```
+
+---
+
+---
+
+## Tri-deploy (recommended production layout)
+
+| Layer | Backend | Setup |
+|-------|---------|--------|
+| **Demo** | [HF ZeroGPU Space](https://benjamin5607-jekyll-hyde-demo.hf.space) | Live — visitor GPU quota applies |
+| **API 24/7** | Oracle Always Free + Ollama | `bash deploy/oracle/setup.sh` |
+| **Agent speed** | Groq free tier | `GROQ_API_KEY` + `JH_AGENT_BACKEND=groq` |
+
+```powershell
+python scripts/setup_triple_deploy.py --merge --ollama
+python scripts/setup_triple_deploy.py --print-env
+set JH_API_BACKEND=ollama
+python -m safety_eval.platform.serve --host 0.0.0.0 --port 8080
+```
+
+See `config/inference.yaml` and `deploy/README.md`.  
+`HF_TOKEN` on Spaces = gated Gemma download only — **not** extra ZeroGPU minutes.
 
 ---
 
@@ -320,6 +367,7 @@ Modes: Chat (auto MoE), Jekyll, Hyde, Duel (synthesis). Blend slider + decoding 
 
 | Tag | Notes |
 |-----|-------|
+| v1.6.0 | Gemma 3 4B/8B upgrade, privacy/DP-SGD, MCP mesh, SigLIP vision, iterative RLAIF DPO |
 | v1.5.0 | Dynamic decoding entropy, DPO preference alignment, grammar-constrained MCP JSON |
 | v1.4.0 | Manager-Worker MCP workforce — async data workers, manager approval |
 | v1.3.1 | MoE bucket cache, blend UI, RLAIF dashboard, memory consolidation, Elo benchmark |

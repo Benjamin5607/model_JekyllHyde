@@ -1,0 +1,27 @@
+# Optional Docker stack (Oracle / any Linux host with Docker)
+services:
+  ollama:
+    image: ollama/ollama:latest
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ../..
+      dockerfile: deploy/oracle/Dockerfile
+    environment:
+      JH_API_BACKEND: ollama
+      JH_AGENT_BACKEND: groq
+      JH_OLLAMA_URL: http://ollama:11434
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+    ports:
+      - "8080:8080"
+    depends_on:
+      - ollama
+    restart: unless-stopped
+
+volumes:
+  ollama_data:

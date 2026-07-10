@@ -18,6 +18,7 @@ FINANCE_HINTS = re.compile(
     r"(주식|stock|share|ticker|실적|earnings|PER|PBR|ROE|EPS|급등|급락|"
     r"market|시장|투자|invest|forecast|예측|analysis|분석|compare|비교|"
     r"삼성|samsung|nvidia|apple|코스피|nasdaq|vn-index|portfolio|"
+    r"lg전자|lg electronics|panasonic|파나소닉|"
     r"sector|섹터|valuation|배당|dividend|memo|thesis|fundamental|"
     r"메모|분기|quarter|하이닉스|hynix)",
     re.I,

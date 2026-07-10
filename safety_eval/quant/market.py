@@ -76,22 +76,37 @@ def _fdr_symbol(ticker: str) -> str:
 
 def get_market_indices() -> dict[str, tuple[float, float]]:
     try:
+        import logging
+
         import yfinance as yf
+
+        logging.getLogger("yfinance").setLevel(logging.CRITICAL)
     except ImportError:
         return {}
 
     data: dict[str, tuple[float, float]] = {}
-    try:
-        df = yf.download(list(MARKET_INDICES.values()), period="5d", progress=False)["Close"]
-        for name, sym in MARKET_INDICES.items():
-            if sym not in df.columns:
-                continue
-            series = df[sym].dropna()
-            if len(series) >= 2:
-                curr, prev = float(series.iloc[-1]), float(series.iloc[-2])
-                data[name] = (curr, ((curr - prev) / prev) * 100)
-    except Exception:
-        pass
+    for name, sym in MARKET_INDICES.items():
+        try:
+            df = yf.download(sym, period="5d", progress=False, threads=False)
+            if df is not None and not df.empty:
+                close = df["Close"]
+                if hasattr(close, "ndim") and close.ndim > 1:
+                    close = close.squeeze()
+                series = close.dropna()
+                if len(series) >= 2:
+                    curr, prev = float(series.iloc[-1]), float(series.iloc[-2])
+                    data[name] = (curr, ((curr - prev) / prev) * 100)
+                    continue
+        except Exception:
+            pass
+        try:
+            info = yf.Ticker(sym).info
+            price = info.get("regularMarketPrice") or info.get("previousClose")
+            if price:
+                chg = info.get("regularMarketChangePercent")
+                data[name] = (float(price), float(chg) if chg is not None else 0.0)
+        except Exception:
+            pass
     return data
 
 
@@ -170,6 +185,11 @@ def _fetch_news_httpx(keyword: str, max_results: int) -> str:
 
 
 def get_price_data(ticker: str, name: str) -> tuple[float | None, float | None, str]:
+    try:
+        import FinanceDataReader as fdr  # noqa: F401
+    except ImportError:
+        return None, None, "Fail(no quant deps: pip install -e '.[quant]')"
+
     try:
         import FinanceDataReader as fdr
 

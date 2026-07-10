@@ -247,6 +247,13 @@ class DataDiet:
             persona_counts[persona] += 1
             stats.buckets[f"{cat}/{persona}"] = stats.buckets.get(f"{cat}/{persona}", 0) + 1
 
+        try:
+            from safety_eval.learning.privacy import sanitize_records
+
+            kept, _ = sanitize_records(kept)
+        except Exception:
+            pass
+
         if evicted:
             try:
                 from safety_eval.learning.memory_store import distill_evicted_records

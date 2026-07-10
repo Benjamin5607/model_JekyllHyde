@@ -1,0 +1,24 @@
+# Lightweight vision adapter (SigLIP) — chart / infographic analysis
+
+vision:
+  enabled: true
+  siglip_model: google/siglip-base-patch16-224
+  # Future: projector checkpoint aligning SigLIP tokens → Gemma 3 hidden size
+  adapter_checkpoint: models/adapters/vision-siglip-projector
+  max_image_bytes: 5242880
+  chart_labels:
+    - stock price candlestick chart
+    - line chart financial data
+    - bar chart quarterly revenue
+    - semiconductor sector chart
+    - regulatory infographic
+    - community guideline document
+    - corporate presentation slide
+    - table of financial numbers
+
+alignment:
+  enabled: false
+  base_model: gemma3-4b
+  epochs: 2
+  learning_rate: 1.0e-4
+  projector_dim: 2048

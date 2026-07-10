@@ -529,8 +529,7 @@
 
     .backdrop {
       display: none; position: fixed; inset: 0; z-index: 99;
-      background: rgba(15, 23, 42, 0.25);
-      backdrop-filter: blur(4px);
+      background: transparent;
       pointer-events: none;
     }
     .backdrop.show { display: block; pointer-events: auto; }
@@ -1324,10 +1323,13 @@
         (mix.bucket ? ` · ${mix.bucket}` : '');
     }
 
-    document.getElementById('menuBtn').onclick = () => {
+    document.getElementById('menuBtn').onclick = (e) => {
+      e.stopPropagation();
       sidebar.classList.toggle('open');
-      backdrop.classList.toggle('show');
     };
+    document.querySelector('.main').addEventListener('click', () => {
+      if (sidebar.classList.contains('open')) sidebar.classList.remove('open');
+    });
     backdrop.onclick = () => {
       sidebar.classList.remove('open');
       closeSettingsPanel();
@@ -1340,10 +1342,16 @@
 
     let statusPollTimer = null;
     let metaLoaded = false;
+    let statusFetchInFlight = false;
 
-    async function refreshStatus() {
+    async function refreshStatus(full = false) {
+      if (statusFetchInFlight) return;
+      statusFetchInFlight = true;
+      const url = full || !metaLoaded ? '/api/health' : '/api/health/lite';
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 15000);
       try {
-        const h = await fetch('/api/health').then(r => r.json());
+        const h = await fetch(url, { signal: ctrl.signal }).then(r => r.json());
         document.getElementById('modelLabel').textContent = h.display_name || h.model || 'jekyll-hyde';
         if (h.ui_language && h.ui_language !== uiLang) {
           uiLang = h.ui_language;
@@ -1357,6 +1365,7 @@
           statusEl.className = 'status-pill ok';
           statusText.textContent = (h.display_name || 'Jekyll & Hyde') + ' ' + t('statusOnline');
           if (statusPollTimer) { clearInterval(statusPollTimer); statusPollTimer = null; }
+          statusPollTimer = setInterval(() => refreshStatus(false), 12000);
         } else if (h.model_loading) {
           statusEl.className = 'status-pill';
           statusText.textContent = t('statusLoading');
@@ -1376,6 +1385,9 @@
       } catch (e) {
         statusEl.className = 'status-pill';
         statusText.textContent = t('statusConnect');
+      } finally {
+        clearTimeout(timer);
+        statusFetchInFlight = false;
       }
     }
 
@@ -1510,8 +1522,8 @@
 
     initLangSelect();
     loadMcpSettings();
-    refreshStatus();
-    statusPollTimer = setInterval(refreshStatus, 2500);
+    refreshStatus(true);
+    statusPollTimer = setInterval(() => refreshStatus(false), 5000);
   </script>
 </body>
 </html>

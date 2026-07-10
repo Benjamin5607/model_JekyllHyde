@@ -1,0 +1,24 @@
+# MCP Mesh — distributed worker nodes (separate PCs / processes)
+
+mesh:
+  enabled: true
+  hub_url: http://127.0.0.1:8091
+  node_id: local-manager
+  heartbeat_seconds: 30
+  task_timeout_seconds: 120
+  prefer_remote_for:
+    - market_scan
+    - quant_context
+    - verification_scan
+    - memory_retrieve
+
+nodes: []
+# Example remote node (uncomment after starting mesh_worker on another host):
+#  - id: mini-pc-quant
+#    url: http://192.168.1.50:8092
+#    workers: [market_scan, quant_context]
+#    vram_mb: 0
+#  - id: mini-pc-rag
+#    url: http://192.168.1.51:8092
+#    workers: [memory_retrieve, verification_scan]
+#    vram_mb: 0

@@ -1,12 +1,16 @@
-"""Unified model runtime — fine-tuned local weights first, Ollama fallback."""
+"""Unified model runtime — routes to Groq / Ollama / local per config/inference.yaml."""
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-
+from safety_eval.platform.inference_config import (
+    RuntimeModelInfo,
+    deployment_summary,
+    ollama_settings as _ollama_settings_cfg,
+    resolve_backend,
+)
+from safety_eval.platform.inference_router import generate as routed_generate
+from safety_eval.platform.groq_client import groq_available
 from safety_eval.platform.local_model import (
-    chat as local_chat,
-    clean_generation,
     get_local_model_info,
     is_loaded,
     is_loading,
@@ -18,27 +22,38 @@ from safety_eval.platform.local_model import (
 from safety_eval.platform.ollama_client import (
     FINETUNED_NAME,
     MODEL_NAME,
-    OllamaModelInfo,
-    chat as ollama_chat,
     ensure_model,
+    model_exists,
     ollama_available,
 )
 from safety_eval.platform.persona import DISPLAY_NAME
 
-
-@dataclass(frozen=True)
-class RuntimeModelInfo:
-    name: str
-    display_name: str
-    available: bool
-    backend: str
-    fine_tuned: bool
-    base: str
-    identity: str
+# Re-export for callers
+__all__ = [
+    "RuntimeModelInfo",
+    "describe_runtime",
+    "generate",
+    "model_status",
+    "runtime_ready",
+    "uses_local_model",
+    "warmup",
+    "deployment_summary",
+]
 
 
 def describe_runtime() -> RuntimeModelInfo:
-    if model_weights_available():
+    backend = resolve_backend("api")
+    if backend == "auto":
+        if model_weights_available() and is_loaded():
+            backend = "local"
+        elif ollama_available(_ollama_settings_cfg()["base_url"]):
+            backend = "ollama"
+        elif groq_available():
+            backend = "groq"
+        else:
+            backend = "none"
+
+    if backend == "local" and model_weights_available():
         info = get_local_model_info()
         manifest = read_manifest()
         return RuntimeModelInfo(
@@ -48,34 +63,35 @@ def describe_runtime() -> RuntimeModelInfo:
             backend="local",
             fine_tuned=True,
             base=info.base,
-            identity=manifest.get(
-                "identity",
-                "Independent Gemma-derived model with merged LoRA weights",
-            ),
+            identity=manifest.get("identity", "Local dual LoRA / merged weights"),
         )
 
-    if ollama_available():
-        ollama_info = ensure_model(prefer_finetuned=True)
-        if ollama_info.available and ollama_info.name == FINETUNED_NAME:
-            return RuntimeModelInfo(
-                name=ollama_info.name,
-                display_name=DISPLAY_NAME,
-                available=True,
-                backend="ollama",
-                fine_tuned=True,
-                base=ollama_info.base,
-                identity="Fine-tuned model served via Ollama",
-            )
-        if ollama_info.available:
-            return RuntimeModelInfo(
-                name=ollama_info.name,
-                display_name=DISPLAY_NAME,
-                available=True,
-                backend="ollama",
-                fine_tuned=False,
-                base=ollama_info.base,
-                identity="Prompt-tuned wrapper on base Gemma (run LoRA training for full model)",
-            )
+    if backend == "ollama" and ollama_available(_ollama_settings_cfg()["base_url"]):
+        ollama_info = ensure_model(
+            base_url=_ollama_settings_cfg()["base_url"],
+            prefer_finetuned=True,
+        )
+        return RuntimeModelInfo(
+            name=ollama_info.name,
+            display_name=DISPLAY_NAME,
+            available=ollama_info.available,
+            backend="ollama",
+            fine_tuned=ollama_info.name == FINETUNED_NAME,
+            base=ollama_info.base,
+            identity="Fine-tuned GGUF via Ollama (Oracle / self-host)",
+        )
+
+    if backend == "groq" and groq_available():
+        gs = deployment_summary()
+        return RuntimeModelInfo(
+            name=gs.get("groq_model", "groq"),
+            display_name=DISPLAY_NAME,
+            available=True,
+            backend="groq",
+            fine_tuned=False,
+            base="groq-hosted",
+            identity="Groq LPU — persona prompts (agent fast path)",
+        )
 
     return RuntimeModelInfo(
         name=MODEL_NAME,
@@ -84,42 +100,48 @@ def describe_runtime() -> RuntimeModelInfo:
         backend="none",
         fine_tuned=False,
         base="",
-        identity="Model not ready",
+        identity="Model not ready — run scripts/setup_triple_deploy.py",
     )
 
 
 def uses_local_model() -> bool:
-    return model_weights_available()
+    return resolve_backend("api") == "local" and model_weights_available()
 
 
 def runtime_ready() -> bool:
-    if model_weights_available():
+    backend = resolve_backend("api")
+    if backend == "local" or (backend == "auto" and model_weights_available()):
         return is_loaded()
-    if ollama_available():
-        info = ensure_model(prefer_finetuned=True)
-        return info.available
+    if backend == "ollama" or backend == "auto":
+        cfg = _ollama_settings_cfg()
+        base_url = cfg["base_url"]
+        if not ollama_available(base_url):
+            return False
+        models = cfg.get("models") or {}
+        jekyll = models.get("jekyll", "jekyll-hyde-jekyll")
+        hyde = models.get("hyde", "jekyll-hyde-hyde")
+        return model_exists(jekyll, base_url) or model_exists(hyde, base_url)
+    if backend == "groq" or (backend == "auto" and resolve_backend("agent") == "groq"):
+        return groq_available()
     return False
 
 
 def model_status() -> dict[str, str | bool | None]:
-    if model_weights_available():
-        return {
-            "ready": is_loaded(),
-            "loading": is_loading(),
-            "error": load_error(),
-            "backend": "local",
-        }
-    ready = runtime_ready() if not is_loading() else False
+    summary = deployment_summary()
     return {
-        "ready": ready,
-        "loading": False,
+        "ready": runtime_ready(),
+        "loading": is_loading(),
         "error": load_error(),
-        "backend": "ollama" if ollama_available() else "none",
+        "backend": describe_runtime().backend,
+        "api_backend": summary["api_backend"],
+        "agent_backend": summary["agent_backend"],
+        "groq_configured": summary["groq_configured"],
+        "ollama_url": summary["ollama_url"],
     }
 
 
 def warmup() -> RuntimeModelInfo:
-    if model_weights_available():
+    if resolve_backend("api") in ("local", "auto") and model_weights_available():
         try:
             preload_local()
         except Exception:
@@ -130,6 +152,7 @@ def warmup() -> RuntimeModelInfo:
 def generate(
     messages: list[dict[str, str]],
     *,
+    role: str = "api",
     ollama_url: str = "http://localhost:11434",
     model_name: str = MODEL_NAME,
     temperature: float = 0.7,
@@ -138,29 +161,14 @@ def generate(
     lora_mix: tuple[float, float] | None = None,
     grammar: str | None = None,
 ) -> tuple[str, RuntimeModelInfo]:
-    if model_weights_available():
-        try:
-            content = local_chat(
-                messages,
-                temperature=temperature,
-                max_new_tokens=max_new_tokens,
-                adapter=adapter,
-                lora_mix=lora_mix,
-                grammar=grammar,
-            )
-            return content, describe_runtime()
-        except Exception:
-            if not ollama_available(ollama_url):
-                raise
-
-    if not ollama_available(ollama_url):
-        raise RuntimeError("Model not available. Train LoRA or start Ollama.")
-
-    info = ensure_model(base_url=ollama_url, model_name=model_name, prefer_finetuned=True)
-    content = ollama_chat(
+    return routed_generate(
         messages,
-        model=info.name,
-        base_url=ollama_url,
+        role=role,
+        ollama_url=ollama_url,
+        model_name=model_name,
         temperature=temperature,
+        max_new_tokens=max_new_tokens,
+        adapter=adapter,
+        lora_mix=lora_mix,
+        grammar=grammar,
     )
-    return clean_generation(content), describe_runtime()

@@ -10,6 +10,10 @@ from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
 from pathlib import Path
 
+from safety_eval.platform.secrets_loader import load_secrets
+
+load_secrets()
+
 import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
@@ -17,7 +21,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from safety_eval.i18n.apac import APAC_LANGUAGES
-from safety_eval.platform.engine import JekyllHydeEngine, Mode
+from safety_eval.platform.engine import EngineConfig, JekyllHydeEngine, Mode
 from safety_eval.platform.ollama_client import (
     MODEL_NAME,
     available_bases,
@@ -29,6 +33,7 @@ from safety_eval.platform.ollama_client import (
     pull_base,
 )
 from safety_eval.platform.local_model import is_loaded, is_loading, load_error, model_weights_available
+from safety_eval.platform.inference_config import deployment_summary
 from safety_eval.platform.runtime import describe_runtime, model_status, runtime_ready, warmup, uses_local_model
 from safety_eval.platform.persona import DISPLAY_NAME
 from safety_eval.platform.prefs import (
@@ -94,11 +99,11 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title=DISPLAY_NAME,
-    version="0.5.0",
+    version="1.6.0",
     description="Self-hosted Jekyll & Hyde LLM platform",
     lifespan=lifespan,
 )
-engine = JekyllHydeEngine()
+engine = JekyllHydeEngine(config=EngineConfig(inference_role="api"))
 _chat_pool = ThreadPoolExecutor(max_workers=1)
 
 
@@ -129,7 +134,7 @@ class OpenAIChatRequest(BaseModel):
 
 
 class CreateModelBody(BaseModel):
-    base: str = "gemma2-2b"
+    base: str = "gemma3-4b"
     name: str = MODEL_NAME
 
 
@@ -285,6 +290,32 @@ def api_quant_scan(body: QuantScanBody) -> dict:
     return {"market": body.market, "results": rows, "weather": market_weather_text(body.lang)}
 
 
+def quant_deps_available() -> bool:
+    try:
+        import yfinance  # noqa: F401
+        return True
+    except ImportError:
+        return False
+
+
+@app.get("/api/health/lite")
+def health_lite() -> dict:
+    """Fast health for UI polling / Cloudflare tunnel (avoids heavy ensure_model)."""
+    mstat = model_status()
+    rt = describe_runtime()
+    return {
+        "ok": True,
+        "platform": DISPLAY_NAME,
+        "display_name": rt.display_name,
+        "model": rt.name,
+        "model_ready": bool(mstat.get("ready")),
+        "model_loading": bool(mstat.get("loading")),
+        "model_error": mstat.get("error"),
+        "ui_language": get_ui_language(),
+        "quant_deps": quant_deps_available(),
+    }
+
+
 @app.get("/api/health")
 def health() -> dict:
     runtime = describe_runtime()
@@ -304,7 +335,16 @@ def health() -> dict:
         "apac_languages": list(APAC_LANGUAGES.keys()),
         "verification_providers": len(list_providers()),
         "learning": get_learning_store().status(),
+        "deployment": deployment_summary(),
+        "quant_deps": quant_deps_available(),
     }
+    if quant_deps_available():
+        from safety_eval.quant.market import get_price_data
+        price, chg, src = get_price_data("005930.KS", "Samsung")
+        payload["quant_sample"] = {"ticker": "005930.KS", "price": price, "source": src}
+    else:
+        payload["quant_sample"] = None
+        payload["quant_install_hint"] = "pip install -e \".[quant]\" then restart API with .venv-train"
     if uses_local_model():
         payload["product_model"] = True
     else:
@@ -440,6 +480,61 @@ async def api_workforce_approve(job_id: str) -> dict:
     return await loop.run_in_executor(_chat_pool, lambda: manager_approve(job_id).to_dict())
 
 
+class VisionBody(BaseModel):
+    image_base64: str
+    labels: list[str] | None = None
+
+
+@app.get("/api/mesh/status")
+def api_mesh_status() -> dict:
+    from safety_eval.mcp.mesh import hub_status
+
+    return hub_status()
+
+
+@app.post("/api/vision/describe")
+async def api_vision_describe(body: VisionBody) -> dict:
+    from safety_eval.vision.encoder import get_vision_encoder, vision_enabled
+
+    if not vision_enabled():
+        raise HTTPException(503, "Vision disabled — set vision.enabled in config/vision.yaml")
+    loop = asyncio.get_running_loop()
+
+    def _run() -> dict:
+        cap = get_vision_encoder().describe_base64(body.image_base64, labels=body.labels)
+        return cap.to_dict()
+
+    return await loop.run_in_executor(_chat_pool, _run)
+
+
+@app.get("/api/learning/iterative-dpo")
+def api_iterative_dpo() -> dict:
+    from safety_eval.learning.iterative_dpo import should_run_iterative_dpo, _load_state
+
+    ready, reason = should_run_iterative_dpo()
+    return {"ready": ready, "reason": reason, "state": _load_state()}
+
+
+@app.post("/api/learning/iterative-dpo/run")
+async def api_iterative_dpo_run() -> dict:
+    from safety_eval.learning.iterative_dpo import run_iterative_dpo_cycle
+
+    loop = asyncio.get_running_loop()
+    return await loop.run_in_executor(_chat_pool, run_iterative_dpo_cycle)
+
+
+@app.get("/api/privacy/status")
+def api_privacy_status() -> dict:
+    import yaml
+
+    path = Path(__file__).resolve().parent.parent.parent / "config" / "learning.yaml"
+    privacy = {}
+    if path.exists():
+        with path.open(encoding="utf-8") as f:
+            privacy = (yaml.safe_load(f) or {}).get("privacy", {})
+    return {"privacy": privacy}
+
+
 @app.post("/api/learning/run")
 async def api_learning_run(body: LearningRunBody) -> dict:
     loop = asyncio.get_running_loop()
@@ -552,6 +647,11 @@ def main() -> None:
     parser.add_argument("--no-preload", action="store_true", help="Skip loading fine-tuned weights at startup")
     args = parser.parse_args()
     engine.config.ollama_url = args.ollama
+    if quant_deps_available():
+        print("Quant market data: OK (yfinance / FinanceDataReader)")
+    else:
+        print("WARNING: quant deps missing — stock prices will FAIL.")
+        print("  Fix: .\\scripts\\restart_api.ps1  (uses .venv-train + pip install -e \".[quant]\")")
     print(f"Starting {DISPLAY_NAME} at http://{args.host}:{args.port}")
     print("UI is available immediately — model loads in the background (~30s)")
     uvicorn.run("safety_eval.platform.serve:app", host=args.host, port=args.port, reload=args.reload)

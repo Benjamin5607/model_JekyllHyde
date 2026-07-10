@@ -1,0 +1,48 @@
+# Tri-deployment inference routing
+# Override via env: JH_INFERENCE_BACKEND, JH_AGENT_BACKEND, JH_API_BACKEND, GROQ_API_KEY
+# Base model: training/config.yaml default_base (v1.6: gemma3-4b, 128K context)
+
+default_backend: auto
+default_base: gemma3-4b
+
+roles:
+  api: ollama       # Oracle 24/7 platform + /v1/chat/completions
+  agent: groq       # MCP / workforce — fast LPU
+  demo: hf_space    # HF Gradio (manual URL)
+
+backends:
+  local:
+    enabled: true
+    priority: 3
+
+  ollama:
+    enabled: true
+    priority: 2
+    base_url_env: JH_OLLAMA_URL
+    default_url: http://127.0.0.1:11434
+    models:
+      jekyll: jekyll-hyde-jekyll
+      hyde: jekyll-hyde-hyde
+      merged: jekyll-hyde-ft
+      chat: jekyll-hyde
+      default: jekyll-hyde-jekyll
+
+  groq:
+    enabled: true
+    priority: 1
+    api_key_env: GROQ_API_KEY
+    base_url: https://api.groq.com/openai/v1
+    models:
+      default: llama-3.1-8b-instant
+      gemma: gemma2-9b-it
+    # Persona via system prompt (no custom LoRA on free tier)
+
+  hf_space:
+    enabled: true
+    url: https://benjamin5607-jekyll-hyde-demo.hf.space
+    api_name: /chat
+
+auto_order:
+  - groq
+  - ollama
+  - local

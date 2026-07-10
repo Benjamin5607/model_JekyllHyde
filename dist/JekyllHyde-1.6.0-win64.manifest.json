@@ -1,0 +1,22 @@
+{
+  "version": "1.6.0",
+  "platform": "win64",
+  "release_date": "2026-07-10",
+  "highlights": [
+    "Gemma 3 4B/8B base upgrade pipeline (128K context)",
+    "Privacy: PII masking + optional DP-SGD for LoRA/DPO",
+    "MCP mesh network for distributed workers",
+    "SigLIP lightweight vision adapter for charts/PDFs",
+    "Online iterative DPO with RLAIF reward weighting"
+  ],
+  "artifacts": {
+    "app": "JekyllHyde-1.6.0-app.zip",
+    "model_parts": ["model.part00.gz", "model.part01.gz", "model.part02.gz"]
+  },
+  "upgrade_from": "1.5.0",
+  "scripts": {
+    "upgrade_base": "scripts/upgrade_base_model.py --base gemma3-4b",
+    "mesh_worker": "python -m safety_eval.mcp.mesh_worker --port 8092",
+    "vision_align": "python training/vision_align.py"
+  }
+}

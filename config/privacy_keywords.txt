@@ -1,0 +1,10 @@
+# Extra secret / compliance keywords for privacy filter (one per line)
+proprietary
+insider trading
+material non-public
+MNPI
+고객명단
+계좌번호
+employee id
+SSN
+주민번호

@@ -1,0 +1,18 @@
+[Unit]
+Description=Jekyll and Hyde API (Ollama backend)
+After=network.target ollama.service
+Wants=ollama.service
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/opt/jekyll-hyde
+Environment=JH_API_BACKEND=ollama
+Environment=JH_AGENT_BACKEND=groq
+Environment=JH_OLLAMA_URL=http://127.0.0.1:11434
+ExecStart=/opt/jekyll-hyde/.venv/bin/python -m safety_eval.platform.serve --host 0.0.0.0 --port 8080
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

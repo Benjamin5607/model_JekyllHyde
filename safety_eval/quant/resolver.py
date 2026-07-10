@@ -9,7 +9,7 @@ from safety_eval.quant.tickers import NAME_TO_TICKER, TICKER_NAMES
 # Short uppercase tokens that are company-name fragments, not tickers.
 _TICKER_BLOCKLIST = frozenset({
     "SK", "AI", "IT", "US", "UK", "EU", "VS", "PE", "PB", "ROE", "EPS", "ETF", "IPO",
-    "CEO", "CFO", "GDP", "USD", "KRW", "Q1", "Q2", "Q3", "Q4",
+    "CEO", "CFO", "GDP", "USD", "KRW", "Q1", "Q2", "Q3", "Q4", "LG",
 })
 
 

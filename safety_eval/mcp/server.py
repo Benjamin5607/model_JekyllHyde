@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
+from safety_eval.platform.secrets_loader import load_secrets
+
+load_secrets()
+
 from safety_eval.chat.agent import ChatAgent, ChatSettings
 from safety_eval.i18n.apac import APAC_LANGUAGES, APAC_LANGUAGE_POLICY
-from safety_eval.platform.engine import JekyllHydeEngine
+from safety_eval.platform.engine import EngineConfig, JekyllHydeEngine
 from safety_eval.platform.model_registry import list_bases
 from safety_eval.store import get_guidelines_store
 from safety_eval.verification.registry import list_mcp_servers, list_providers, run_verification
@@ -17,6 +21,12 @@ except ImportError as exc:  # pragma: no cover
 
 GUIDELINES_CHAT_URL = "http://127.0.0.1:8080"
 PLATFORM_URL = "http://127.0.0.1:8080"
+
+
+def _engine(*, role: str = "agent") -> JekyllHydeEngine:
+    """MCP uses Groq fast path when GROQ_API_KEY is set (config/inference.yaml)."""
+    return JekyllHydeEngine(config=EngineConfig(inference_role=role))
+
 
 mcp = FastMCP(
     "jekyll-hyde",
@@ -59,7 +69,7 @@ def append_guidelines(section: str, text: str) -> str:
 @mcp.tool()
 def chat_with_model(message: str, jekyll: bool = True, hyde: bool = False, duel_rounds: int = 2) -> str:
     """Chat with Jekyll & Hyde using toggles. Both ON = duel with free API verification."""
-    engine = JekyllHydeEngine()
+    engine = _engine()
     resp = engine.complete_toggled(message, jekyll=jekyll, hyde=hyde, duel_rounds=duel_rounds)
     header = f"[{resp.mode}|lang={resp.language}|jekyll={resp.jekyll_verdict}]\n"
     if resp.meta.get("verification"):
@@ -70,7 +80,7 @@ def chat_with_model(message: str, jekyll: bool = True, hyde: bool = False, duel_
 @mcp.tool()
 def run_duel_verification(topic: str, rounds: int = 2) -> str:
     """Run Hyde↔Jekyll duel with all free verification APIs (Wikipedia, DDG, Wikidata, etc.)."""
-    engine = JekyllHydeEngine()
+    engine = _engine()
     resp = engine.complete_toggled(topic, jekyll=True, hyde=True, duel_rounds=max(1, min(rounds, 4)))
     lines = [resp.content, "", f"Verdict: {resp.meta.get('verdict', '?')}", resp.meta.get("summary", "")]
     for vr in resp.meta.get("verification", []):
@@ -128,7 +138,7 @@ def analyze_stocks(query: str, mode: str = "chat") -> str:
     ctx = build_quant_context(query, mode=mode if mode in ("chat", "jekyll", "hyde") else "chat")
     if not ctx:
         return "No finance targets resolved. Example: 'Analyze Samsung vs SK Hynix'"
-    engine = JekyllHydeEngine()
+    engine = _engine()
     resp = engine.complete(query, mode=mode if mode in ("chat", "jekyll", "hyde") else "chat")
     header = f"[quant tickers: {', '.join(s.ticker for s in ctx.snapshots)}]\n"
     header += ctx.to_prompt_block(mode=mode)[:1200] + "\n\n--- AI Analysis ---\n"
@@ -145,7 +155,7 @@ def scan_market_region(market: str = "Korea", limit: int = 10) -> str:
     for r in rows:
         lines.append(f"- {r['name']} ({r['ticker']}): {r['change_pct']:+.2f}% PER={r.get('per')} src={r['source']}")
     prompt = f"Summarize {market} scan and pick one solid name + one risky name with fundamentals."
-    engine = JekyllHydeEngine()
+    engine = _engine()
     resp = engine.complete(prompt, mode="jekyll")
     lines.append("\n--- Jekyll Briefing ---\n" + resp.content)
     return "\n".join(lines)
@@ -220,7 +230,7 @@ def learning_status() -> str:
 @mcp.tool()
 def run_gray_zone_duel(topic: str, rounds: int = 2) -> str:
     """Run Hyde↔Jekyll duel, extract gray zones, synthesize patches, and auto-curate training records."""
-    engine = JekyllHydeEngine()
+    engine = _engine()
     resp = engine.complete_toggled(topic, jekyll=True, hyde=True, duel_rounds=max(1, min(rounds, 4)))
     gr = resp.meta.get("gray_reinforce")
     if not gr:

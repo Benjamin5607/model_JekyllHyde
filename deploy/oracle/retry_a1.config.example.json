@@ -1,0 +1,26 @@
+{
+  "compartment_id": "ocid1.compartment.oc1..aaaaaaaaxxxxx",
+  "ssh_public_key_file": "~/.ssh/oci_jekyll_hyde.pub",
+  "display_name": "jekyll-hyde-api",
+  "shape": "VM.Standard.A1.Flex",
+  "ocpus": 4,
+  "memory_in_gbs": 24,
+  "assign_public_ip": true,
+  "retry_interval_seconds": 120,
+  "rate_limit_interval_seconds": 300,
+  "timeout_interval_seconds": 180,
+  "region_switch_delay_seconds": 15,
+  "oci_request_timeout_seconds": 180,
+  "max_attempts": 0,
+  "boot_volume_size_in_gbs": 50,
+  "regions": [
+    { "region": "ap-kulai-2", "subnet_id": "ocid1.subnet.oc1.ap-kulai-2.xxxxx" },
+    { "region": "ap-tokyo-1" },
+    { "region": "ap-osaka-1" },
+    { "region": "ap-singapore-1" },
+    { "region": "ap-seoul-1" },
+    { "region": "us-phoenix-1" },
+    { "region": "us-ashburn-1" }
+  ],
+  "notes": "Run --discover-regions to see which regions have a public subnet."
+}

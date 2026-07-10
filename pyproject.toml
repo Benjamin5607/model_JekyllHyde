@@ -1,7 +1,7 @@
 [project]
 name = "jekyll-hyde"
-version = "0.5.0"
-description = "Jekyll & Hyde — Gemma LoRA + MCP Guidelines Chat platform"
+version = "1.6.0"
+description = "Jekyll & Hyde — Gemma 3 LoRA + MCP Mesh + Vision + Iterative DPO"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
@@ -30,12 +30,21 @@ quant = [
     "finance-datareader>=0.9",
     "duckduckgo-search>=6.0",
 ]
+vision = [
+    "torch>=2.1",
+    "transformers>=4.40",
+    "pillow>=10.0",
+]
+privacy = [
+    "opacus>=1.4",
+]
 
 [project.scripts]
 jekyll-hyde = "safety_eval.jekyll_hyde_cli:main"
 jekyll-hyde-platform = "safety_eval.platform.serve:main"
 jekyll-hyde-chat = "safety_eval.apps.guidelines_chat.server:main"
 jekyll-hyde-mcp = "safety_eval.mcp.server:main"
+jekyll-hyde-mesh-worker = "safety_eval.mcp.mesh_worker:main"
 safety-eval = "safety_eval.cli:main"
 red-blue = "safety_eval.red_blue_cli:main"
 

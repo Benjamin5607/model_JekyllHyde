@@ -199,6 +199,14 @@ class LearningPipeline:
             if gguf_result.get("ok"):
                 state.last_error = ""
             self.store.save_state(state)
+
+            try:
+                from safety_eval.learning.iterative_dpo import run_iterative_dpo_cycle, should_run_iterative_dpo
+
+                if should_run_iterative_dpo()[0]:
+                    run_iterative_dpo_cycle(base=base)
+            except Exception:
+                pass
         except Exception as exc:
             state = self.store.load_state()
             state.training_in_progress = False

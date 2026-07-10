@@ -517,7 +517,7 @@ Bullet list with **dates** and **specific events** from RESEARCH DOSSIER (earnin
 Name the headline/theme — not "competition may increase."
 
 ## Financial snapshot
-Table: price (exact KRW from LIVE DATA), PER/PBR/ROE, latest quarter revenue & net income (조원/억원).
+Table: price (exact KRW from LIVE DATA — e.g. 309,500 KRW; NEVER write bracket placeholders like [price] or [실세 데이터 기반 가격]), PER/PBR/ROE, latest quarter revenue & net income (조원/억원).
 
 ## Sector & macro context
 Memory/semiconductor cycle, AI demand, rates/KRW — tie to dossier items where possible.
@@ -562,7 +562,7 @@ FORMAT: 전문가형 투자 리서치 메모 (교육 목적 — 투자 권유 �
 날짜·구체 사건명 포함 bullet. RESEARCH DOSSIER 헤드라인 인용 (HBM/AI, 실적, 규제, 공급망 등).
 
 ## 재무 스냅샷
-표: 주가(정확한 KRW), PER/PBR/ROE, 최근 분기 매출·순이익(조원/억원).
+표: 주가(정확한 KRW 숫자만 — 예: 309,500 KRW; [실세 데이터 기반 가격] 같은 괄호 플레이스홀더 금지), PER/PBR/ROE, 최근 분기 매출·순이익(조원/억원).
 
 ## 섹터·거시 맥락
 메모리/반도체 사이클, AI 수요, 금리·환율 — 도시어와 연결.

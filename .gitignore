@@ -3,6 +3,8 @@ secrets/
 .env
 *.token
 secrets/**
+deploy/oracle/retry_a1.config.json
+deploy/oracle/retry_a1.log
 
 # Python
 __pycache__/

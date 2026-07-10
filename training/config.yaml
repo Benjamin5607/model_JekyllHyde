@@ -6,23 +6,33 @@ base_models:
     huggingface: google/gemma-2-2b-it
     params_b: 2
     vram_gb: 8
+    context_tokens: 8192
   gemma2-9b:
     ollama: gemma2:9b
     huggingface: google/gemma-2-9b-it
     params_b: 9
     vram_gb: 24
+    context_tokens: 8192
   gemma3-4b:
     ollama: gemma3:4b
     huggingface: google/gemma-3-4b-it
     params_b: 4
     vram_gb: 12
+    context_tokens: 131072
+  gemma3-8b:
+    ollama: gemma3:8b
+    huggingface: google/gemma-3-8b-it
+    params_b: 8
+    vram_gb: 16
+    context_tokens: 131072
   gemma3-12b:
     ollama: gemma3:12b
     huggingface: google/gemma-3-12b-it
     params_b: 12
     vram_gb: 32
+    context_tokens: 131072
 
-default_base: gemma2-2b
+default_base: gemma3-4b
 
 lora:
   r: 16
@@ -46,7 +56,7 @@ training:
   output_dir: models/adapters/jekyll-hyde-lora
   merged_dir: models/merged/jekyll-hyde
   merge_persona: jekyll
-  max_seq_length: 2048
+  max_seq_length: 8192
   batch_size: 1
   gradient_accumulation_steps: 8
   learning_rate: 2.0e-4

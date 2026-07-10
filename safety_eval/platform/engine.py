@@ -44,6 +44,7 @@ class EngineConfig:
     mode: Mode = "chat"
     jekyll_guard: bool = True
     temperature: float = 0.7
+    inference_role: str = "api"  # api | agent — see config/inference.yaml
 
 
 class JekyllHydeEngine:
@@ -230,6 +231,22 @@ class JekyllHydeEngine:
         quant_ctx = build_quant_context(finance_query if needs_quant else user_message, mode=mode)
         has_comparison = bool(quant_ctx and len(quant_ctx.snapshots) >= 2)
 
+        if needs_quant and quant_ctx and not any(s.price is not None for s in quant_ctx.snapshots):
+            return EngineResponse(
+                content=(
+                    "실시간 주가를 가져오지 못했습니다.\n\n"
+                    "원인: API 서버 Python에 `yfinance` / FinanceDataReader가 없습니다.\n"
+                    "해결:\n"
+                    "1) API 창 모두 닫기 (Ctrl+C)\n"
+                    "2) PowerShell: `.\\scripts\\restart_api.ps1`\n"
+                    "3) http://127.0.0.1:8080/api/health 에서 `quant_deps: true` 확인\n\n"
+                    "그 전까지는 [LIVE DATA] placeholder 없이 분석만 제공할 수 없습니다."
+                ),
+                mode=mode,
+                language=lang,
+                meta={"error": "quant_deps_missing", "quant_deps": False},
+            )
+
         has_gl = bool(self.store.text.strip())
         spec_block, domains = build_specialization_block(
             user_message,
@@ -257,7 +274,10 @@ class JekyllHydeEngine:
         )
 
         analyst_harness = bool(
-            quant_ctx and quant_ctx.snapshots and response_format.id == "investment_memo"
+            quant_ctx
+            and quant_ctx.snapshots
+            and any(s.price is not None for s in quant_ctx.snapshots)
+            and response_format.id in ("investment_memo", "market_analysis", "comparison")
         )
 
         if analyst_harness:
@@ -370,6 +390,7 @@ class JekyllHydeEngine:
                 def _gen_step(msgs: list[dict[str, str]], temp: float, max_tok: int):
                     return generate(
                         [section_system, *msgs],
+                        role=self.config.inference_role,
                         ollama_url=self.config.ollama_url,
                         model_name=self.config.model,
                         temperature=temp,
@@ -398,6 +419,7 @@ class JekyllHydeEngine:
                     grammar = "mcp_tool_json"
                 content, runtime = generate(
                     messages,
+                    role=self.config.inference_role,
                     ollama_url=self.config.ollama_url,
                     model_name=self.config.model,
                     temperature=decode_params.temperature,

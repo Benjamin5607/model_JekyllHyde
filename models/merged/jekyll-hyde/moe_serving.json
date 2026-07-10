@@ -1,0 +1,15 @@
+{
+  "top_bucket": "moe_j70_h30",
+  "recommended_mix": {
+    "adapter": "moe_j70_h30",
+    "jekyll": 0.7,
+    "hyde": 0.3,
+    "bucket": "moe_j70_h30",
+    "label": "J70:H30"
+  },
+  "counts": {
+    "moe_j70_h30": 5
+  },
+  "updated": "2026-06-30T15:50:52.718300+00:00",
+  "note": "Use pre-warmed PEFT bucket adapter at runtime; optional GGUF export per bucket."
+}

@@ -4,10 +4,12 @@ emoji: 🎭
 colorFrom: green
 colorTo: red
 sdk: gradio
-sdk_version: 4.44.0
+sdk_version: 5.49.1
 app_file: app.py
 pinned: false
 license: mit
+python_version: "3.12"
+startup_duration_timeout: 1h
 short_description: Dual-persona Gemma 2B LoRA — Jekyll & Hyde MoE demo
 models:
   - google/gemma-2-2b-it
@@ -31,7 +33,9 @@ Browser demo of **Jekyll & Hyde** (Gemma 2 2B + dual LoRA, MoE blend, dynamic de
 1. Accept [Gemma 2 license](https://huggingface.co/google/gemma-2-2b-it) on your HF account.
 2. Upload adapters: `python scripts/upload_hf_hub.py`
 3. Create this Space from the GitHub repo with **App file** = `hf_space/app.py` (or duplicate `hf_space/` into a dedicated Space repo).
-4. Space **Settings → Hardware**: `T4 small` or enable **ZeroGPU** (CPU is very slow for 4-bit inference).
+4. Space **Settings → Hardware** → **ZeroGPU** (`zero-a10g`) — free for PRO hosts; visitors use daily GPU quota.
+
+Or run: `python scripts/enable_zerogpu_space.py`
 5. Add Space secret `HF_TOKEN` if gated model access fails (usually auto on Spaces).
 
 ## Local smoke test
