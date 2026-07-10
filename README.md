@@ -29,12 +29,12 @@
 
 ![Install steps](docs/screenshots/07-install-steps.png)
 
-Download **all files** from [Release v1.5.0](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.5.0):
+Download **all files** from [Release v1.6.0](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.6.0) (or [v1.5.0](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.5.0) if 1.6 assets are not published yet):
 
 | File | Purpose |
 |------|---------|
-| [JekyllHyde-1.5.0-app.zip](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.5.0/JekyllHyde-1.5.0-app.zip) | Platform, scripts, configs |
-| [model.part00–02.gz](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.5.0) | Model weights (gzip L9, 3 parts) |
+| [JekyllHyde-1.6.0-app.zip](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.6.0/JekyllHyde-1.6.0-app.zip) | Platform, scripts, configs |
+| [model.part00–02.gz](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.6.0) | Model weights (gzip L9, 3 parts) |
 
 ```powershell
 # 1) Extract app.zip

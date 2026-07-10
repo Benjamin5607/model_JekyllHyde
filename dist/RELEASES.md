@@ -2,6 +2,7 @@
 
 | Version | Date | Assets | Notes |
 |---------|------|--------|-------|
+| **1.6.0** | 2026-07-10 | `app.zip` + `model.part00–02.gz` | Gemma 3 4B default, privacy/DP-SGD, MCP mesh, SigLIP vision, iterative RLAIF DPO |
 | **1.5.0** | 2026-06-13 | `app.zip` + `model.part00–02.gz` | Dynamic decoding, DPO alignment, grammar MCP JSON |
 | **1.4.0** | 2026-06-13 | `app.zip` + `model.part00–02.gz` | Manager-Worker MCP workforce |
 | **1.3.1** | 2026-06-13 | `app.zip` + `model.part00–02.gz` | MoE bucket cache, blend UI, RLAIF dashboard, memory consolidation, Elo benchmark |
