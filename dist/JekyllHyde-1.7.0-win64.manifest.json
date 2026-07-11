@@ -1,0 +1,21 @@
+{
+  "version": "1.7.0",
+  "platform": "win64",
+  "release_date": "2026-07-11",
+  "highlights": [
+    "Workforce mesh graph: sequenced workers with data dependencies + branch conditions",
+    "Manager back-off: verifies intermediate results, re-runs weak workers with exponential back-off",
+    "Critic-free local GRPO loop (train_grpo.py) with RLAIF gate as absolute reward",
+    "Group-relative advantages: dual persona samples a group per gray-zone prompt"
+  ],
+  "artifacts": {
+    "app": "JekyllHyde-1.7.0-app.zip",
+    "model_parts": ["model.part00.gz", "model.part01.gz", "model.part02.gz"]
+  },
+  "upgrade_from": "1.6.0",
+  "scripts": {
+    "grpo": "training/train_grpo.py --base gemma3-4b --4bit",
+    "grpo_sample_api": "POST /api/learning/grpo/sample",
+    "workforce_pipelines": "config/workforce.yaml -> pipelines"
+  }
+}

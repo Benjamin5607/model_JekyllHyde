@@ -99,7 +99,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title=DISPLAY_NAME,
-    version="1.6.0",
+    version="1.7.0",
     description="Self-hosted Jekyll & Hyde LLM platform",
     lifespan=lifespan,
 )
@@ -513,6 +513,35 @@ def api_iterative_dpo() -> dict:
 
     ready, reason = should_run_iterative_dpo()
     return {"ready": ready, "reason": reason, "state": _load_state()}
+
+
+@app.get("/api/learning/grpo")
+def api_grpo_status() -> dict:
+    import yaml
+
+    path = Path(__file__).resolve().parent.parent.parent / "config" / "learning.yaml"
+    grpo = {}
+    if path.exists():
+        with path.open(encoding="utf-8") as f:
+            grpo = (yaml.safe_load(f) or {}).get("grpo", {})
+    from safety_eval.learning.grpo import load_gray_prompts
+
+    return {"grpo": grpo, "gray_prompts": len(load_gray_prompts(limit=int(grpo.get("num_prompts", 8))))}
+
+
+@app.post("/api/learning/grpo/sample")
+async def api_grpo_sample() -> dict:
+    """Run one GRPO sampling+RLAIF-reward pass (no weight update) and return advantages."""
+    from safety_eval.learning.grpo import run_grpo_sampling
+
+    loop = asyncio.get_running_loop()
+
+    def _run() -> dict:
+        info = run_grpo_sampling()
+        info.pop("groups_detail", None)
+        return info
+
+    return await loop.run_in_executor(_chat_pool, _run)
 
 
 @app.post("/api/learning/iterative-dpo/run")

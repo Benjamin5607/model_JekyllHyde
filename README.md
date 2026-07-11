@@ -29,12 +29,12 @@
 
 ![Install steps](docs/screenshots/07-install-steps.png)
 
-Download **all files** from [Release v1.6.0](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.6.0) (or [v1.5.0](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.5.0) if 1.6 assets are not published yet):
+Download **all files** from [Release v1.7.0](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.7.0):
 
 | File | Purpose |
 |------|---------|
-| [JekyllHyde-1.6.0-app.zip](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.6.0/JekyllHyde-1.6.0-app.zip) | Platform, scripts, configs |
-| [model.part00–02.gz](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.6.0) | Model weights (gzip L9, 3 parts) |
+| [JekyllHyde-1.7.0-app.zip](https://github.com/Benjamin5607/model_JekyllHyde/releases/download/v1.7.0/JekyllHyde-1.7.0-app.zip) | Platform, scripts, configs |
+| [model.part00–02.gz](https://github.com/Benjamin5607/model_JekyllHyde/releases/tag/v1.7.0) | Model weights (gzip L9, 3 parts) |
 
 ```powershell
 # 1) Extract app.zip
@@ -236,6 +236,28 @@ Config: `config/workforce.yaml`
 
 Example brief: *"IT sector gray zone report this quarter"*
 
+### v1.7 — Workforce mesh graph + critic-free local GRPO
+
+Turns the v1.4 parallel workforce into a **data-dependent graph** and adds a
+critic-free **GRPO** loop on top of the v1.3 RLAIF gate.
+
+| Feature | What it does |
+|---------|----------------|
+| **Sequenced workforce graph** | `config/workforce.yaml` → `pipelines` with `depends_on` + `branch_if`; upstream outputs injected as `upstream` into dependents |
+| **Manager back-off** | Manager verifies intermediate worker data, re-runs weak/empty workers with exponential back-off (`manager.max_retries`, `retry_backoff_seconds`) before the final RLAIF verdict |
+| **Critic-free GRPO** | `training/train_grpo.py` — dual persona samples a GROUP per gray-zone prompt; RLAIF score is the absolute reward; advantage = `(reward − group_mean) / group_std`. No value/critic model |
+| **GRPO fallback** | If TRL `GRPOTrainer` is unavailable, exports advantage-weighted samples (`safety_eval/learning/grpo.py`) for a weighted SFT pass |
+
+```powershell
+# Critic-free GRPO (online if trl>=0.14, else weighted-SFT fallback)
+python training/train_grpo.py --base gemma3-4b --4bit
+
+# One sampling + RLAIF-reward pass (no weight update) via API
+curl -X POST http://127.0.0.1:8080/api/learning/grpo/sample
+```
+
+Config: `config/learning.yaml` → `grpo`; `config/workforce.yaml` → `pipelines`, `manager`.
+
 ### v1.6 — Gemma 3 upgrade, privacy, MCP mesh, vision, iterative DPO
 
 | Feature | What it does |
@@ -287,7 +309,7 @@ Config: `config/learning.yaml` → `decoding`, `dpo`, `grammar`
 scripts\build_release.ps1
 ```
 
-Output: `dist/JekyllHyde-1.6.0-app.zip` + `model.partXX.gz` + manifest.
+Output: `dist/JekyllHyde-1.7.0-app.zip` + `model.partXX.gz` + manifest.
 
 Benchmark MoE vs static switching:
 
@@ -367,6 +389,7 @@ Modes: Chat (auto MoE), Jekyll, Hyde, Duel (synthesis). Blend slider + decoding 
 
 | Tag | Notes |
 |-----|-------|
+| v1.7.0 | Workforce mesh graph (depends_on/branch), manager back-off, critic-free local GRPO (RLAIF reward) |
 | v1.6.0 | Gemma 3 4B/8B upgrade, privacy/DP-SGD, MCP mesh, SigLIP vision, iterative RLAIF DPO |
 | v1.5.0 | Dynamic decoding entropy, DPO preference alignment, grammar-constrained MCP JSON |
 | v1.4.0 | Manager-Worker MCP workforce — async data workers, manager approval |

@@ -1,7 +1,7 @@
 [project]
 name = "jekyll-hyde"
-version = "1.6.0"
-description = "Jekyll & Hyde — Gemma 3 LoRA + MCP Mesh + Vision + Iterative DPO"
+version = "1.7.0"
+description = "Jekyll & Hyde — Gemma 3 LoRA + MCP Mesh graph + Vision + Iterative DPO + GRPO"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [

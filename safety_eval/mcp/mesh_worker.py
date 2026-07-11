@@ -13,7 +13,7 @@ from pydantic import BaseModel
 from safety_eval.mcp.mesh import hub_complete, register_local_node, run_worker_local
 from safety_eval.mcp.workforce import list_workers
 
-app = FastAPI(title="Jekyll & Hyde MCP Mesh Worker", version="1.6.0")
+app = FastAPI(title="Jekyll & Hyde MCP Mesh Worker", version="1.7.0")
 
 
 class MeshRunRequest(BaseModel):
