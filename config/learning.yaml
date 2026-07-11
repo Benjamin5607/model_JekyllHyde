@@ -139,6 +139,23 @@ iterative_dpo:
   use_dp_sgd: true
   weighted_dataset: data/learning/dpo_pairs_weighted.jsonl
 
+# GRPO — critic-free group-relative policy optimization (v1.7)
+# Dual persona samples a GROUP per gray-zone prompt; RLAIF gate is the absolute
+# reward; advantage = (reward - group_mean) / group_std. No value/critic model.
+grpo:
+  enabled: true
+  group_size: 4
+  num_prompts: 8
+  temperatures: [0.3, 0.6, 0.9, 1.1]
+  max_new_tokens: 320
+  min_advantage: 0.0
+  kl_beta: 0.04
+  epochs: 1
+  interval_hours: 12
+  train_base: gemma3-4b
+  dataset_path: data/learning/grpo_samples.jsonl
+  run_after_training_cycle: true
+
 # Privacy — PII masking + optional DP-SGD (v1.6)
 privacy:
   enabled: true

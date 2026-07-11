@@ -207,6 +207,23 @@ class LearningPipeline:
                     run_iterative_dpo_cycle(base=base)
             except Exception:
                 pass
+
+            try:
+                grpo_cfg = self.cfg.get("grpo", {})
+                if grpo_cfg.get("enabled") and grpo_cfg.get("run_after_training_cycle", True):
+                    grpo_proc = subprocess.run(
+                        [str(PYTHON), str(ROOT / "training" / "train_grpo.py"), "--base", base, "--4bit"],
+                        cwd=str(ROOT),
+                        capture_output=True,
+                        text=True,
+                        timeout=7200,
+                    )
+                    if grpo_proc.returncode != 0:
+                        state = self.store.load_state()
+                        state.last_error = f"grpo: {(grpo_proc.stderr or grpo_proc.stdout or '')[-300:]}"
+                        self.store.save_state(state)
+            except Exception:
+                pass
         except Exception as exc:
             state = self.store.load_state()
             state.training_in_progress = False

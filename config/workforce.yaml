@@ -12,6 +12,10 @@ workforce:
 manager:
   mode: jekyll
   rlaif_min_score: 85
+  # Back-off control: manager verifies intermediate results and re-runs weak
+  # workers up to max_retries times with exponential back-off before final verdict.
+  max_retries: 2
+  retry_backoff_seconds: 2.0
 
 workers:
   market_weather:
@@ -26,3 +30,38 @@ workers:
     desc: Distilled gray-zone rules RAG (no LLM)
   verification_scan:
     desc: Free API verification bundle (no LLM)
+
+# Named pipelines — sequenced graph with data dependencies and branch conditions.
+# `depends_on`: worker names that must finish first (upstream outputs injected as `upstream`).
+# `branch_if`: run step only when an upstream field satisfies op (gt/gte/lt/lte/eq/ne/truthy/falsy).
+# A brief matching any `triggers` substring selects that pipeline; else `default`.
+pipelines:
+  equity_memo:
+    triggers: [stock, equity, invest, memo, ticker, semiconductor, "vs "]
+    steps:
+      - worker: market_weather
+      - worker: market_scan
+        args: { market: Korea, limit: 10 }
+      - worker: quant_context
+        args: { query: "{brief}" }
+        depends_on: [market_scan]
+        branch_if: { worker: market_scan, field: count, op: gt, value: 0 }
+
+  policy_audit:
+    triggers: [gray, grey, policy, guideline, loophole, audit, report, defense]
+    steps:
+      - worker: guidelines_snapshot
+      - worker: memory_retrieve
+        args: { query: "{brief}" }
+      - worker: verification_scan
+        args: { topic: "{brief}", text: "" }
+        depends_on: [guidelines_snapshot]
+        branch_if: { worker: guidelines_snapshot, field: chars, op: gt, value: 0 }
+
+  default:
+    triggers: []
+    steps:
+      - worker: guidelines_snapshot
+      - worker: memory_retrieve
+        args: { query: "{brief}" }
+      - worker: market_weather
