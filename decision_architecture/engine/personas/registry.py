@@ -25,7 +25,9 @@ PersonaFactory = Callable[[], Persona]
 
 DOMAIN_PERSONAS: dict[str, tuple[str, ...]] = {
     "ptcg": ("jekyll", "hyde"),
-    "security": ("explorer", "attacker", "critic", "verifier"),
+    # Security Architecture (Top-tier search graph)
+    "security": ("explorer", "planner", "attacker", "critic", "verifier"),
+    "security_search": ("explorer", "planner", "attacker", "critic", "verifier"),
     "security_duel": ("jekyll", "hyde"),
     "zeroai": ("planner", "researcher", "reviewer", "executor"),
     "duel": ("jekyll", "hyde"),
