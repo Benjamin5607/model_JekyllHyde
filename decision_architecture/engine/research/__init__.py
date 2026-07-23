@@ -13,11 +13,13 @@ from decision_architecture.engine.research.viz import (
     sequence_to_dag,
     trust_from_belief,
 )
+from decision_architecture.engine.research.knowledge import SearchKnowledge
 
 __all__ = [
     "ReplayAttack",
     "ReplayDiff",
     "ResearchReport",
+    "SearchKnowledge",
     "SearchTree",
     "TransitionHeatmap",
     "dag_ascii",
