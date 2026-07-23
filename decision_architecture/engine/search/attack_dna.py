@@ -107,3 +107,29 @@ class AttackDNA:
 
     def to_dict(self) -> dict:
         return {"genome": self.genome, "sequence": list(self.sequence)}
+
+    def crossover(self, other: "AttackDNA", *, cut: int | None = None) -> "AttackDNA":
+        """AB CDE + KL MNO → AB MNO (string genome crossover)."""
+        a, b = self.genome, other.genome
+        if not a:
+            return AttackDNA(genome=b, sequence=other.sequence)
+        if not b:
+            return AttackDNA(genome=a, sequence=self.sequence)
+        k = cut if cut is not None else max(1, min(len(a), len(b)) // 2)
+        k = max(1, min(k, len(a), len(b)))
+        child = a[:k] + b[k:]
+        # rebuild sequence by concatenating prefixes
+        seq = list(self.sequence[:k]) + list(other.sequence[k:])
+        if not seq:
+            seq = list(self.sequence or other.sequence)
+        return AttackDNA(genome=child or "Z", sequence=tuple(seq[:8]))
+
+    def point_mutate(self, alphabet: str = "EWRSDHXTMPVY", *, rng=None) -> "AttackDNA":
+        import random as _r
+
+        r = rng or _r
+        g = list(self.genome or "Z")
+        i = r.randrange(len(g))
+        choices = [c for c in alphabet if c != g[i]] or list(alphabet)
+        g[i] = r.choice(choices)
+        return AttackDNA(genome="".join(g), sequence=self.sequence)

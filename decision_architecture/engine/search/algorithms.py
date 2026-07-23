@@ -237,4 +237,8 @@ def get_search(name: str, **kwargs: Any) -> SearchStrategy:
     key = name.lower()
     if key not in ALGORITHMS:
         raise KeyError(f"Unknown search: {name}. Known: {sorted(ALGORITHMS)}")
-    return ALGORITHMS[key](**kwargs)
+    cls = ALGORITHMS[key]
+    try:
+        return cls(**kwargs)
+    except TypeError:
+        return cls()

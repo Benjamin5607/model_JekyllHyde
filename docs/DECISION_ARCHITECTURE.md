@@ -4,13 +4,13 @@
 model_JekyllHyde
 │
 ├── Research 1 — Pokémon TCG          ✓ Decision Architecture verified
-├── Research 2 — AI Agent Security    ← current focus (Search Architecture)
+├── Research 2 — AI Agent Security    ← Search Architecture (Attack Search)
 ├── Research 3 — ZeroAI Multi-Agent
 └── Research 4 — Autonomous Decision Engine
 ```
 
-PTCG is a completed reference case ("Decision Architecture works in a real game").
-Capital now goes into **Agent Attack Search** on the same engine.
+Paper framing: **Search Architecture for Tool-Using AI Agents**
+(Decision / Security / Evolution engines hang under Search.)
 
 ## Canonical entry
 
@@ -21,24 +21,40 @@ decision = engine.run(state)  # Persona.think → Debate → Consensus → Decis
 Search Architecture (Security):
 
 ```text
-Explorer → Novelty + Coverage → Candidates
-  → Planner → Attacker → Critic → Verifier → Consensus (+ Jekyll/Hyde)
-  → Replay → Attack Graph → Population / DNA Mutation → Explorer
+Explorer (UCB/Thompson) → Attack Corpus → Candidates
+  → Planner → Attacker → Critic/Inspector → Verifier → Consensus
+  → Replay → Attack Graph → Genome Mutate/Crossover → Explorer
 ```
 
 LLM is for **Mutation only** — never the search loop.
+
+## Strategy Zoo (`configs/search.yaml`)
+
+```yaml
+strategy: hybrid   # random | bfs | dfs | beam | astar | go_explore
+                   # novelty | coverage | evolutionary | mcts | hybrid
+```
+
+Benchmark:
+
+```bash
+python -m decision_architecture.engine.benchmark.cli_search --budget 40
+# or: search-bench --config configs/search.yaml
+```
 
 ## Surfaces
 
 | Module | Role |
 |--------|------|
-| `Persona.think` | ScoreVector plug-in |
-| `SearchStrategy` | Random → BFS → Go-Explore → MCTS |
-| `SearchArchitecture` | Monte Carlo + Novelty + Coverage + Graph + GA |
-| `AttackDNA` | Genome for clustering / mutation (`ERPH` …) |
-| `ReplayEngine` + `SQLiteArchive` | Replay confidence + cells |
-| `BeliefMemory` | Motif fail/success search bias |
-| `PopulationEvolution` | Selection → crossover → DNA mutate |
+| `SearchStrategy` / Zoo | 11 swappable algorithms |
+| `AttackCorpus` | Thousands of seed attack cells |
+| `AttackDNA` | Genome + crossover + point_mutate |
+| `MultiNovelty` | Tool + Predicate + Graph + Embedding |
+| `ReplayInspector` | Fail → cause → hypothesis → mutation plan |
+| `AdaptiveExplorer` | Corpus + Bandit + Inspector |
+| `SearchBenchmark` | Paper-style strategy comparison |
+| `SearchArchitecture` | Monte Carlo loop + GA archive |
+| `BeliefMemory` / `PopulationEvolution` | Bias + DNA evolution |
 
 ## Domain persona graphs
 
