@@ -131,9 +131,22 @@ class PopulationEvolution:
         return max(self.population, key=lambda i: i.fitness + 0.2 * i.novelty)
 
     def to_dict(self) -> dict[str, Any]:
+        ranked = sorted(
+            self.population,
+            key=lambda i: i.fitness + 0.2 * i.novelty,
+            reverse=True,
+        )
+        best = ranked[0] if ranked else None
         return {
             "generation": self.generation,
             "size": len(self.population),
-            "best": self.best().to_dict() if self.best() else None,
+            "population": len(self.population),
+            "elite": self.elite,
+            "best": best.to_dict() if best else None,
+            "best_reward": best.fitness if best else 0.0,
+            "best_novelty": best.novelty if best else 0.0,
+            "best_coverage": sum(1 for i in self.population if i.replay_ok),
+            "top_genomes": [i.genome for i in ranked[:8]],
+            "elite_genomes": [i.genome for i in ranked[: self.elite]],
             "genomes": [i.genome for i in self.population[:20]],
         }

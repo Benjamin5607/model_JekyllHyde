@@ -96,6 +96,11 @@ class SearchArchitecture:
         self.duel = DecisionEngine(personas=("jekyll", "hyde"), domain="security_duel")
         self.history: list[SearchStepResult] = []
         self._alphabet: list[str] = []
+        from decision_architecture.engine.research.viz import SearchTree, TransitionHeatmap
+
+        self.search_tree = SearchTree()
+        self.transition_heat = TransitionHeatmap()
+        self.attack_log: list[dict[str, Any]] = []
 
     def set_alphabet(self, prompts: Sequence[str]) -> None:
         self._alphabet = list(prompts)
@@ -220,6 +225,26 @@ class SearchArchitecture:
         self.graph.add_path(seq)
         cluster = self.clusters.assign(seq, reward=reward)
         dna = self.novelty.add(seq) if accepted or ok else AttackDNA.from_sequence(seq)
+        self.search_tree.add(seq, reward=reward)
+        self.transition_heat.observe(seq)
+
+        from decision_architecture.engine.research.viz import (
+            ReplayAttack,
+            persona_transcript,
+            trust_from_belief,
+        )
+
+        atk = ReplayAttack(
+            attack_id=f"attack_{len(self.attack_log) + 1:04d}",
+            sequence=list(seq),
+            genome=dna.genome,
+            ok=ok,
+            predicates=predicates,
+            reward=reward,
+            cause="" if ok else rationale[:80],
+            generation=self.population.generation,
+        )
+        self.attack_log.append(atk.to_dict())
 
         # archive cell
         from decision_architecture.engine.types import State as S
@@ -248,13 +273,32 @@ class SearchArchitecture:
             "novelty": nov,
             "coverage": self.coverage.to_dict(),
             "heatmap": self.coverage.heatmap(),
+            "transition_heatmap": self.transition_heat.to_dict(),
             "attack_graph": self.graph.to_dict(),
             "clusters": self.clusters.to_dict(),
             "belief_memory": self.belief_mem.to_dict(),
+            "trust": trust_from_belief(
+                {"untrusted": 0.5, "washed": 0.5, "egress": 0.3},
+                self.belief_mem.to_dict(),
+            ),
             "trace_graph": build_trace_graph(tools),
             "genome": dna.genome,
             "population": self.population.to_dict(),
+            "evolution": self.population.to_dict(),
             "replay_confidence": rconf,
+            "search_tree": self.search_tree.to_dict(),
+            "attacks": self.attack_log[-20:],
+            "personas": persona_transcript(
+                explorer=f"Try {' → '.join(seq[:2])}",
+                planner=rationale[:100],
+                attacker=f"Escalate via {seq[-1] if seq else '?'}",
+                critic="Guardrail risk on early privilege." if not ok else "Path cleared.",
+                verifier=f"replay_ok={ok} conf={rconf:.2f}",
+                jekyll="Prefer safer motif." if not ok else "Acceptable risk.",
+                hyde="Push mutation." if ok else "Mutate and retry.",
+                consensus="OK" if ok else "FAIL",
+            ),
+            "selected_attack": atk.to_dict(),
         }
         result = SearchStepResult(
             sequence=list(seq),
@@ -291,6 +335,35 @@ class SearchArchitecture:
                 cands = self.evolve(mutate_fn=mutate_fn) + cands
             result = self.step(cands, replay=replay)
             steps.append(result.to_dict())
+        from decision_architecture.engine.research.viz import ResearchReport, diff_replays
+
+        oks = [h for h in self.history if h.replay_ok]
+        best = self.population.best()
+        report = ResearchReport(
+            title="Search Architecture run",
+            population=len(self.population.population),
+            generation=self.population.generation,
+            novelty=float(len(getattr(self.novelty, "genomes", []) or [])) / max(1, len(self.history)),
+            coverage=len(self.coverage.heatmap()),
+            best_genome=best.genome if best else "",
+            best_reward=best.fitness if best else 0.0,
+            replay_success=len(oks),
+            attacks_found=len(self.attack_log),
+            novel_findings=len(getattr(self.novelty, "genomes", []) or []),
+        )
+        replay_diff = None
+        if len(self.attack_log) >= 2:
+            a, b = self.attack_log[0], self.attack_log[-1]
+            replay_diff = diff_replays(
+                a["sequence"],
+                b["sequence"],
+                id_a=a["attack_id"],
+                id_b=b["attack_id"],
+                reward_a=a["reward"],
+                reward_b=b["reward"],
+                ok_a=a["ok"],
+                ok_b=b["ok"],
+            ).to_dict()
         return {
             "iterations": iterations,
             "steps": steps,
@@ -302,4 +375,17 @@ class SearchArchitecture:
             "population": self.population.to_dict(),
             "archive": self.archive.to_dict(),
             "n_clusters": self.clusters.diversity_score(),
+            "search_tree": self.search_tree.to_dict(),
+            "transition_heatmap": self.transition_heat.to_dict(),
+            "attacks": self.attack_log,
+            "replay_diff": replay_diff,
+            "report": report.to_dict(),
+            "research": {
+                "attacks": self.attack_log,
+                "search_tree": self.search_tree.to_dict(),
+                "transition_heatmap": self.transition_heat.to_dict(),
+                "evolution": self.population.to_dict(),
+                "report": report.to_dict(),
+                "replay_diff": replay_diff,
+            },
         }
